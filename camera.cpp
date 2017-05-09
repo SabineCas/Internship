@@ -1,6 +1,11 @@
+/**
+* Project : Detection and navigation of a spherical robot
+* Author : Cassat Sabine
+* Mail : sabinecassat@gmail.com
+* Module : Camera calibration
+*/
+
 #include "camera.h"
-
-
 
 Camera::Camera(int numDevice)
 {
@@ -18,16 +23,16 @@ Camera::~Camera()
 {
 	// Desallocate the memory and clear the capture
 	this->cap.release();
-	//delete &(this->intrinsicParam);
-	//delete &(this->distortionParam);
+	this->intrinsicParam.release();
+	this->distortionParam.release();
 }
 
-int Camera::cameraCalib()
+int Camera::cameraCalib(bool webcam)
 {
 	// Captured RGB and Gray images
 	Mat image;
 	Mat acqImageGray;
-	
+
 	// Number of images where the chessboard is identified
 	int successes = 0;
 
@@ -48,14 +53,31 @@ int Camera::cameraCalib()
 		objectBuf.push_back(Point3d(j / numHorSquares, j % numHorSquares, 0.0f));
 
 	while (successes < 10) {
-		// Capture of one frame in RGB
-		cap >> image;
-		// Transformation from a RGB image to a gray image
-		cvtColor(image, acqImageGray, CV_BGR2GRAY);
-		imshow("Gray image", acqImageGray);
+		if (webcam) {
+			// Capture of one frame in RGB
+			cap >> image;
+			// Transformation from a RGB image to a gray image
+			cvtColor(image, acqImageGray, CV_BGR2GRAY);
+			imshow("Gray image", acqImageGray);
+		}
+		else {
+			string file = "../data/Calibration/calibrate" + to_string(successes) + ".jpg";
+			// Read the file
+			image = imread(file, CV_LOAD_IMAGE_COLOR);
+
+			// Check for invalid file
+			if (!image.data)
+			{
+				cout << "Could not open or find the image" << std::endl;
+				return -1;
+			}
+			// Transformation from a RGB image to a gray image
+			cvtColor(image, acqImageGray, CV_BGR2GRAY);
+			imshow("Gray image", acqImageGray);
+		}
 
 		// Search into the captured images the chessboard by pressing SPACE
-		if (waitKey(10) == 32) {
+		if (waitKey(10) == 32 || !webcam) {
 			pointBuf.clear();
 			int found = 0;
 
@@ -66,22 +88,20 @@ int Camera::cameraCalib()
 			// Display and save the points
 			if (found) {
 				/*string file = "../data/calibrate" + to_string(successes) + ".jpg";
-				imwrite(file, frame);*/
+				imwrite(file, image);*/
 				// Finds the edges in the image
 				cornerSubPix(acqImageGray, pointBuf, Size(11, 11), Size(-1, -1), TermCriteria(CV_TERMCRIT_EPS | CV_TERMCRIT_ITER, 30, 0.1));
 				// Display the found corners
 				drawChessboardCorners(image, boardSize, Mat(pointBuf), found);
 				imshow("Corners detected", image);
+				string file = "../data/Calibration/process" + to_string(successes) + ".jpg";
+				imwrite(file, image);
 				cvWaitKey(10);
 				// Save the found corners points
 				imagePoints.push_back(pointBuf);
 				objectPoints.push_back(objectBuf);
 				successes++;
 			}
-		}
-
-		if (successes == 10) {
-			break;
 		}
 
 		// Stop capturing images and exit by pressing ESC
@@ -105,15 +125,12 @@ int Camera::cameraCalib()
 		cout << "rms = " << rms << endl;
 		cout << "Intrinsic parameters = " << this->intrinsicParam << endl;
 		cout << "Distortion parameters = " << this->distortionParam << endl;
+		destroyWindow("Gray image");
+		destroyWindow("Corners detected");
 		return(0);
 	}
 
 	return(-3);
-}
-
-int Camera::cameraCalibFromPict()
-{
-	return(0);
 }
 
 int Camera::cameraCorr()
@@ -125,7 +142,7 @@ int Camera::cameraCorr()
 	Mat image;
 	Mat rectImage;
 
-	//
+	// Determine the size of the frame
 	Size sizeImage(this->cap.get(CV_CAP_PROP_FRAME_WIDTH), this->cap.get(CV_CAP_PROP_FRAME_HEIGHT));
 	Mat newCameraMatrix = getOptimalNewCameraMatrix(this->intrinsicParam, this->distortionParam, sizeImage, 1, sizeImage);
 
@@ -134,12 +151,20 @@ int Camera::cameraCorr()
 
 	while (1)
 	{
-		this->cap >> image; // capture nouvelle image
+		// Capturing one frame in RGB
+		this->cap >> image;
+		imshow("Image View without correction", image);
 
+		// Correction of the RGB image
 		remap(image, rectImage, map1, map2, INTER_NEAREST);
 
-		// Affichage de l'image rectifiée
-		imshow("Image View", rectImage);
+		// Display the corrected image
+		imshow("Image View with correction", rectImage);
+
+		/*if (waitKey(10) == 32) {
+			imwrite("../data/withoutcorr.jpg", image);
+			imwrite("../data/withcorr.jpg", rectImage);
+		}*/
 
 		// Stop capturing images by pressing ESC
 		if (waitKey(10) == 27) {

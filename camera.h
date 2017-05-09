@@ -1,3 +1,10 @@
+/**
+* Project : Detection and navigation of a spherical robot
+* Author : Cassat Sabine
+* Mail : sabinecassat@gmail.com
+* Module : Camera calibration
+*/
+
 #pragma once
 
 #define _CRT_SECURE_NO_DEPRECATE
@@ -15,8 +22,7 @@ public:
 	Camera(int numDevice);
 	~Camera();
 
-	int cameraCalib();
-	int cameraCalibFromPict();
+	int cameraCalib(bool webcam);
 	int cameraCorr();
 
 private:

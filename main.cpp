@@ -1,6 +1,6 @@
 /**
 * Project : Detection and navigation of a spherical robot
-* Author : Cassat Sabine and Ishii Hiroyuki
+* Author : Cassat Sabine
 * Mail : sabinecassat@gmail.com
 */
 
@@ -10,14 +10,14 @@ int main(int argc, char** argv) {
 
 	Camera cam(0);
 
-	if (cam.cameraCalib() != 0) {
+	if (cam.cameraCalib(false) != 0) {
 		cout << "Calibration error" << endl;
 	}
 
 	if (!cam.cameraCorr()) {
 		cout << "Rectification error" << endl;
 	}
-
+}
 
 
 
@@ -132,4 +132,4 @@ int main(int argc, char** argv) {
 
 	//// the camera will be deinitialized automatically in VideoCapture destructor
 	//return(0);
-}
+
