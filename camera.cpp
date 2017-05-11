@@ -11,10 +11,9 @@ Camera::Camera(int numDevice)
 {
 	// Opening the framegrabber of the camera
 	this->cap.open(numDevice);
-	if (!cap.isOpened()) {
+	if (!this->cap.isOpened()) {
 		cout << "Error opening the framegrapper of the camera";
 	}
-
 	this->intrinsicParam = Mat(3, 3, CV_32FC1, double(0));
 	this->distortionParam = Mat(1, 5, CV_32FC1, double(0));
 }
@@ -25,6 +24,8 @@ Camera::~Camera()
 	this->cap.release();
 	this->intrinsicParam.release();
 	this->distortionParam.release();
+	this->map1.release();
+	this->map2.release();
 }
 
 int Camera::cameraCalib(bool webcam)
@@ -55,7 +56,7 @@ int Camera::cameraCalib(bool webcam)
 	while (successes < 10) {
 		if (webcam) {
 			// Capture of one frame in RGB
-			cap >> image;
+			this->cap >> image;
 			// Transformation from a RGB image to a gray image
 			cvtColor(image, acqImageGray, CV_BGR2GRAY);
 			imshow("Gray image", acqImageGray);
@@ -125,8 +126,7 @@ int Camera::cameraCalib(bool webcam)
 		cout << "rms = " << rms << endl;
 		cout << "Intrinsic parameters = " << this->intrinsicParam << endl;
 		cout << "Distortion parameters = " << this->distortionParam << endl;
-		destroyWindow("Gray image");
-		destroyWindow("Corners detected");
+		destroyAllWindows();
 		return(0);
 	}
 
@@ -147,30 +147,148 @@ int Camera::cameraCorr()
 	Mat newCameraMatrix = getOptimalNewCameraMatrix(this->intrinsicParam, this->distortionParam, sizeImage, 1, sizeImage);
 
 	// Set paramters to correct distortions
-	initUndistortRectifyMap(this->intrinsicParam, this->distortionParam, R, newCameraMatrix, sizeImage, CV_32FC1, map1, map2);
+	initUndistortRectifyMap(this->intrinsicParam, this->distortionParam, R, newCameraMatrix, sizeImage, CV_32FC1, this->map1, this->map2);
 
-	while (1)
+	//while (1)
+	//{
+	//	// Capturing one frame in RGB
+	//	this->cap >> image;
+	//	imshow("Image View without correction", image);
+
+	//	// Correction of the RGB image
+	//	remap(image, rectImage, this->map1, this->map2, INTER_NEAREST);
+
+	//	// Display the corrected image
+	//	imshow("Image View with correction", rectImage);
+
+	//	/*if (waitKey(10) == 32) {
+	//		imwrite("../data/withoutcorr.jpg", image);
+	//		imwrite("../data/withcorr.jpg", rectImage);
+	//	}*/
+
+	//	// Stop capturing images by pressing ESC
+	//	if (waitKey(10) == 27) {
+	//		break;
+	//	}
+	//}
+
+	//destroyAllWindows();
+	return(0);
+}
+
+Mat Camera::subtractionBack(Mat image1, Ptr<BackgroundSubtractor> pKNN)
+{
+	/*********************** Solution 1 : Background subtraction ***********************/
+	//Mat image2, subImage;
+	//
+	//// Capturing the image to compare with the previous frame
+	//waitKey(100);
+	//this->cap >> image2;
+	//
+	//// Transformation from a RGB image to a gray image
+	//cvtColor(image1, image1, CV_BGR2GRAY);
+	//cvtColor(image2, image2, CV_BGR2GRAY);
+	//
+	//// Gaussian filter
+	//GaussianBlur(image1, image1, cv::Size(3, 3), 0);
+	//GaussianBlur(image2, image2, cv::Size(3, 3), 0);
+	//
+	//// Subtraction
+	//absdiff(image1, image2, subImage);
+	//
+	//// Binarisation
+	//threshold(subImage, subImage, 30, 255.0, CV_THRESH_BINARY);
+	//
+	//// Morphological processing
+	//erode(subImage, subImage, getStructuringElement(cv::MORPH_RECT, cv::Size(5, 5)));
+	//dilate(subImage, subImage, getStructuringElement(cv::MORPH_RECT, cv::Size(5, 5)));
+	//
+	//return(subImage);
+
+	/*********************** Solution 2 : Background subtraction ***********************/
+	Mat subImage;
+	
+	pKNN->apply(image1, subImage);
+	// Morphological processing
+	erode(subImage, subImage, getStructuringElement(cv::MORPH_RECT, cv::Size(5, 5)));
+	dilate(subImage, subImage, getStructuringElement(cv::MORPH_RECT, cv::Size(5, 5)));
+	// Reduce the noise so we avoid false circle detection with a Guassian filter
+	GaussianBlur(subImage, subImage, Size(5, 5), 1, 1);
+	
+	return(subImage);
+}
+
+Mat Camera::circlesDetection(Mat image, Mat subImage)
+{
+	// Variable used for edges detection
+	vector<vector<Point> > contours;
+	vector<Vec4i> hierarchy;
+	RNG rng(12345);
+	Mat grayDrawing;
+
+	// Find the edges of each different area
+	findContours(subImage, contours, hierarchy, RETR_TREE, CHAIN_APPROX_SIMPLE, Point(0, 0));
+	Mat drawing = Mat::zeros(subImage.size(), CV_8UC3);
+	Scalar color = Scalar(rng.uniform(0, 255), rng.uniform(0, 255), rng.uniform(0, 255));
+	// std::vector<std::vector<cv::Point>> convexHulls(contours.size());
+
+	// Draw the edges
+	for (size_t i = 0; i < contours.size(); i++)
 	{
-		// Capturing one frame in RGB
-		this->cap >> image;
-		imshow("Image View without correction", image);
-
-		// Correction of the RGB image
-		remap(image, rectImage, map1, map2, INTER_NEAREST);
-
-		// Display the corrected image
-		imshow("Image View with correction", rectImage);
-
-		/*if (waitKey(10) == 32) {
-			imwrite("../data/withoutcorr.jpg", image);
-			imwrite("../data/withcorr.jpg", rectImage);
-		}*/
-
-		// Stop capturing images by pressing ESC
-		if (waitKey(10) == 27) {
-			break;
+		// If the area is too big or too small, we reject this area as the real robot
+		if (contourArea(contours[i], false) < 500 || contourArea(contours[i], false) > 50000) {
+			// Calculate the convex hull fo each different area
+			/*convexHull(contours[i], convexHulls[i]);
+			drawContours(drawing, convexHulls, (int)i, color, 2, 8, hierarchy, 0, Point());*/
+			contours.erase(contours.begin() + i);
+		}
+		else {
+			drawContours(drawing, contours, (int)i, color, 2, 8, hierarchy, 0, Point());
 		}
 	}
+	
+	clock_t t = clock();
+	// Circle Hough Detection
+	cvtColor(drawing, grayDrawing, CV_BGR2GRAY);
+	HoughCircles(grayDrawing, this->circles, CV_HOUGH_GRADIENT, 2, drawing.rows / 2, 200, 100);
+	cout << "Nb circles : " << this->circles.size() << endl;
+	if (this->circles.size() == 0 || this->circles.size() > 2) {
+		this->circles.clear();
+		this->circles.reserve(this->previousCircles.size());
+		copy(this->previousCircles.begin(), this->previousCircles.end(), back_inserter(this->circles));
+	}
+	else {
+		this->previousCircles.clear();
+		this->previousCircles.reserve(this->circles.size());
+		copy(this->circles.begin(), this->circles.end(), back_inserter(this->previousCircles));
+	}
+	cout << "Nb circles after : " << this->circles.size() << endl;
+	for (size_t i = 0; i < this->circles.size() && this->circles.size() <= 2; i++)
+	{
+		cout << "Circle number " << i << endl;
+		Point center(cvRound(this->circles[i][0]), cvRound(this->circles[i][1]));
+		int radius = cvRound(this->circles[i][2]);
+		// Draw the circle center on the Mat image
+		circle(image, center, 3, Scalar(0, 255, 0), -1, 8, 0);
+		// Draw the circle outline on the Mat image
+		circle(image, center, radius, Scalar(0, 0, 255), 3, 8, 0);
+	}
+	cout << clock() - t << endl;
 
-	return(0);
+	return(image);
+}
+
+VideoCapture Camera::getCap()
+{
+	return this->cap;
+}
+
+Mat Camera::getMap1()
+{
+	return this->map1;
+}
+
+Mat Camera::getMap2()
+{
+	return this->map2;
 }
