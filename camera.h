@@ -13,13 +13,16 @@
 #include <stdio.h>
 #include <opencv2/opencv.hpp>
 #include <opencv2/highgui.hpp>
-#include "opencv2/imgproc.hpp"
-#include "opencv2/imgcodecs.hpp"
-#include "opencv2/videoio.hpp"
 #include <opencv2/video.hpp>
+//#include <opencv2/tracking.hpp>
 
 using namespace cv;
 using namespace std;
+
+// Value used for the threshold
+const static int SENSITIVITY_VALUE = 30;
+// Value used for the widening of the bounding box
+const static int WIDE_BOUNDING_BOX_X = 8;
 
 class Camera {
 public:
@@ -28,15 +31,23 @@ public:
 
 	int cameraCalib(bool webcam);
 	int cameraCorr();
-	Mat subtractionBack(Mat image, Ptr<BackgroundSubtractor> pKNN);
-	Mat circlesDetection(Mat image, Mat subImage);
+	Mat subtractionBack(int solution, Mat image, Ptr<BackgroundSubtractor> pKNN, Mat previousSubImage);
+	void circlesDetection(Mat image, Mat subImage);
+	Mat displayCircles(Mat image);
+	//Mat objectTracking(Mat image, Ptr<Tracker> tracker, Rect2d bbox);
 
 	VideoCapture getCap();
+	Rect2d getBoundingBoxObs();
 	Mat getMap1();
 	Mat getMap2();
+
+	void setBoundingBoxObs(int minX, int maxX, int minY, int maxY);
+	void wideringBoundingBox(int value);
 
 private:
 	VideoCapture cap;
 	Mat intrinsicParam, distortionParam, map1, map2;
 	vector<Vec3f> circles, previousCircles;
+	Rect2d boundingBoxObs;
+	bool detectedCircle;
 };
