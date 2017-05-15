@@ -10,6 +10,7 @@
 Camera::Camera(int numDevice)
 {
 	// Opening the framegrabber of the camera
+	//this->cap.open("Video.mp4");
 	this->cap.open(numDevice);
 	if (!this->cap.isOpened()) {
 		std::cout << "Error opening the framegrapper of the camera" << endl;
@@ -60,7 +61,7 @@ int Camera::cameraCalib(bool webcam)
 			this->cap >> image;
 			// Transformation from a RGB image to a gray image
 			cvtColor(image, acqImageGray, CV_BGR2GRAY);
-			imshow("Gray image", acqImageGray);
+			//imshow("Gray image", acqImageGray);
 		}
 		else {
 			string file = "../data/Calibration/calibrate" + to_string(successes) + ".jpg";
@@ -75,7 +76,7 @@ int Camera::cameraCalib(bool webcam)
 			}
 			// Transformation from a RGB image to a gray image
 			cvtColor(image, acqImageGray, CV_BGR2GRAY);
-			imshow("Gray image", acqImageGray);
+			//imshow("Gray image", acqImageGray);
 		}
 
 		// Search into the captured images the chessboard by pressing SPACE
@@ -95,7 +96,7 @@ int Camera::cameraCalib(bool webcam)
 				cornerSubPix(acqImageGray, pointBuf, Size(11, 11), Size(-1, -1), TermCriteria(CV_TERMCRIT_EPS | CV_TERMCRIT_ITER, 30, 0.1));
 				// Display the found corners
 				drawChessboardCorners(image, boardSize, Mat(pointBuf), found);
-				imshow("Corners detected", image);
+				//imshow("Corners detected", image);
 				string file = "../data/Calibration/process" + to_string(successes) + ".jpg";
 				imwrite(file, image);
 				cvWaitKey(10);
@@ -206,6 +207,15 @@ Mat Camera::subtractionBack(int solution, Mat image1, Ptr<BackgroundSubtractor> 
 	}
 }
 
+Mat Camera::colorDetection(int limit, Mat image)
+{
+	Mat temp = Mat::zeros(image.rows, image.cols, CV_8UC1);
+
+	// Binarisation
+	threshold(image, temp, limit, 255, CV_THRESH_BINARY);
+	return temp;
+}
+
 void Camera::circlesDetection(Mat image, Mat subImage)
 {
 	// Variable used for edges detection
@@ -240,26 +250,111 @@ void Camera::circlesDetection(Mat image, Mat subImage)
 		}
 	}
 
+	vector<Vec3f> temp;
+
 	// Circle Hough Detection
 	cvtColor(drawing, grayDrawing, CV_BGR2GRAY);
-	HoughCircles(grayDrawing, this->circles, CV_HOUGH_GRADIENT, 2, drawing.rows / 2, 200, 100);
+	HoughCircles(grayDrawing, temp, CV_HOUGH_GRADIENT, 2, drawing.rows / 2, 200, 100);
 
-	cout << this->circles.size() << endl;
+	cout << temp.size() << endl;
 
 	// If no circle is detected or too many circles are detected, we suppose that we lost the
 	// robot because of too many changement inside the picture, and so keep the previous data
-	if (this->circles.size() == 0 || this->circles.size() > 3) {
+	if (temp.size() == 1) {
 		this->circles.clear();
-		this->circles.reserve(this->previousCircles.size());
-		copy(this->previousCircles.begin(), this->previousCircles.end(), back_inserter(this->circles));
-		wideringBoundingBox(this->cap.get(CAP_PROP_FRAME_WIDTH) / 8);
+		this->circles.reserve(temp.size());
+		copy(temp.begin(), temp.end(), back_inserter(this->circles));
+		this->detectedCircle = true;
+	}
+	else if (this->circles.size() > 0) {
+		if (this->boundingBoxObs.x - WIDE_BOUNDING_BOX_X < 0) {
+			this->circles[0][0] = this->circles[0][0] + WIDE_BOUNDING_BOX_X - abs(this->boundingBoxObs.x - WIDE_BOUNDING_BOX_X);
+		}
+		else {
+			this->circles[0][0] = this->circles[0][0] + WIDE_BOUNDING_BOX_X;
+		}
+		if (this->boundingBoxObs.y - WIDE_BOUNDING_BOX_X < 0) {
+			this->circles[0][1] = this->circles[0][1] + WIDE_BOUNDING_BOX_X - abs(this->boundingBoxObs.y - WIDE_BOUNDING_BOX_X);
+		}
+		else {
+			this->circles[0][1] = this->circles[0][1] + WIDE_BOUNDING_BOX_X;
+		}
+		wideringBoundingBox(WIDE_BOUNDING_BOX_X);
 		this->detectedCircle = false;
 	}
-	else {
-		this->previousCircles.clear();
-		this->previousCircles.reserve(this->circles.size());
-		copy(this->circles.begin(), this->circles.end(), back_inserter(this->previousCircles));
+}
+
+void Camera::circlesDetection(Mat image, Mat subImage, Mat thresImage)
+{
+	// Variable used for edges detection
+	vector<vector<Point> > contours;
+	vector<Vec4i> hierarchy;
+	RNG rng(12345);
+	Mat grayDrawing;
+
+	// Logical operation between the picture from the color recognition and the picture from the background subtraction
+	cv::cvtColor(thresImage, thresImage, CV_BGR2GRAY);
+	subImage = subImage & thresImage;
+	//imshow("test2", subImage);
+
+	cv::Range width(this->boundingBoxObs.x, this->boundingBoxObs.x + this->boundingBoxObs.width);
+	cv::Range height(this->boundingBoxObs.y, this->boundingBoxObs.y + this->boundingBoxObs.height);
+	subImage(height, width).copyTo(subImage);
+	thresImage(height, width).copyTo(thresImage);
+	subImage = subImage | thresImage;
+	imshow("tests", subImage);
+
+	// Find the edges of each different area
+	findContours(subImage, contours, hierarchy, RETR_TREE, CHAIN_APPROX_SIMPLE, Point(0, 0));
+	Mat drawing = Mat::zeros(subImage.size(), CV_8UC3);
+	Scalar color = Scalar(rng.uniform(0, 255), rng.uniform(0, 255), rng.uniform(0, 255));
+	// std::vector<std::vector<cv::Point>> convexHulls(contours.size());
+
+	// Draw the edges
+	for (size_t i = 0; i < contours.size(); i++)
+	{
+		// If the area is too big or too small, we reject this area as the real robot
+		if (contourArea(contours[i], false) < 5000 || contourArea(contours[i], false) > 50000) {
+			// Calculate the convex hull fo each different area
+			/*convexHull(contours[i], convexHulls[i]);
+			drawContours(drawing, convexHulls, (int)i, color, 2, 8, hierarchy, 0, Point());*/
+			contours.erase(contours.begin() + i);
+		}
+		else {
+			drawContours(drawing, contours, (int)i, color, 2, 8, hierarchy, 0, Point());
+		}
+	}
+
+	vector<Vec3f> temp;
+
+	// Circle Hough Detection
+	cvtColor(drawing, grayDrawing, CV_BGR2GRAY);
+	HoughCircles(grayDrawing, temp, CV_HOUGH_GRADIENT, 2, drawing.rows / 2, 200, 100);
+
+	cout << temp.size() << endl;
+
+	// If no circle is detected or too many circles are detected, we suppose that we lost the
+	// robot because of too many changement inside the picture, and so keep the previous data
+	if (temp.size() == 1) {
+		this->circles.clear();
+		this->circles.reserve(temp.size());
+		copy(temp.begin(), temp.end(), back_inserter(this->circles));
 		this->detectedCircle = true;
+	}
+	else if (this->circles.size() > 0) {
+		if (this->boundingBoxObs.x - WIDE_BOUNDING_BOX_X < 0) {
+			this->circles[0][0] = this->circles[0][0] + WIDE_BOUNDING_BOX_X - abs(this->boundingBoxObs.x - WIDE_BOUNDING_BOX_X);
+		}
+		else {
+			this->circles[0][0] = this->circles[0][0] + WIDE_BOUNDING_BOX_X;
+		}
+		if (this->boundingBoxObs.y - WIDE_BOUNDING_BOX_X < 0) {
+			this->circles[0][1] = this->circles[0][1] + WIDE_BOUNDING_BOX_X - abs(this->boundingBoxObs.y - WIDE_BOUNDING_BOX_X);
+		}
+		else {
+			this->circles[0][1] = this->circles[0][1] + WIDE_BOUNDING_BOX_X;
+		}
+		this->detectedCircle = false;
 	}
 }
 
@@ -272,8 +367,10 @@ Mat Camera::displayCircles(Mat image)
 		// this list is sorted according to the vote in the accumulator in descending order
 
 		// Because we limited the search area to the boundingBoxObs, we have to adjust the coordinate of the circle inside the all picture
-		int X = cvRound(this->circles[0][0] + this->boundingBoxObs.x);
-		int Y = cvRound(this->circles[0][1] + this->boundingBoxObs.y);
+		int X, Y;
+		X = cvRound(this->circles[0][0] + this->boundingBoxObs.x);
+		Y = cvRound(this->circles[0][1] + this->boundingBoxObs.y);
+
 		Point center(X, Y);
 		int radius = cvRound(this->circles[0][2]);
 
@@ -298,6 +395,11 @@ Mat Camera::displayCircles(Mat image)
 		if (this->detectedCircle) {
 			// Set the boounding box on the image where we will search the robot in the next frame
 			this->setBoundingBoxObs(minX, maxX, minY, maxY);
+			this->circles[0][0] = X - this->boundingBoxObs.x;
+			this->circles[0][1] = Y - this->boundingBoxObs.y;
+		}
+		else {
+			wideringBoundingBox(WIDE_BOUNDING_BOX_X);
 		}
 	}
 
@@ -346,10 +448,12 @@ void Camera::setBoundingBoxObs(int minX, int maxX, int minY, int maxY)
 
 void Camera::wideringBoundingBox(int value)
 {
+
 	int minX = this->boundingBoxObs.x - value;
 	int maxX = this->boundingBoxObs.x + this->boundingBoxObs.width + value;
 	int minY = this->boundingBoxObs.y - value;
 	int maxY = this->boundingBoxObs.y + this->boundingBoxObs.height + value;
+
 	// Setting the new configuration to the bounding box
 	this->setBoundingBoxObs(minX, maxX, minY, maxY);
 }
