@@ -14,7 +14,6 @@
 #include <opencv2/opencv.hpp>
 #include <opencv2/highgui.hpp>
 #include <opencv2/video.hpp>
-//#include <opencv2/tracking.hpp>
 
 using namespace cv;
 using namespace std;
@@ -24,8 +23,11 @@ const static int SENSITIVITY_VALUE = 30;
 // Value used for the widening of the bounding box
 const static int WIDE_BOUNDING_BOX_X = 20;
 
+
+
 class Camera {
 public:
+	// Constructor
 	Camera(int numDevice);
 	~Camera();
 
@@ -36,15 +38,18 @@ public:
 	void circlesDetection(Mat image, Mat subImage);
 	void circlesDetection(Mat image, Mat subImage, Mat thresImage);
 	Mat displayCircles(Mat image);
-	//Mat objectTracking(Mat image, Ptr<Tracker> tracker, Rect2d bbox);
+	void wideringBoundingBox(int value);
 
+	// Getters
 	VideoCapture getCap();
 	Rect2d getBoundingBoxObs();
 	Mat getMap1();
 	Mat getMap2();
+	bool getDetectedCircle();
 
+	// Setters
 	void setBoundingBoxObs(int minX, int maxX, int minY, int maxY);
-	void wideringBoundingBox(int value);
+	
 
 private:
 	VideoCapture cap;
