@@ -28,27 +28,28 @@ int main(int argc, char** argv) {
 	cv::Ptr<cv::BackgroundSubtractor> pKNN = cv::createBackgroundSubtractorKNN();
 
 	if (cam.cameraCalib(false) != 0) {
-		cout << "Calibration error" << endl;
+		std::cout << "Calibration error" << endl;
 		return(-1);
 	}
 
 	if (cam.cameraCorr() != 0) {
-		cout << "Rectification error" << endl;
+		std::cout << "Rectification error" << endl;
 		return(-2);
 	}
 
 	// Deactivate the autofocus of the camera
 	cam.getCap().set(cv::CAP_PROP_FOCUS, false);
 	cam.getCap().set(cv::CAP_PROP_AUTOFOCUS, false);
+	//cam.getCap().set(cv::CAP_PROP_FPS, 20);
+	/*cam.getCap().set(cv::CAP_PROP_FRAME_WIDTH, 1280);
+	cam.getCap().set(cv::CAP_PROP_FRAME_HEIGHT, 720);*/
 	clock_t t = clock();
 
 	// DEBUG
-	/*Size size2 = Size(cam.getCap().get(CAP_PROP_FRAME_WIDTH), cam.getCap().get(CAP_PROP_FRAME_HEIGHT));
+	/*cv::Size size2 = cv::Size(cam.getCap().get(cv::CAP_PROP_FRAME_WIDTH), cam.getCap().get(cv::CAP_PROP_FRAME_HEIGHT));
 	int codec = CV_FOURCC('M', 'J', 'P', 'G');
-	VideoWriter writer2("../data/RGBTest1.avi", codec, cam.getCap().get(CV_CAP_PROP_FPS), size2, true);
-	VideoWriter writer3("../data/GrayTest1.avi", codec, cam.getCap().get(CV_CAP_PROP_FPS), size2, true);
-	writer2.open("../data/RGBTest1.avi", codec, cam.getCap().get(CV_CAP_PROP_FPS), size2, true);
-	writer3.open("../data/GrayTest1.avi", codec, cam.getCap().get(CV_CAP_PROP_FPS), size2, true);*/
+	cv::VideoWriter writer2("../data/RGBTest.avi", codec, 10, size2, true);
+	writer2.open("../data/RGBTest.avi", codec, 10, size2, true);*/
 
 	while (cv::waitKey(10) != 27) {
 		// Update of the timer
@@ -85,7 +86,7 @@ int main(int argc, char** argv) {
 			ANDImage = thresImage & subImage;
 			cam.circlesDetection(ANDImage);
 			cam.displayCircles(image);
-			imshow("ANDImage", ANDImage);
+			//imshow("ANDImage", ANDImage);
 
 			if (cam.getNbDetectedLED() == 0) {
 				if (cam.getDetectedCircle()) {
@@ -109,7 +110,7 @@ int main(int argc, char** argv) {
 				ORImage = thresImage | subImage;
 				cam.circlesDetection(ORImage);
 				cam.displayCircles(image);
-				imshow("ORImage", ORImage);
+				//imshow("ORImage", ORImage);
 
 				if (cam.getNbDetectedLED() == 0) {
 					if (cam.getDetectedCircle()) {
@@ -137,12 +138,13 @@ int main(int argc, char** argv) {
 				circle(image, robot.getImagePosition(), 15, cv::Scalar(0, 0, 255), -1, 8, 0);
 			}
 			else if (!(cam.getDetectedCircle()) && cam.getNbDetectedLED() == 0){
-				cout << "The robot is undetected" << endl;
+				std::cout << "The robot is undetected" << endl;
 				cam.wideringBoundingBox(WIDE_BOUNDING_BOX_X);
 			}
 		}
+		//writer2.write(image);
 		imshow("Image", image);
-		cout << (clock() - t) << endl;
+		std::cout << (clock() - t) << endl;
 		// Setting the frequency of the loop
 		if (time_frame - (clock() - t) > 0) {
 			//cout << "Loop : " << time_frame - (clock() - t) << endl;

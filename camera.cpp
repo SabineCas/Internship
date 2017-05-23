@@ -223,7 +223,7 @@ std::vector<cv::Point> Camera::ledDetection(cv::Mat image, cv::Scalar lower, cv:
 	cv::erode(image, image, getStructuringElement(cv::MORPH_RECT, cv::Size(3, 3)));
 	cv::dilate(image, image, getStructuringElement(cv::MORPH_RECT, cv::Size(3, 3)));
 
-	cv::imshow("LED", image);
+	//cv::imshow("LED", image);
 
 	// Find the edges of each different area
 	findContours(image, contours, hierarchy, cv::RETR_TREE, cv::CHAIN_APPROX_SIMPLE, cv::Point(0, 0));
