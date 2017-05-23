@@ -10,14 +10,15 @@
 Camera::Camera(int numDevice)
 {
 	// Opening the framegrabber of the camera
-	//this->cap.open("../data/Video.mp4");
+	//this->cap.open("../data/Test5.mp4");
 	this->cap.open(numDevice);
 	if (!this->cap.isOpened()) {
 		std::cout << "Error opening the framegrapper of the camera" << endl;
 	}
-	this->intrinsicParam = Mat(3, 3, CV_32FC1, double(0));
-	this->distortionParam = Mat(1, 5, CV_32FC1, double(0));
-	this->boundingBoxObs = Rect2d(0, 0, this->cap.get(CAP_PROP_FRAME_WIDTH), this->cap.get(CAP_PROP_FRAME_HEIGHT));
+	this->intrinsicParam = cv::Mat(3, 3, CV_32FC1, double(0));
+	this->distortionParam = cv::Mat(1, 5, CV_32FC1, double(0));
+	this->boundingBoxObs = cv::Rect2d(0, 0, this->cap.get(cv::CAP_PROP_FRAME_WIDTH), this->cap.get(cv::CAP_PROP_FRAME_HEIGHT));
+	this->circles.push_back(cv::Vec3f(0, 0, 0));
 }
 
 Camera::~Camera()
@@ -33,27 +34,26 @@ Camera::~Camera()
 int Camera::cameraCalib(bool webcam)
 {
 	// Captured RGB and Gray images
-	Mat image;
-	Mat acqImageGray;
+	cv::Mat image, acqImageGray;
 
 	// Number of images where the chessboard is identified
 	int successes = 0;
 
 	// Vector of detected points into the image
-	std::vector<Point2f> pointBuf;
-	std::vector<std::vector<Point2f> > imagePoints;
+	std::vector<cv::Point2f> pointBuf;
+	std::vector<std::vector<cv::Point2f> > imagePoints;
 	// Reference vector
-	std::vector<Point3f> objectBuf;
-	std::vector<std::vector<Point3f> > objectPoints;
+	std::vector<cv::Point3f> objectBuf;
+	std::vector<std::vector<cv::Point3f> > objectPoints;
 
 	// Number of horizontal corners from the reference pattern
 	int numHorSquares = 6;
 	// Numeber of vertical corners from the reference pattern
 	int numVerSquares = 9;
-	Size boardSize(numHorSquares, numVerSquares);
+	cv::Size boardSize(numHorSquares, numVerSquares);
 	// Reference pattern
 	for (int j = 0; j < numHorSquares * numVerSquares; j++)
-		objectBuf.push_back(Point3d(j / numHorSquares, j % numHorSquares, 0.0f));
+		objectBuf.push_back(cv::Point3d(j / numHorSquares, j % numHorSquares, 0.0f));
 
 	while (successes < 10) {
 		if (webcam) {
@@ -66,7 +66,7 @@ int Camera::cameraCalib(bool webcam)
 		else {
 			string file = "../data/Calibration/calibrate" + to_string(successes) + ".jpg";
 			// Read the file
-			image = imread(file, CV_LOAD_IMAGE_COLOR);
+			image = cv::imread(file, CV_LOAD_IMAGE_COLOR);
 
 			// Check for invalid file
 			if (!image.data)
@@ -80,7 +80,7 @@ int Camera::cameraCalib(bool webcam)
 		}
 
 		// Search into the captured images the chessboard by pressing SPACE
-		if (waitKey(10) == 32 || !webcam) {
+		if (cv::waitKey(10) == 32 || !webcam) {
 			pointBuf.clear();
 			int found = 0;
 
@@ -93,9 +93,9 @@ int Camera::cameraCalib(bool webcam)
 				/*string file = "../data/calibrate" + to_string(successes) + ".jpg";
 				imwrite(file, image);*/
 				// Finds the edges in the image
-				cornerSubPix(acqImageGray, pointBuf, Size(11, 11), Size(-1, -1), TermCriteria(CV_TERMCRIT_EPS | CV_TERMCRIT_ITER, 30, 0.1));
+				cornerSubPix(acqImageGray, pointBuf, cv::Size(11, 11), cv::Size(-1, -1), cv::TermCriteria(CV_TERMCRIT_EPS | CV_TERMCRIT_ITER, 30, 0.1));
 				// Display the found corners
-				drawChessboardCorners(image, boardSize, Mat(pointBuf), found);
+				drawChessboardCorners(image, boardSize, cv::Mat(pointBuf), found);
 				//imshow("Corners detected", image);
 				string file = "../data/Calibration/process" + to_string(successes) + ".jpg";
 				imwrite(file, image);
@@ -108,7 +108,7 @@ int Camera::cameraCalib(bool webcam)
 		}
 
 		// Stop capturing images and exit by pressing ESC
-		if (waitKey(10) == 27) {
+		if (cv::waitKey(10) == 27) {
 			return(-2);
 		}
 	}
@@ -116,8 +116,7 @@ int Camera::cameraCalib(bool webcam)
 	cout << "Etalonnage avec: " << successes << " images" << endl;
 
 	// Result of the calibration
-	vector<Mat> rvecs;
-	vector<Mat> tvecs;
+	vector<cv::Mat> rvecs, tvecs;
 	double rms = 0;
 
 	// Etalonnage caméra
@@ -128,7 +127,7 @@ int Camera::cameraCalib(bool webcam)
 		cout << "rms = " << rms << endl;
 		cout << "Intrinsic parameters = " << this->intrinsicParam << endl;
 		cout << "Distortion parameters = " << this->distortionParam << endl;
-		destroyAllWindows();
+		cv::destroyAllWindows();
 		return(0);
 	}
 
@@ -137,16 +136,11 @@ int Camera::cameraCalib(bool webcam)
 
 int Camera::cameraCorr()
 {
-	// Rotation matrix
-	Mat R;
-
-	Mat map1, map2;
-	Mat image;
-	Mat rectImage;
+	cv::Mat R, map1, map2, image, rectImage;
 
 	// Determine the size of the frame
-	Size sizeImage((int)this->cap.get(CV_CAP_PROP_FRAME_WIDTH), (int)this->cap.get(CV_CAP_PROP_FRAME_HEIGHT));
-	Mat newCameraMatrix = getOptimalNewCameraMatrix(this->intrinsicParam, this->distortionParam, sizeImage, 1, sizeImage);
+	cv::Size sizeImage((int)this->cap.get(CV_CAP_PROP_FRAME_WIDTH), (int)this->cap.get(CV_CAP_PROP_FRAME_HEIGHT));
+	cv::Mat newCameraMatrix = getOptimalNewCameraMatrix(this->intrinsicParam, this->distortionParam, sizeImage, 1, sizeImage);
 
 	// Set paramters to correct distortions
 	initUndistortRectifyMap(this->intrinsicParam, this->distortionParam, R, newCameraMatrix, sizeImage, CV_32FC1, this->map1, this->map2);
@@ -154,75 +148,134 @@ int Camera::cameraCorr()
 	return(0);
 }
 
-Mat Camera::subtractionBack(int solution, Mat image1, Ptr<BackgroundSubtractor> pKNN, Mat previousSubImage)
+cv::Mat Camera::updateBackground(cv::Mat image, cv::Ptr<cv::BackgroundSubtractor> pKNN)
 {
-	Mat subImage;
-
-	if (solution == 1) {
-		/*********************** Solution 1 : Background subtraction ***********************/
-		Mat image2;
-
-		// Capturing the image to compare with the previous frame
-		waitKey(50);
-		this->cap >> image2;
-
-		// Transformation from a RGB image to a gray image
-		cv::cvtColor(image1, image1, CV_BGR2GRAY);
-		cv::cvtColor(image2, image2, CV_BGR2GRAY);
-
-		// Gaussian filter
-		GaussianBlur(image1, image1, cv::Size(3, 3), 0);
-		GaussianBlur(image2, image2, cv::Size(3, 3), 0);
-
-		// Subtraction
-		absdiff(image1, image2, subImage);
-
-		// Binarisation
-		threshold(subImage, subImage, SENSITIVITY_VALUE, 255, CV_THRESH_BINARY);
-
-		// Morphological processing
-		erode(subImage, subImage, getStructuringElement(cv::MORPH_RECT, cv::Size(5, 5)));
-		dilate(subImage, subImage, getStructuringElement(cv::MORPH_RECT, cv::Size(5, 5)));
-
-		return(subImage);
-	}
-	else if (solution == 2) {
-
-		/*********************** Solution 2 : Background subtraction ***********************/
-		pKNN->apply(image1, subImage);
-		// Morphological processing
-		erode(subImage, subImage, getStructuringElement(cv::MORPH_RECT, cv::Size(5, 5)));
-		dilate(subImage, subImage, getStructuringElement(cv::MORPH_RECT, cv::Size(5, 5)));
-
-		// Reduce the noise so we avoid false circle detection with a Guassian filter
-		GaussianBlur(subImage, subImage, Size(5, 5), 1, 1);
-
-		// Binarisation
-		threshold(subImage, subImage, SENSITIVITY_VALUE, 255, CV_THRESH_BINARY);
-
-		return(subImage);
-	}
-	else {
-		return(subImage);
-	}
+	cv::Mat subImage;
+	pKNN->apply(image, subImage);
+	return(subImage);
 }
 
-Mat Camera::colorDetection(int limit, Mat image)
+cv::Mat Camera::improveBackSubtr(cv::Mat subImage)
 {
-	Mat temp = Mat::zeros(image.rows, image.cols, CV_8UC1);
+	// Morphological processing
+	cv::erode(subImage, subImage, getStructuringElement(cv::MORPH_RECT, cv::Size(5, 5)));
+	cv::dilate(subImage, subImage, getStructuringElement(cv::MORPH_RECT, cv::Size(5, 5)));
+
+	// Reduce the noise so we avoid false circle detection with a Guassian filter
+	cv::GaussianBlur(subImage, subImage, cv::Size(5, 5), 1, 1);
 
 	// Binarisation
-	threshold(image, temp, limit, 255, CV_THRESH_BINARY);
-	return temp;
+	cv::threshold(subImage, subImage, SENSITIVITY_VALUE, 255, CV_THRESH_BINARY);
+
+	return(subImage);
 }
 
-void Camera::circlesDetection(Mat image, Mat subImage)
+cv::Mat Camera::colorDetection(cv::Mat image, cv::Scalar lower, cv::Scalar upper)
+{
+	//cv::Mat image2 = cv::imread("../data/data.png");
+	cv::cvtColor(image, image, CV_BGR2HSV);
+
+	/*cv::Mat hsvChannels[3];
+	double minVal, maxVal;
+	cv::split(hsv, hsvChannels);
+	cv::minMaxLoc(hsvChannels[0], &minVal, &maxVal);
+	std::cout << "Hue: Min = " << minVal << ", Max = " << maxVal << std::endl;
+	cv::minMaxLoc(hsvChannels[1], &minVal, &maxVal);
+	std::cout << "Saturation: Min = " << minVal << ", Max = " << maxVal << std::endl;
+	cv::minMaxLoc(hsvChannels[2], &minVal, &maxVal);
+	std::cout << "Value: Min = " << minVal << ", Max = " << maxVal << std::endl;
+	cv::waitKey(0);*/
+
+	// Isolate every area that have the color of the LED
+	cv::inRange(image, lower, upper, image);
+	return image;
+}
+
+std::vector<cv::Point> Camera::ledDetection(cv::Mat image, cv::Scalar lower, cv::Scalar upper)
 {
 	// Variable used for edges detection
-	vector<vector<Point> > contours;
-	vector<Vec4i> hierarchy;
-	RNG rng(12345);
-	Mat grayDrawing;
+	vector<vector<cv::Point> > contours;
+	vector<cv::Vec4i> hierarchy;
+
+	std::vector<cv::Point> ledVector;
+	cv::Point2d temp;
+
+	// Set the LEDs as undetected
+	this->detectedBlueLED = false;
+	
+	/*image = cv::imread("../data/Test3.png");
+	cv::Mat hsv;
+	cv::cvtColor(image, hsv, CV_BGR2HSV);
+	cv::Mat hsvChannels[3];
+	double minVal, maxVal;
+	cv::split(hsv, hsvChannels);
+	cv::minMaxLoc(hsvChannels[0], &minVal, &maxVal);
+	std::cout << "Hue: Min = " << minVal << ", Max = " << maxVal << std::endl;
+	cv::minMaxLoc(hsvChannels[1], &minVal, &maxVal);
+	std::cout << "Saturation: Min = " << minVal << ", Max = " << maxVal << std::endl;
+	cv::minMaxLoc(hsvChannels[2], &minVal, &maxVal);
+	std::cout << "Value: Min = " << minVal << ", Max = " << maxVal << std::endl;
+	cv::waitKey(0);*/
+
+	// Isolate every area that have the color of the LED
+	cv::inRange(image, lower, upper, image);
+	// Morphological processing
+	cv::erode(image, image, getStructuringElement(cv::MORPH_RECT, cv::Size(3, 3)));
+	cv::dilate(image, image, getStructuringElement(cv::MORPH_RECT, cv::Size(3, 3)));
+
+	cv::imshow("LED", image);
+
+	// Find the edges of each different area
+	findContours(image, contours, hierarchy, cv::RETR_TREE, cv::CHAIN_APPROX_SIMPLE, cv::Point(0, 0));
+
+	// Save the edges of the image
+	for (std::vector<std::vector<cv::Point>>::size_type i = 0; i < contours.size(); i++) {
+		if (contourArea(contours[i], false) > 10 && contourArea(contours[i], false) < 10000) {
+			int maxX = 0, maxY = 0, minX = image.size().width, minY = image.size().height;
+			for (std::vector<cv::Point>::size_type j = 0; j < contours[i].size(); j++) {
+				if (maxX < contours[i][j].x) {
+					maxX = contours[i][j].x;
+				}
+				if (maxY < contours[i][j].y) {
+					maxY = contours[i][j].y;
+				}
+				if (minX > contours[i][j].x) {
+					minX = contours[i][j].x;
+				}
+				if (minY > contours[i][j].y) {
+					minY = contours[i][j].y;
+				}
+			}
+			temp.x = (maxX + minX) / 2;
+			temp.y = (maxY + minY) / 2;
+			ledVector.push_back(temp);
+			this->detectedBlueLED = true;
+		}
+	}
+	return(ledVector);
+}
+
+bool Camera::evaluateMarkersPosition(std::vector<cv::Point> blueVector)
+{
+	this->nbDetectedLED = 0;
+	if (this->detectedBlueLED) {
+		this->nbDetectedLED++;
+	}
+
+	if (this->nbDetectedLED > 2) {
+		// Check if the positionning of the LED are coherent with the mechanical configuration of the robot
+		return(true);
+	}
+	return(false);
+}
+
+void Camera::circlesDetection(cv::Mat subImage)
+{
+	// Variable used for edges detection
+	vector<vector<cv::Point> > contours;
+	vector<cv::Vec4i> hierarchy;
+	cv::RNG rng(12345);
+	cv::Mat grayDrawing;
 
 	cv::Range width((int)this->boundingBoxObs.x, (int)(this->boundingBoxObs.x + this->boundingBoxObs.width));
 	cv::Range height((int)this->boundingBoxObs.y, (int)(this->boundingBoxObs.y + this->boundingBoxObs.height));
@@ -230,88 +283,9 @@ void Camera::circlesDetection(Mat image, Mat subImage)
 	//imshow("tests", subImage);
 
 	// Find the edges of each different area
-	findContours(subImage, contours, hierarchy, RETR_TREE, CHAIN_APPROX_SIMPLE, Point(0, 0));
-	Mat drawing = Mat::zeros(subImage.size(), CV_8UC3);
-	Scalar color = Scalar(rng.uniform(0, 255), rng.uniform(0, 255), rng.uniform(0, 255));
-	// std::vector<std::vector<cv::Point>> convexHulls(contours.size());
-
-	// Draw the edges
-	for (size_t i = 0; i < contours.size(); i++)
-	{
-		// If the area is too big or too small, we reject this area as the real robot
-		if (contourArea(contours[i], false) < 500 || contourArea(contours[i], false) > 50000) {
-			// Calculate the convex hull fo each different area
-			/*convexHull(contours[i], convexHulls[i]);
-			drawContours(drawing, convexHulls, (int)i, color, 2, 8, hierarchy, 0, Point());*/
-			contours.erase(contours.begin() + i);
-		}
-		else {
-			drawContours(drawing, contours, (int)i, color, 2, 8, hierarchy, 0, Point());
-		}
-	}
-
-	vector<Vec3f> temp;
-
-	// Circle Hough Detection
-	cvtColor(drawing, grayDrawing, CV_BGR2GRAY);
-	HoughCircles(grayDrawing, temp, CV_HOUGH_GRADIENT, 2, drawing.rows / 2, 200, 100);
-
-	cout << temp.size() << endl;
-
-	// If no circle is detected or too many circles are detected, we suppose that we lost the
-	// robot because of too many changement inside the picture, and so keep the previous data
-	if (temp.size() == 1) {
-		this->circles.clear();
-		this->circles.reserve(temp.size());
-		copy(temp.begin(), temp.end(), back_inserter(this->circles));
-		this->detectedCircle = true;
-	}
-	else if (this->circles.size() > 0) {
-		if (this->boundingBoxObs.x - WIDE_BOUNDING_BOX_X < 0) {
-			this->circles[0][0] = this->circles[0][0] + WIDE_BOUNDING_BOX_X - (int)abs(this->boundingBoxObs.x - WIDE_BOUNDING_BOX_X);
-		}
-		else {
-			this->circles[0][0] = this->circles[0][0] + WIDE_BOUNDING_BOX_X;
-		}
-		if (this->boundingBoxObs.y - WIDE_BOUNDING_BOX_X < 0) {
-			this->circles[0][1] = this->circles[0][1] + WIDE_BOUNDING_BOX_X - (int)abs(this->boundingBoxObs.y - WIDE_BOUNDING_BOX_X);
-		}
-		else {
-			this->circles[0][1] = this->circles[0][1] + WIDE_BOUNDING_BOX_X;
-		}
-		wideringBoundingBox(WIDE_BOUNDING_BOX_X);
-		this->detectedCircle = false;
-	}
-}
-
-void Camera::circlesDetection(Mat image, Mat subImage, Mat thresImage)
-{
-	// Variable used for edges detection
-	vector<vector<Point> > contours;
-	vector<Vec4i> hierarchy;
-	RNG rng(12345);
-	Mat grayDrawing;
-
-	// Logical operation between the picture from the color recognition and the picture from the background subtraction
-	cv::cvtColor(thresImage, thresImage, CV_BGR2GRAY);
-	subImage = subImage & thresImage;
-	subImage = subImage | thresImage;
-
-	// DEBUG
-	/*Mat temp2;
-	cv::cvtColor(subImage, temp2, CV_GRAY2BGR);
-	writer3.write(temp2);*/
-	//imshow("tests", subImage);
-
-	cv::Range width((int)this->boundingBoxObs.x, (int)(this->boundingBoxObs.x + this->boundingBoxObs.width));
-	cv::Range height((int)this->boundingBoxObs.y, (int)(this->boundingBoxObs.y + this->boundingBoxObs.height));
-	subImage(height, width).copyTo(subImage);	
-	//imshow("tests", subImage);
-
-	// Find the edges of each different area
-	findContours(subImage, contours, hierarchy, RETR_TREE, CHAIN_APPROX_SIMPLE, Point(0, 0));
-	Mat drawing = Mat::zeros(subImage.size(), CV_8UC3);
-	Scalar color = Scalar(rng.uniform(0, 255), rng.uniform(0, 255), rng.uniform(0, 255));
+	findContours(subImage, contours, hierarchy, cv::RETR_TREE, cv::CHAIN_APPROX_SIMPLE, cv::Point(0, 0));
+	cv::Mat drawing = cv::Mat::zeros(subImage.size(), CV_8UC3);
+	cv::Scalar color = cv::Scalar(rng.uniform(0, 255), rng.uniform(0, 255), rng.uniform(0, 255));
 
 	// Draw the edges
 	for (size_t i = 0; i < contours.size(); i++)
@@ -321,11 +295,11 @@ void Camera::circlesDetection(Mat image, Mat subImage, Mat thresImage)
 			contours.erase(contours.begin() + i);
 		}
 		else {
-			drawContours(drawing, contours, (int)i, color, 2, 8, hierarchy, 0, Point());
+			drawContours(drawing, contours, (int)i, color, 2, 8, hierarchy, 0, cv::Point());
 		}
 	}
 
-	vector<Vec3f> temp;
+	vector<cv::Vec3f> temp;
 
 	// Circle Hough Detection
 	cvtColor(drawing, grayDrawing, CV_BGR2GRAY);
@@ -356,7 +330,22 @@ void Camera::circlesDetection(Mat image, Mat subImage, Mat thresImage)
 	}
 }
 
-Mat Camera::displayCircles(Mat image)
+cv::Point Camera::coherenceCirclesMarkers(std::vector<cv::Point> blueVector)
+{
+	int radius = 1000;
+	if (!(blueVector.empty())) {
+		for (std::vector<cv::Point>::size_type i = 0; i < blueVector.size(); i++) {
+			bool ok = sqrt((blueVector[i].x - this->circles[0][0]) * (blueVector[i].x - this->circles[0][0]) + (blueVector[i].y - this->circles[0][1]) * (blueVector[i].y - this->circles[0][1])) <= this->circles[0][2] + radius;
+			if (ok) {
+				return(blueVector[i]);
+			}
+		}
+	}
+	cv::Point temp(-1, -1);
+	return(temp);
+}
+
+cv::Mat Camera::displayCircles(cv::Mat image)
 {
 	int maxX = 0, maxY = 0, minX = image.size().width, minY = image.size().height;
 
@@ -367,13 +356,13 @@ Mat Camera::displayCircles(Mat image)
 		int X = cvRound(this->circles[0][0] + this->boundingBoxObs.x);
 		int Y = cvRound(this->circles[0][1] + this->boundingBoxObs.y);
 
-		Point center(X, Y);
+		cv::Point center(X, Y);
 		int radius = cvRound(this->circles[0][2]);
 
 		// Draw the circle center on the Mat image
-		circle(image, center, 3, Scalar(0, 255, 0), -1, 8, 0);
+		//circle(image, center, 3, cv::Scalar(0, 255, 0), -1, 8, 0);
 		// Draw the circle outline on the Mat image
-		circle(image, center, radius, Scalar(0, 0, 255), 3, 8, 0);
+		//circle(image, center, radius, cv::Scalar(0, 0, 255), 3, 8, 0);
 
 		if (maxX < cvRound(X + radius)) {
 			maxX = cvRound(X + radius);
@@ -396,7 +385,7 @@ Mat Camera::displayCircles(Mat image)
 		}
 		else {
 			// Widen the size of the searching bounding box area
-			wideringBoundingBox(WIDE_BOUNDING_BOX_X);
+			//wideringBoundingBox(WIDE_BOUNDING_BOX_X);
 		}
 	}
 	return(image);
@@ -414,22 +403,22 @@ void Camera::wideringBoundingBox(int value)
 	this->setBoundingBoxObs(minX, maxX, minY, maxY);
 }
 
-VideoCapture Camera::getCap()
+cv::VideoCapture Camera::getCap()
 {
 	return this->cap;
 }
 
-Rect2d Camera::getBoundingBoxObs()
+cv::Rect2d Camera::getBoundingBoxObs()
 {
 	return this->boundingBoxObs;
 }
 
-Mat Camera::getMap1()
+cv::Mat Camera::getMap1()
 {
 	return this->map1;
 }
 
-Mat Camera::getMap2()
+cv::Mat Camera::getMap2()
 {
 	return this->map2;
 }
@@ -439,14 +428,24 @@ bool Camera::getDetectedCircle()
 	return detectedCircle;
 }
 
+bool Camera::getDetectedBlueLED()
+{
+	return this->detectedBlueLED;
+}
+
+int Camera::getNbDetectedLED()
+{
+	return this->nbDetectedLED;
+}
+
 void Camera::setBoundingBoxObs(int minX, int maxX, int minY, int maxY)
 {
 	// If minX, maxX, minY and maxY values are outside the frame, we set them at the limit value of the frame
-	if (maxX > this->cap.get(CAP_PROP_FRAME_WIDTH)) {
-		maxX = (int)this->cap.get(CAP_PROP_FRAME_WIDTH);
+	if (maxX > this->cap.get(cv::CAP_PROP_FRAME_WIDTH)) {
+		maxX = (int)this->cap.get(cv::CAP_PROP_FRAME_WIDTH);
 	}
-	if (maxY > this->cap.get(CAP_PROP_FRAME_HEIGHT)) {
-		maxY = (int)this->cap.get(CAP_PROP_FRAME_HEIGHT);
+	if (maxY > this->cap.get(cv::CAP_PROP_FRAME_HEIGHT)) {
+		maxY = (int)this->cap.get(cv::CAP_PROP_FRAME_HEIGHT);
 	}
 	if (minX < 0) {
 		minX = 0;
@@ -459,6 +458,11 @@ void Camera::setBoundingBoxObs(int minX, int maxX, int minY, int maxY)
 	this->boundingBoxObs.width = abs(maxX - minX);
 	this->boundingBoxObs.x = minX;
 	this->boundingBoxObs.y = minY;
+}
+
+void Camera::setDetectedCircle(bool det)
+{
+	this->detectedCircle = det;
 }
 
 
