@@ -8,6 +8,11 @@
 #include "robot.h"
 #include <windows.h>
 
+bool operator<(cv::Point const& a, cv::Point const& b)
+{
+	return (a.x < b.x) || (a.x == b.x && a.y < b.y);
+}
+
 int main(int argc, char** argv) {
 	// Time between two frame in ms
 	const static int time_frame = 50;
@@ -17,14 +22,14 @@ int main(int argc, char** argv) {
 	Robot robot = Robot();
 
 	// Blue LED color
-	cv::Scalar blue_lower(50, 90, 155);
-	cv::Scalar blue_upper(170, 255, 255);
+	cv::Scalar blue_lower(0, 0, 233);
+	cv::Scalar blue_upper(165, 255, 255);
 	cv::Scalar robot_lower(0, 0, 129);
 	cv::Scalar robot_upper(179, 86, 255);
 
 
 	cv::Mat image, subImage, thresImage, ANDImage, ORImage;
-	std::vector<cv::Point> blueVector;
+	std::vector<LightArea> blueVector, previousBlueVector, finalBlueVector;
 	cv::Ptr<cv::BackgroundSubtractor> pKNN = cv::createBackgroundSubtractorKNN();
 
 	if (cam.cameraCalib(false) != 0) {
@@ -48,8 +53,8 @@ int main(int argc, char** argv) {
 	// DEBUG
 	/*cv::Size size2 = cv::Size(cam.getCap().get(cv::CAP_PROP_FRAME_WIDTH), cam.getCap().get(cv::CAP_PROP_FRAME_HEIGHT));
 	int codec = CV_FOURCC('M', 'J', 'P', 'G');
-	cv::VideoWriter writer2("../data/RGBTest.avi", codec, 10, size2, true);
-	writer2.open("../data/RGBTest.avi", codec, 10, size2, true);*/
+	cv::VideoWriter writer2("../data/Result1.avi", codec, 10, size2, true);
+	writer2.open("../data/Result1.avi", codec, 10, size2, true);*/
 
 	while (cv::waitKey(10) != 27) {
 		// Update of the timer
@@ -61,98 +66,86 @@ int main(int argc, char** argv) {
 			break;
 		}
 
-		cam.setDetectedCircle(false);
-
 		// Fix the optical distorsion of the camera
 		//remap(image, image, cam.getMap1(), cam.getMap2(), cv::INTER_NEAREST);
 		//imshow("Image", image);
 
-		// Update the dynamic background and return the result from backgroung subtraction
-		subImage = cam.updateBackground(image, pKNN);
+		// Detecttion of the LED
 		cv::cvtColor(image, image, CV_BGR2HSV);
 		blueVector = cam.ledDetection(image, blue_lower, blue_upper);
 		cv::cvtColor(image, image, CV_HSV2BGR);
-		if (cam.evaluateMarkersPosition(blueVector)) {
-			// Estimate the real position only with the markers
 
-			// Display the estimated position
+		bool found = false;
 
-		}
-		else {
-			thresImage = cam.colorDetection(image, robot_lower, robot_upper);
-			cv::cvtColor(image, image, CV_HSV2BGR);
-			subImage = cam.improveBackSubtr(subImage);
-			//cv::cvtColor(thresImage, thresImage, CV_BGR2GRAY);
-			ANDImage = thresImage & subImage;
-			cam.circlesDetection(ANDImage);
-			cam.displayCircles(image);
-			//imshow("ANDImage", ANDImage);
-
-			if (cam.getNbDetectedLED() == 0) {
-				if (cam.getDetectedCircle()) {
-					// Update the position of the robot and the searching bounding box area
-					robot.setImagePosition((int)(cam.getBoundingBoxObs().x + cam.getBoundingBoxObs().width / 2), (int)(cam.getBoundingBoxObs().y + cam.getBoundingBoxObs().height / 2));
-					// Display the estimated position
-					circle(image, robot.getImagePosition(), 15, cv::Scalar(0, 0, 255), -1, 8, 0);
-				}
-			}
-			else {
-				cv::Point temp = cam.coherenceCirclesMarkers(blueVector);
-				if (cam.getDetectedCircle() && temp != cv::Point(-1, -1)) {
-					// Update the position of the robot and the searching bounding box area
-					robot.setImagePosition(temp.x, temp.y);
-					// Display the estimated position
-					circle(image, robot.getImagePosition(), 15, cv::Scalar(0, 0, 255), -1, 8, 0);
-				}
-			}
-
-			if (!(cam.getDetectedCircle())) {
-				ORImage = thresImage | subImage;
-				cam.circlesDetection(ORImage);
-				cam.displayCircles(image);
-				//imshow("ORImage", ORImage);
-
-				if (cam.getNbDetectedLED() == 0) {
-					if (cam.getDetectedCircle()) {
-						// Update the position of the robot and the searching bounding box area
-						robot.setImagePosition((int)(cam.getBoundingBoxObs().x + cam.getBoundingBoxObs().width / 2), (int)(cam.getBoundingBoxObs().y + cam.getBoundingBoxObs().height / 2));
-						// Display the estimated position
-						circle(image, robot.getImagePosition(), 15, cv::Scalar(0, 0, 255), -1, 8, 0);
+		// For each detected area in the previous frame, we add to the final vector every area that we can also detected in this frame
+		// and update their value (visible, coordinate, ...) 
+		for (std::vector<LightArea>::size_type i = 0; i < previousBlueVector.size(); i++) {
+			found = false;
+			for (std::vector<LightArea>::size_type j = 0; j < blueVector.size(); j++) {
+				if (previousBlueVector[i].updateCoord(blueVector[j].getCoord())) {
+					blueVector[j].setNumArea(previousBlueVector[i].getNumArea());
+					blueVector[j].setVisible(true);
+					blueVector[j].setLEDTimeON(previousBlueVector[i].getLEDTimeON());
+					blueVector[j].setLEDTimeOFF(previousBlueVector[i].getLEDTimeOFF());
+					if (!blueVector[j].isContainedIn(finalBlueVector)) {
+						finalBlueVector.push_back(blueVector[j]);
 					}
-				}
-				else {
-					cv::Point temp = cam.coherenceCirclesMarkers(blueVector);
-					if (cam.getDetectedCircle() && temp != cv::Point(-1, -1)) {
-						// Update the position of the robot and the searching bounding box area
-						robot.setImagePosition(temp.x, temp.y);
-						// Display the estimated position
-						circle(image, robot.getImagePosition(), 15, cv::Scalar(0, 0, 255), -1, 8, 0);
-					}
+					found = true;
+					break;
 				}
 			}
-
-			if (!(cam.getDetectedCircle()) && cam.getNbDetectedLED() > 0) {
-				// Update the position of the robot and the searching bounding box area
-				robot.setImagePosition(blueVector[0].x, blueVector[0].y);
-				// Display the estimated position
-				circle(image, robot.getImagePosition(), 15, cv::Scalar(0, 0, 255), -1, 8, 0);
-			}
-			else if (!(cam.getDetectedCircle()) && cam.getNbDetectedLED() == 0){
-				std::cout << "The robot is undetected" << endl;
-				cam.wideringBoundingBox(WIDE_BOUNDING_BOX_X);
+			if (!found) {
+				finalBlueVector.push_back(LightArea(false, previousBlueVector[i].getCoord(), previousBlueVector[i].getNumArea(), previousBlueVector[i].getLEDTimeON(), previousBlueVector[i].getLEDTimeOFF(), previousBlueVector[i].getIdentification()));
 			}
 		}
+
+		// For each detected area in this frame, we add to the final vector every new area from the previous frame
+		for (std::vector<LightArea>::size_type i = 0; i < blueVector.size(); i++) {
+			// The LightArea is not in the final vector, we add it, otherwise we just update it (but usually, it will not happen)
+			if (!blueVector[i].isContainedIn(finalBlueVector)) {
+				finalBlueVector.push_back(LightArea(true, blueVector[i].getCoord(), finalBlueVector.size(), blueVector[i].getLEDTimeON(), blueVector[i].getLEDTimeON(), blueVector[i].getIdentification()));
+			}
+		}
+
+		// Now that the final vector have the new detected and the previous updated areas, we can study the blinking frequency of every area
+		// to determine if that matches with the LED frequency
+		int indice;
+		for (std::vector<LightArea>::size_type i = 0; i < finalBlueVector.size(); i++) {
+			indice = finalBlueVector[i].findIn(previousBlueVector);
+			if (indice == -1) {
+				finalBlueVector[i].areaBlinkFreq((clock() - t), false);
+			} else {
+				finalBlueVector[i].areaBlinkFreq((clock() - t), previousBlueVector[indice].getVisible());
+			}
+			if (finalBlueVector[i].getVisible()) { // if top or bottom display
+				std::string test = finalBlueVector[i].getIdentification();
+				cv::putText(image, test, finalBlueVector[i].getCoord(), cv::FONT_HERSHEY_PLAIN, 1, cv::Scalar(0, 0, 255), 2, 8, false);
+			}
+		}
+
+		previousBlueVector = copyLAvector(finalBlueVector, previousBlueVector);
+		finalBlueVector.clear();
+
+		//if (!(blueVector.empty())) {
+		//	// Update the position of the robot and the searching bounding box area
+		//	robot.setImagePosition(blueVector[0].x, blueVector[0].y);
+		//	// Display the estimated position
+		//	circle(image, robot.getImagePosition(), 5, cv::Scalar(0, 0, 255), -1, 8, 0);
+		//}
+
 		//writer2.write(image);
 		imshow("Image", image);
+
 		std::cout << (clock() - t) << endl;
-		// Setting the frequency of the loop
-		if (time_frame - (clock() - t) > 0) {
-			//cout << "Loop : " << time_frame - (clock() - t) << endl;
-			Sleep(time_frame - (clock() - t));
-		}
-		else {
-			//cout << time_frame - (clock() - t) << endl;
-		}
+		
+		//// Setting the frequency of the loop
+		//if (time_frame - (clock() - t) > 0) {
+		//	//cout << "Loop : " << time_frame - (clock() - t) << endl;
+		//	Sleep(time_frame - (clock() - t));
+		//}
+		//else {
+		//	//cout << time_frame - (clock() - t) << endl;
+		//}
 	}
 	cv::destroyAllWindows();
 }

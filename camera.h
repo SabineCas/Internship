@@ -14,6 +14,7 @@
 #include <opencv2/opencv.hpp>
 #include <opencv2/highgui.hpp>
 #include <opencv2/video.hpp>
+#include "led.h"
 
 using namespace std;
 
@@ -40,7 +41,8 @@ public:
 	cv::Mat updateBackground(cv::Mat image, cv::Ptr<cv::BackgroundSubtractor> pKNN);
 	cv::Mat improveBackSubtr(cv::Mat image);
 	cv::Mat colorDetection(cv::Mat image, cv::Scalar lower, cv::Scalar upper);
-	std::vector<cv::Point> ledDetection(cv::Mat image, cv::Scalar lower, cv::Scalar upper);
+	std::vector<LightArea> ledDetection(cv::Mat image, cv::Scalar lower, cv::Scalar upper);
+	int ledFrequency(clock_t time, bool detected, bool previousDetected);
 	bool evaluateMarkersPosition(std::vector<cv::Point> blueVector);
 	void circlesDetection(cv::Mat subImage);
 	cv::Point coherenceCirclesMarkers(std::vector<cv::Point> blueVector);
@@ -55,6 +57,8 @@ public:
 	bool getDetectedCircle();
 	bool getDetectedBlueLED();
 	int getNbDetectedLED();
+	clock_t getLEDTimeOFF();
+	clock_t getLEDTimeON();
 
 	// Setters
 	void setBoundingBoxObs(int minX, int maxX, int minY, int maxY);
@@ -68,4 +72,5 @@ private:
 	cv::Rect2d boundingBoxObs;
 	bool detectedCircle, detectedBlueLED;
 	int nbDetectedLED;
+	clock_t LEDTimeON, LEDTimeOFF;
 };

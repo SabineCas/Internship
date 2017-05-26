@@ -10,8 +10,8 @@
 Camera::Camera(int numDevice)
 {
 	// Opening the framegrabber of the camera
-	//this->cap.open("../data/Test5.mp4");
-	this->cap.open(numDevice);
+	this->cap.open("../data/TestLED.mp4");
+	//this->cap.open(numDevice);
 	if (!this->cap.isOpened()) {
 		std::cout << "Error opening the framegrapper of the camera" << endl;
 	}
@@ -191,19 +191,17 @@ cv::Mat Camera::colorDetection(cv::Mat image, cv::Scalar lower, cv::Scalar upper
 	return image;
 }
 
-std::vector<cv::Point> Camera::ledDetection(cv::Mat image, cv::Scalar lower, cv::Scalar upper)
+std::vector<LightArea> Camera::ledDetection(cv::Mat image, cv::Scalar lower, cv::Scalar upper)
 {
 	// Variable used for edges detection
 	vector<vector<cv::Point> > contours;
 	vector<cv::Vec4i> hierarchy;
 
-	std::vector<cv::Point> ledVector;
-	cv::Point2d temp;
+	// Vector of every potential light from the LEDs
+	std::vector<LightArea> ledVector;
+	int cpt = 0;
 
-	// Set the LEDs as undetected
-	this->detectedBlueLED = false;
-	
-	/*image = cv::imread("../data/Test3.png");
+	/*image = cv::imread("../data/TestLED.png");
 	cv::Mat hsv;
 	cv::cvtColor(image, hsv, CV_BGR2HSV);
 	cv::Mat hsvChannels[3];
@@ -217,20 +215,22 @@ std::vector<cv::Point> Camera::ledDetection(cv::Mat image, cv::Scalar lower, cv:
 	std::cout << "Value: Min = " << minVal << ", Max = " << maxVal << std::endl;
 	cv::waitKey(0);*/
 
+	cv::GaussianBlur(image, image, cv::Size(5, 5), 1, 1);
+
 	// Isolate every area that have the color of the LED
 	cv::inRange(image, lower, upper, image);
 	// Morphological processing
-	cv::erode(image, image, getStructuringElement(cv::MORPH_RECT, cv::Size(3, 3)));
-	cv::dilate(image, image, getStructuringElement(cv::MORPH_RECT, cv::Size(3, 3)));
+	//cv::morphologyEx(image, image, cv::MORPH_OPEN, getStructuringElement(cv::MORPH_RECT, cv::Size(5, 5), cv::Point(3, 3)));
+	//cv::morphologyEx(image, image, cv::MORPH_CLOSE, getStructuringElement(cv::MORPH_RECT, cv::Size(5, 5), cv::Point(3, 3)));
 
-	//cv::imshow("LED", image);
+	cv::imshow("LED", image);
 
 	// Find the edges of each different area
 	findContours(image, contours, hierarchy, cv::RETR_TREE, cv::CHAIN_APPROX_SIMPLE, cv::Point(0, 0));
 
-	// Save the edges of the image
+	// Save the center of each area of the image
 	for (std::vector<std::vector<cv::Point>>::size_type i = 0; i < contours.size(); i++) {
-		if (contourArea(contours[i], false) > 10 && contourArea(contours[i], false) < 10000) {
+		if (contourArea(contours[i], false) > 0 && contourArea(contours[i], false) < 10000) {
 			int maxX = 0, maxY = 0, minX = image.size().width, minY = image.size().height;
 			for (std::vector<cv::Point>::size_type j = 0; j < contours[i].size(); j++) {
 				if (maxX < contours[i][j].x) {
@@ -246,13 +246,99 @@ std::vector<cv::Point> Camera::ledDetection(cv::Mat image, cv::Scalar lower, cv:
 					minY = contours[i][j].y;
 				}
 			}
-			temp.x = (maxX + minX) / 2;
-			temp.y = (maxY + minY) / 2;
-			ledVector.push_back(temp);
-			this->detectedBlueLED = true;
+			ledVector.push_back(LightArea(true, cv::Point((maxX + minX) / 2, (maxY + minY) / 2), cpt, 0, 0, "UNKNOWN"));
+			cpt++;
 		}
 	}
-	return(ledVector);
+
+	// Merge close areas
+	std::vector<std::vector<LightArea>> areas;
+	std::vector<LightArea> ledFinalVector, temp;
+	bool proche_voisin;
+	cpt = 0;
+
+	while (!(ledVector.empty())) {
+		temp.clear();
+		temp.push_back(ledVector[0]);
+		areas.push_back(temp);
+		ledVector.erase(ledVector.begin());
+
+		for (std::vector<LightArea>::size_type i = 0; i < ledVector.size(); i++) {
+			if (ledVector[i].areClose(areas[cpt][0].getCoord())) {
+				areas[cpt].push_back(ledVector[i]);
+				ledVector.erase(ledVector.begin() + i);
+			}
+		}
+
+		/*proche_voisin = true;
+		while (proche_voisin) {
+			proche_voisin = false;
+			for (std::vector<LightArea>::size_type i = 0; i < ledVector.size(); i++) {
+				for (std::vector<LightArea>::size_type j = 0; j < areas[cpt].size(); j++) {
+					if (ledVector[i].areClose(areas[cpt][j].getCoord())) {
+						proche_voisin = true;
+						ledVector.erase(ledVector.begin() + i);
+						break;
+					}
+				}
+			}
+		}*/
+
+		int x = 0, y = 0;
+		for (std::vector<cv::Point>::size_type i = 0; i < areas[0].size(); i++) {
+			x += areas[cpt][i].getCoord().x;
+			y += areas[cpt][i].getCoord().y;
+		}
+		x = (int)(x / areas[cpt].size());
+		y = (int)(y / areas[cpt].size());
+		areas[cpt].clear();
+		areas[cpt].push_back(LightArea(true, cv::Point(x, y), cpt, 0, 0, "UNKNOWN"));
+		ledFinalVector.push_back(LightArea(true, cv::Point(x, y), cpt, 0, 0, "UNKNOWN"));
+		cpt++;
+	}
+
+	return(ledFinalVector);
+}
+
+int Camera::ledFrequency(clock_t time, bool detected, bool previousDetected)
+{
+	int time1 = 100, time2 = 200;
+	if (detected && !previousDetected) {
+		LEDTimeON = time;
+		if (LEDTimeOFF <= time1 && LEDTimeOFF > 0) {
+			return(1);
+		}
+		else {
+			return(2);
+		}
+	}
+	else if (detected && previousDetected) {
+		LEDTimeON += time;
+		if (LEDTimeOFF <= time1 && LEDTimeOFF > 0) {
+			return(1);
+		}
+		else {
+			return(2);
+		}
+	}
+	else if (!detected && previousDetected) {
+		LEDTimeOFF = time;
+		if (LEDTimeON <= time1 && LEDTimeOFF > 0) {
+			return(1);
+		}
+		else {
+			return(2);
+		}
+	}
+	else {
+		LEDTimeOFF += time;
+		if (LEDTimeON <= time1 && LEDTimeON > 0) {
+			return(1);
+		}
+		else {
+			return(2);
+		}
+	}
 }
 
 bool Camera::evaluateMarkersPosition(std::vector<cv::Point> blueVector)
@@ -436,6 +522,16 @@ bool Camera::getDetectedBlueLED()
 int Camera::getNbDetectedLED()
 {
 	return this->nbDetectedLED;
+}
+
+clock_t Camera::getLEDTimeOFF()
+{
+	return (LEDTimeOFF);
+}
+
+clock_t Camera::getLEDTimeON()
+{
+	return (LEDTimeON);
 }
 
 void Camera::setBoundingBoxObs(int minX, int maxX, int minY, int maxY)
