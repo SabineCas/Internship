@@ -16,8 +16,8 @@ LightArea::LightArea(bool v, cv::Point c, int n, clock_t LEDTimeON, clock_t LEDT
 	this->visible = v;
 	this->coord = c;
 	this->numArea = n;
-	this->LEDTimeON = 0;
-	this->LEDTimeOFF = 0;
+	this->LEDTimeON = LEDTimeON;
+	this->LEDTimeOFF = LEDTimeOFF;
 	this->identification = id;
 }
 
@@ -38,84 +38,26 @@ bool LightArea::areClose(cv::Point p)
 void LightArea::areaBlinkFreq(clock_t time, bool previousVisible)
 {
 	std::vector<clock_t> timeFrames;
-	timeFrames.push_back(100);
-	timeFrames.push_back(200);
-	clock_t time1 = 100, time2 = 200;
+	clock_t time1(100), time2(200);
+	timeFrames.push_back(time1);
+	timeFrames.push_back(time2);
 
-	//// Update LEDTimeON and LEDTimeOFF
-	//if (this->visible && !previousVisible) {
-	//	LEDTimeON = time;
-	//	this->identification = this->findMatchLEDTime(timeFrames, time, false);
-	//}
-	//else if (this->visible && previousVisible) {
-	//	LEDTimeON += time;
-	//	this->identification = this->findMatchLEDTime(timeFrames, time, false);
-	//}
-	//else if (!this->visible && previousVisible) {
-	//	LEDTimeOFF = time;
-	//	this->identification = this->findMatchLEDTime(timeFrames, time, true);
-	//}
-	//else {
-	//	LEDTimeOFF += time;
-	//	this->identification = this->findMatchLEDTime(timeFrames, time, true);
-	//}
-
-	//if (((LEDTimeON > time && LEDTimeON <= timeFrames[0]) || (LEDTimeOFF > time && LEDTimeOFF <= timeFrames[0])) && this->identification != "BOTTOM") {
-	//	this->identification = "TOP";
-	//}
-	//else if ((LEDTimeON > time + timeFrames[0] && LEDTimeON <= timeFrames[1]) || (LEDTimeOFF > time + timeFrames[0] && LEDTimeOFF <= timeFrames[1])) {
-	//	this->identification = "BOTTOM";
-	//} else {
-	//	this->identification = "UNKNOWN";
-	//}
-
+	// Update LEDTimeON and LEDTimeOFF
 	if (this->visible && !previousVisible) {
 		LEDTimeON = time;
-		if (LEDTimeOFF <= time1 && LEDTimeOFF > 0) {
-			this->identification = "TOP";
-		}
-		else if (LEDTimeOFF > time1 && LEDTimeOFF <= time2) {
-			this->identification = "BOTTOM";
-		}
-		else {
-			this->identification = "UNKNOWN";
-		}
+		this->identification = this->findMatchLEDTime(timeFrames, time, false);
 	}
 	else if (this->visible && previousVisible) {
 		LEDTimeON += time;
-		if (LEDTimeOFF <= time1 && LEDTimeOFF > 0) {
-			this->identification = "TOP";
-		}
-		else if (LEDTimeOFF > time1 && LEDTimeOFF <= time2) {
-			this->identification = "BOTTOM";
-		}
-		else {
-			this->identification = "UNKNOWN";
-		}
+		this->identification = this->findMatchLEDTime(timeFrames, time, false);
 	}
 	else if (!this->visible && previousVisible) {
 		LEDTimeOFF = time;
-		if (LEDTimeON <= time1 && LEDTimeOFF > 0) {
-			this->identification = "TOP";
-		}
-		else if (LEDTimeON > time1 && LEDTimeON <= time2) {
-			this->identification = "BOTTOM";
-		}
-		else {
-			this->identification = "UNKNOWN";
-		}
+		this->identification = this->findMatchLEDTime(timeFrames, time, true);
 	}
 	else {
 		LEDTimeOFF += time;
-		if (LEDTimeON <= time1 && LEDTimeON > 0) {
-			this->identification = "TOP";
-		}
-		else if (LEDTimeON > time1 && LEDTimeON <= time2) {
-			this->identification = "BOTTOM";
-		}
-		else {
-			this->identification = "UNKNOWN";
-		}
+		this->identification = this->findMatchLEDTime(timeFrames, time, true);
 	}
 }
 
@@ -123,11 +65,13 @@ std::string LightArea::findMatchLEDTime(std::vector<clock_t> timeFrames, clock_t
 {
 	if (modeON) {
 		for (std::vector<clock_t>::size_type i = 0; i < timeFrames.size(); i++) {
-			if (this->LEDTimeON > time && this->LEDTimeON <= timeFrames[i]) {
-				if (i == 0) {
+			if (i == 0) {
+				if (this->LEDTimeON > time && this->LEDTimeON <= timeFrames[i]) {
 					return("TOP");
 				}
-				else if (i == 1) {
+			}
+			else if (i == 1) {
+				if (this->LEDTimeON > time + timeFrames[i - 1] && this->LEDTimeON <= timeFrames[i]) {
 					return("BOTTOM");
 				}
 			}
@@ -135,11 +79,13 @@ std::string LightArea::findMatchLEDTime(std::vector<clock_t> timeFrames, clock_t
 	}
 	else {
 		for (std::vector<clock_t>::size_type i = 0; i < timeFrames.size(); i++) {
-			if (this->LEDTimeOFF > time && this->LEDTimeOFF <= timeFrames[i]) {
-				if (i == 0) {
+			if (i == 0) {
+				if (this->LEDTimeOFF > time && this->LEDTimeOFF <= timeFrames[i]) {
 					return("TOP");
 				}
-				else if (i == 1) {
+			}
+			else if (i == 1) {
+				if (this->LEDTimeOFF > time + timeFrames[i - 1] && this->LEDTimeOFF <= timeFrames[i]) {
 					return("BOTTOM");
 				}
 			}

@@ -6,7 +6,7 @@
 #include <opencv2/video.hpp>
 
 using namespace std;
-const static int distanceAreaLight = 30;
+const static int distanceAreaLight = 25;
 
 class LightArea {
 public:

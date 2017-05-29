@@ -8,22 +8,19 @@
 #include "robot.h"
 #include <windows.h>
 
-bool operator<(cv::Point const& a, cv::Point const& b)
-{
-	return (a.x < b.x) || (a.x == b.x && a.y < b.y);
-}
-
 int main(int argc, char** argv) {
 	// Time between two frame in ms
 	const static int time_frame = 50;
 
 	// Initialization of the camera and the robot
-	Camera cam(0);
+	Camera cam(1);
 	Robot robot = Robot();
 
 	// Blue LED color
 	cv::Scalar blue_lower(0, 0, 233);
 	cv::Scalar blue_upper(165, 255, 255);
+	cv::Scalar IF_lower(143, 34, 30);
+	cv::Scalar IF_upper(175, 128, 244);
 	cv::Scalar robot_lower(0, 0, 129);
 	cv::Scalar robot_upper(179, 86, 255);
 
@@ -72,7 +69,7 @@ int main(int argc, char** argv) {
 
 		// Detecttion of the LED
 		cv::cvtColor(image, image, CV_BGR2HSV);
-		blueVector = cam.ledDetection(image, blue_lower, blue_upper);
+		blueVector = cam.ledDetection(image, IF_lower, IF_upper);
 		cv::cvtColor(image, image, CV_HSV2BGR);
 
 		bool found = false;
@@ -103,7 +100,7 @@ int main(int argc, char** argv) {
 		for (std::vector<LightArea>::size_type i = 0; i < blueVector.size(); i++) {
 			// The LightArea is not in the final vector, we add it, otherwise we just update it (but usually, it will not happen)
 			if (!blueVector[i].isContainedIn(finalBlueVector)) {
-				finalBlueVector.push_back(LightArea(true, blueVector[i].getCoord(), finalBlueVector.size(), blueVector[i].getLEDTimeON(), blueVector[i].getLEDTimeON(), blueVector[i].getIdentification()));
+				finalBlueVector.push_back(LightArea(true, blueVector[i].getCoord(), finalBlueVector.size(), blueVector[i].getLEDTimeON(), blueVector[i].getLEDTimeOFF(), blueVector[i].getIdentification()));
 			}
 		}
 

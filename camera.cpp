@@ -10,8 +10,8 @@
 Camera::Camera(int numDevice)
 {
 	// Opening the framegrabber of the camera
-	this->cap.open("../data/TestLED.mp4");
-	//this->cap.open(numDevice);
+	//this->cap.open("../data/TestLED.mp4");
+	this->cap.open(numDevice);
 	if (!this->cap.isOpened()) {
 		std::cout << "Error opening the framegrapper of the camera" << endl;
 	}
@@ -201,7 +201,7 @@ std::vector<LightArea> Camera::ledDetection(cv::Mat image, cv::Scalar lower, cv:
 	std::vector<LightArea> ledVector;
 	int cpt = 0;
 
-	/*image = cv::imread("../data/TestLED.png");
+	/*image = cv::imread("../data/InfraredLED.PNG");
 	cv::Mat hsv;
 	cv::cvtColor(image, hsv, CV_BGR2HSV);
 	cv::Mat hsvChannels[3];
@@ -215,13 +215,14 @@ std::vector<LightArea> Camera::ledDetection(cv::Mat image, cv::Scalar lower, cv:
 	std::cout << "Value: Min = " << minVal << ", Max = " << maxVal << std::endl;
 	cv::waitKey(0);*/
 
-	cv::GaussianBlur(image, image, cv::Size(5, 5), 1, 1);
+	//cv::GaussianBlur(image, image, cv::Size(5, 5), 1, 1);
 
 	// Isolate every area that have the color of the LED
 	cv::inRange(image, lower, upper, image);
 	// Morphological processing
-	//cv::morphologyEx(image, image, cv::MORPH_OPEN, getStructuringElement(cv::MORPH_RECT, cv::Size(5, 5), cv::Point(3, 3)));
-	//cv::morphologyEx(image, image, cv::MORPH_CLOSE, getStructuringElement(cv::MORPH_RECT, cv::Size(5, 5), cv::Point(3, 3)));
+	cv::dilate(image, image, getStructuringElement(cv::MORPH_RECT, cv::Size(3, 3)));
+	cv::morphologyEx(image, image, cv::MORPH_OPEN, getStructuringElement(cv::MORPH_RECT, cv::Size(3, 3), cv::Point(2, 2)));
+	cv::morphologyEx(image, image, cv::MORPH_CLOSE, getStructuringElement(cv::MORPH_RECT, cv::Size(3, 3), cv::Point(2, 2)));
 
 	cv::imshow("LED", image);
 
