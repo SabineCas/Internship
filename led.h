@@ -7,6 +7,8 @@
 
 using namespace std;
 const static int distanceAreaLight = 25;
+const static int minimumSizeAreaLight = 10;
+const static int maximumSizeAreaLight = 1000;
 
 class LightArea {
 public:
@@ -20,6 +22,9 @@ public:
 	bool isContainedIn(std::vector<LightArea> vector);
 	int findIn(std::vector<LightArea> vector);
 	friend std::vector<LightArea> copyLAvector(std::vector<LightArea> vector1, std::vector<LightArea> vector2);
+	friend void updatePreviousToCurrent(std::vector<LightArea>& previousBlueVector, std::vector<LightArea>& blueVector, std::vector<LightArea>& finalBlueVector);
+	friend void updateCurrentToPrevious(std::vector<LightArea>& previousBlueVector, std::vector<LightArea>& blueVector, std::vector<LightArea>& finalBlueVector);
+	friend void updateIdentification(std::vector<LightArea>& previousBlueVector, std::vector<LightArea>& finalBlueVector, clock_t time);
 
 	bool getVisible();
 	cv::Point getCoord();
