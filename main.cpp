@@ -10,20 +10,17 @@
 
 int main(int argc, char** argv) {
 	// Time between two frame in ms
-	const static int time_frame = 50;
+	double dT = 0;
 
 	// Initialization of the camera and the robot
-	Camera cam(1);
+	Camera cam(0);
 	Robot robot = Robot();
 
 	// Blue LED color
-	cv::Scalar blue_lower(0, 0, 233);
-	cv::Scalar blue_upper(165, 255, 255);
-	cv::Scalar IF_lower(143, 34, 30);
-	cv::Scalar IF_upper(175, 128, 244);
-	cv::Scalar robot_lower(0, 0, 129);
-	cv::Scalar robot_upper(179, 86, 255);
+	cv::Scalar blue_lower(0, 0, 233), blue_upper(165, 255, 255), IF_lower(143, 34, 60), IF_upper(175, 128, 244);
 
+	// Last Known position of the LEDs
+	LightArea lastKnownTOP = LightArea(), lastKnownBOTTOM = LightArea();
 
 	cv::Mat image, subImage, thresImage, ANDImage, ORImage;
 	std::vector<LightArea> blueVector, previousBlueVector, finalBlueVector;
@@ -42,7 +39,6 @@ int main(int argc, char** argv) {
 	// Deactivate the autofocus of the camera
 	cam.getCap().set(cv::CAP_PROP_FOCUS, false);
 	cam.getCap().set(cv::CAP_PROP_AUTOFOCUS, false);
-	//cam.getCap().set(cv::CAP_PROP_FPS, 20);
 	/*cam.getCap().set(cv::CAP_PROP_FRAME_WIDTH, 1280);
 	cam.getCap().set(cv::CAP_PROP_FRAME_HEIGHT, 720);*/
 	clock_t t = clock();
@@ -64,85 +60,68 @@ int main(int argc, char** argv) {
 		}
 
 		// Fix the optical distorsion of the camera
-		//remap(image, image, cam.getMap1(), cam.getMap2(), cv::INTER_NEAREST);
-		//imshow("Image", image);
+		remap(image, image, cam.getMap1(), cam.getMap2(), cv::INTER_NEAREST);
+		imshow("Image before", image);
 
 		// Detecttion of the LED
 		cv::cvtColor(image, image, CV_BGR2HSV);
 		blueVector = cam.ledDetection(image, IF_lower, IF_upper);
 		cv::cvtColor(image, image, CV_HSV2BGR);
 
-		bool found = false;
+		updatePreviousToCurrent(previousBlueVector, blueVector, finalBlueVector);
+		updateCurrentToPrevious(previousBlueVector, blueVector, finalBlueVector);
+		updateIdentification(previousBlueVector, finalBlueVector, dT);
 
-		// For each detected area in the previous frame, we add to the final vector every area that we can also detected in this frame
-		// and update their value (visible, coordinate, ...) 
-		for (std::vector<LightArea>::size_type i = 0; i < previousBlueVector.size(); i++) {
-			found = false;
-			for (std::vector<LightArea>::size_type j = 0; j < blueVector.size(); j++) {
-				if (previousBlueVector[i].updateCoord(blueVector[j].getCoord())) {
-					blueVector[j].setNumArea(previousBlueVector[i].getNumArea());
-					blueVector[j].setVisible(true);
-					blueVector[j].setLEDTimeON(previousBlueVector[i].getLEDTimeON());
-					blueVector[j].setLEDTimeOFF(previousBlueVector[i].getLEDTimeOFF());
-					if (!blueVector[j].isContainedIn(finalBlueVector)) {
-						finalBlueVector.push_back(blueVector[j]);
+		for (std::vector<LightArea>::size_type i = 0; i < finalBlueVector.size(); i++) {
+			if (finalBlueVector[i].getIdentification() != "UNKNOWN") { // if top or bottom display
+				cv::putText(image, finalBlueVector[i].getIdentification(), finalBlueVector[i].getCoord(), cv::FONT_HERSHEY_PLAIN, 1, cv::Scalar(0, 0, 255), 2, 8, false);
+				int indice = finalBlueVector[i].findIn(previousBlueVector);
+				if (indice != -1) {
+					if (finalBlueVector[i].getIdentification() == "TOP" && previousBlueVector[finalBlueVector[i].findIn(previousBlueVector)].getIdentification() == "TOP") { // et qu'il est aussi dans previous --> TO DO
+						lastKnownTOP = finalBlueVector[i];
 					}
-					found = true;
-					break;
+					else if (finalBlueVector[i].getIdentification() == "BOTTOM" && previousBlueVector[finalBlueVector[i].findIn(previousBlueVector)].getIdentification() == "BOTTOM") {
+						lastKnownBOTTOM = finalBlueVector[i];
+					}
 				}
 			}
-			if (!found) {
-				finalBlueVector.push_back(LightArea(false, previousBlueVector[i].getCoord(), previousBlueVector[i].getNumArea(), previousBlueVector[i].getLEDTimeON(), previousBlueVector[i].getLEDTimeOFF(), previousBlueVector[i].getIdentification()));
-			}
 		}
 
-		// For each detected area in this frame, we add to the final vector every new area from the previous frame
-		for (std::vector<LightArea>::size_type i = 0; i < blueVector.size(); i++) {
-			// The LightArea is not in the final vector, we add it, otherwise we just update it (but usually, it will not happen)
-			if (!blueVector[i].isContainedIn(finalBlueVector)) {
-				finalBlueVector.push_back(LightArea(true, blueVector[i].getCoord(), finalBlueVector.size(), blueVector[i].getLEDTimeON(), blueVector[i].getLEDTimeOFF(), blueVector[i].getIdentification()));
+		if (!(finalBlueVector.empty())) {
+			cv::Point top(0, 0), bottom(0, 0);
+			bool lastTOP = lastKnownTOP.isContainedIn(previousBlueVector), lastBOTTOM = lastKnownBOTTOM.isContainedIn(previousBlueVector);
+			bool currentTOP = lastKnownTOP.isContainedIn(finalBlueVector), currentBOTTOM = lastKnownBOTTOM.isContainedIn(finalBlueVector);
+			bool error = false;
+			if (currentTOP || lastTOP) {
+				top = lastKnownTOP.getCoord();
 			}
-		}
-
-		// Now that the final vector have the new detected and the previous updated areas, we can study the blinking frequency of every area
-		// to determine if that matches with the LED frequency
-		int indice;
-		for (std::vector<LightArea>::size_type i = 0; i < finalBlueVector.size(); i++) {
-			indice = finalBlueVector[i].findIn(previousBlueVector);
-			if (indice == -1) {
-				finalBlueVector[i].areaBlinkFreq((clock() - t), false);
-			} else {
-				finalBlueVector[i].areaBlinkFreq((clock() - t), previousBlueVector[indice].getVisible());
+			else {
+				error = true;
 			}
-			if (finalBlueVector[i].getVisible()) { // if top or bottom display
-				std::string test = finalBlueVector[i].getIdentification();
-				cv::putText(image, test, finalBlueVector[i].getCoord(), cv::FONT_HERSHEY_PLAIN, 1, cv::Scalar(0, 0, 255), 2, 8, false);
+			if (currentBOTTOM || lastBOTTOM) {
+				bottom = lastKnownBOTTOM.getCoord();
+			}
+			else {
+				error = true;
+			}
+			if (!error) {
+				// Update the position of the robot and the searching bounding box area
+				robot.setImagePosition((top.x + bottom.x) / 2, (top.y + bottom.y) / 2);
+				// Display the estimated position
+				circle(image, robot.getImagePosition(), 5, cv::Scalar(0, 0, 255), -1, 8, 0);
 			}
 		}
 
 		previousBlueVector = copyLAvector(finalBlueVector, previousBlueVector);
 		finalBlueVector.clear();
 
-		//if (!(blueVector.empty())) {
-		//	// Update the position of the robot and the searching bounding box area
-		//	robot.setImagePosition(blueVector[0].x, blueVector[0].y);
-		//	// Display the estimated position
-		//	circle(image, robot.getImagePosition(), 5, cv::Scalar(0, 0, 255), -1, 8, 0);
-		//}
+
 
 		//writer2.write(image);
 		imshow("Image", image);
 
-		std::cout << (clock() - t) << endl;
-		
-		//// Setting the frequency of the loop
-		//if (time_frame - (clock() - t) > 0) {
-		//	//cout << "Loop : " << time_frame - (clock() - t) << endl;
-		//	Sleep(time_frame - (clock() - t));
-		//}
-		//else {
-		//	//cout << time_frame - (clock() - t) << endl;
-		//}
+		dT = (clock() - t);
+		//std::cout << dT << endl;
 	}
 	cv::destroyAllWindows();
 }

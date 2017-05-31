@@ -231,7 +231,7 @@ std::vector<LightArea> Camera::ledDetection(cv::Mat image, cv::Scalar lower, cv:
 
 	// Save the center of each area of the image
 	for (std::vector<std::vector<cv::Point>>::size_type i = 0; i < contours.size(); i++) {
-		if (contourArea(contours[i], false) > 0 && contourArea(contours[i], false) < 10000) {
+		if (contourArea(contours[i], false) > minimumSizeAreaLight && contourArea(contours[i], false) < maximumSizeAreaLight) {
 			int maxX = 0, maxY = 0, minX = image.size().width, minY = image.size().height;
 			for (std::vector<cv::Point>::size_type j = 0; j < contours[i].size(); j++) {
 				if (maxX < contours[i][j].x) {
