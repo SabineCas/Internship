@@ -255,7 +255,7 @@ std::vector<LightArea> Camera::ledDetection(cv::Mat image, cv::Scalar lower, cv:
 	// Merge close areas
 	std::vector<std::vector<LightArea>> areas;
 	std::vector<LightArea> ledFinalVector, temp;
-	bool proche_voisin;
+	bool proche_voisin = false;
 	cpt = 0;
 
 	while (!(ledVector.empty())) {

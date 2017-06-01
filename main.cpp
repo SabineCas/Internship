@@ -9,8 +9,14 @@
 #include <windows.h>
 
 int main(int argc, char** argv) {
+
+	// Interface
+	/*int res, typefen = MB_OK;
+	res = MessageBox(NULL, "voila le message", "voila le titre", typefen);
+	printf("Code de retour : %d\n", res);*/
+
 	// Time between two frame in ms
-	double dT = 0;
+	clock_t dT = clock();
 
 	// Initialization of the camera and the robot
 	Camera cam(0);
@@ -21,6 +27,26 @@ int main(int argc, char** argv) {
 
 	// Last Known position of the LEDs
 	LightArea lastKnownTOP = LightArea(), lastKnownBOTTOM = LightArea();
+	bool found = false;
+	int notFoundCount = 0;
+	bool error = false;
+	cv::Point top, bottom;
+
+	// Kalman filter
+	int stateSize = 4, measSize = 2, contrSize = 0;
+	unsigned int type = CV_32F;
+	cv::KalmanFilter kf(stateSize, measSize, contrSize, type);
+	cv::Mat state(stateSize, 1, type);  // (x, y, v_x, v_y) : state vector
+	cv::Mat meas(measSize, 1, type); // (z_x, z_y) : measurements vector
+	cv::setIdentity(kf.transitionMatrix); // Transition matrix : describes relationship between model parameters at step k and at step k + 1
+	kf.measurementMatrix = cv::Mat::zeros(measSize, stateSize, type);
+	kf.measurementMatrix.at<float>(0, 0) = float(1.0);
+	kf.measurementMatrix.at<float>(1, 1) = float(1.0);
+	kf.processNoiseCov.at<float>(0, 0) = float(0.01);
+	kf.processNoiseCov.at<float>(1, 1) = float(0.01);
+	kf.processNoiseCov.at<float>(2, 2) = float(5.0);
+	kf.processNoiseCov.at<float>(3, 3) = float(5.0);
+	cv::setIdentity(kf.measurementNoiseCov, cv::Scalar(0.1));
 
 	cv::Mat image, subImage, thresImage, ANDImage, ORImage;
 	std::vector<LightArea> blueVector, previousBlueVector, finalBlueVector;
@@ -39,8 +65,6 @@ int main(int argc, char** argv) {
 	// Deactivate the autofocus of the camera
 	cam.getCap().set(cv::CAP_PROP_FOCUS, false);
 	cam.getCap().set(cv::CAP_PROP_AUTOFOCUS, false);
-	/*cam.getCap().set(cv::CAP_PROP_FRAME_WIDTH, 1280);
-	cam.getCap().set(cv::CAP_PROP_FRAME_HEIGHT, 720);*/
 	clock_t t = clock();
 
 	// DEBUG
@@ -61,7 +85,7 @@ int main(int argc, char** argv) {
 
 		// Fix the optical distorsion of the camera
 		remap(image, image, cam.getMap1(), cam.getMap2(), cv::INTER_NEAREST);
-		imshow("Image before", image);
+		//imshow("Image before", image);
 
 		// Detecttion of the LED
 		cv::cvtColor(image, image, CV_BGR2HSV);
@@ -72,50 +96,94 @@ int main(int argc, char** argv) {
 		updateCurrentToPrevious(previousBlueVector, blueVector, finalBlueVector);
 		updateIdentification(previousBlueVector, finalBlueVector, dT);
 
+		// Display the position of the LEDs with their identification
 		for (std::vector<LightArea>::size_type i = 0; i < finalBlueVector.size(); i++) {
-			if (finalBlueVector[i].getIdentification() != "UNKNOWN") { // if top or bottom display
-				cv::putText(image, finalBlueVector[i].getIdentification(), finalBlueVector[i].getCoord(), cv::FONT_HERSHEY_PLAIN, 1, cv::Scalar(0, 0, 255), 2, 8, false);
-				int indice = finalBlueVector[i].findIn(previousBlueVector);
-				if (indice != -1) {
+			if (finalBlueVector[i].getIdentification() != "UNKNOWN") {
+				if (finalBlueVector[i].findIn(previousBlueVector) != -1) {
 					if (finalBlueVector[i].getIdentification() == "TOP" && previousBlueVector[finalBlueVector[i].findIn(previousBlueVector)].getIdentification() == "TOP") { // et qu'il est aussi dans previous --> TO DO
 						lastKnownTOP = finalBlueVector[i];
+						//cv::putText(image, "TOP", finalBlueVector[i].getCoord(), cv::FONT_HERSHEY_PLAIN, 1, cv::Scalar(0, 0, 255), 2, 8, false);
 					}
 					else if (finalBlueVector[i].getIdentification() == "BOTTOM" && previousBlueVector[finalBlueVector[i].findIn(previousBlueVector)].getIdentification() == "BOTTOM") {
 						lastKnownBOTTOM = finalBlueVector[i];
+						//cv::putText(image, "BOTTOM", finalBlueVector[i].getCoord(), cv::FONT_HERSHEY_PLAIN, 1, cv::Scalar(0, 0, 255), 2, 8, false);
 					}
 				}
 			}
 		}
 
-		if (!(finalBlueVector.empty())) {
-			cv::Point top(0, 0), bottom(0, 0);
-			bool lastTOP = lastKnownTOP.isContainedIn(previousBlueVector), lastBOTTOM = lastKnownBOTTOM.isContainedIn(previousBlueVector);
-			bool currentTOP = lastKnownTOP.isContainedIn(finalBlueVector), currentBOTTOM = lastKnownBOTTOM.isContainedIn(finalBlueVector);
-			bool error = false;
-			if (currentTOP || lastTOP) {
+		if (!(previousBlueVector.empty())) {
+			bool lastTOP = lastKnownTOP.findIn(previousBlueVector) != -1 && previousBlueVector[lastKnownTOP.findIn(previousBlueVector)].getIdentification() == "TOP";
+			bool lastBOTTOM = lastKnownBOTTOM.findIn(previousBlueVector) != -1 && previousBlueVector[lastKnownBOTTOM.findIn(previousBlueVector)].getIdentification() == "BOTTOM";
+			bool currentTOP = lastKnownTOP.findIn(finalBlueVector) != -1 && finalBlueVector[lastKnownTOP.findIn(finalBlueVector)].getIdentification() == "TOP";
+			bool currentBOTTOM = lastKnownBOTTOM.findIn(finalBlueVector) != -1 && finalBlueVector[lastKnownBOTTOM.findIn(finalBlueVector)].getIdentification() == "BOTTOM";
+
+			error = false;
+			if ((currentTOP || lastTOP) && (currentBOTTOM || lastBOTTOM)) {
 				top = lastKnownTOP.getCoord();
-			}
-			else {
-				error = true;
-			}
-			if (currentBOTTOM || lastBOTTOM) {
 				bottom = lastKnownBOTTOM.getCoord();
 			}
 			else {
 				error = true;
 			}
+
 			if (!error) {
+				found = true;
 				// Update the position of the robot and the searching bounding box area
 				robot.setImagePosition((top.x + bottom.x) / 2, (top.y + bottom.y) / 2);
 				// Display the estimated position
 				circle(image, robot.getImagePosition(), 5, cv::Scalar(0, 0, 255), -1, 8, 0);
+			}
+			else {
+				notFoundCount++;
+				if (notFoundCount >= 100) {
+					found = false;
+				}
+			}
+		}
+
+		// Update Kalman filter
+		if (found) {
+			notFoundCount = 0;
+			meas.at<float>(0, 0) = float(robot.getImagePosition().x);
+			meas.at<float>(1, 0) = float(robot.getImagePosition().y);
+
+			// First detection
+			if (previousBlueVector.empty())
+			{
+				kf.errorCovPre.at<float>(0, 0) = 1.0;
+				kf.errorCovPre.at<float>(1, 1) = 1.0;
+				kf.errorCovPre.at<float>(2, 2) = 1.0;
+				kf.errorCovPre.at<float>(3, 3) = 1.0;
+
+				state.at<float>(0, 0) = meas.at<float>(0, 0);
+				state.at<float>(1, 0) = meas.at<float>(1, 0);
+				state.at<float>(2, 0) = 0;
+				state.at<float>(3, 0) = 0;
+
+				kf.statePost = state;
+
+				found = true;
+			}
+			else {
+				// Correction Kalman filter
+				kf.correct(meas);
 			}
 		}
 
 		previousBlueVector = copyLAvector(finalBlueVector, previousBlueVector);
 		finalBlueVector.clear();
 
+		// Kalman filter
+		if (error) {
+			// Update the matrix F
+			kf.transitionMatrix.at<float>(0, 2) = float(dT) / 1000;
+			kf.transitionMatrix.at<float>(1, 3) = float(dT) / 1000;
 
+			// Predict the next position
+			state = kf.predict();
+			cv::circle(image, cv::Point(int(state.at<float>(0, 0)), int(state.at<float>(1, 0))), 5, cv::Scalar(255, 0, 0), -1);
+		}
 
 		//writer2.write(image);
 		imshow("Image", image);

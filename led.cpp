@@ -218,7 +218,7 @@ void updateCurrentToPrevious(std::vector<LightArea>& previousBlueVector, std::ve
 	for (std::vector<LightArea>::size_type i = 0; i < blueVector.size(); i++) {
 		// The LightArea is not in the final vector, we add it, otherwise we just update it (but usually, it will not happen)
 		if (!blueVector[i].isContainedIn(finalBlueVector)) {
-			finalBlueVector.push_back(LightArea(true, blueVector[i].getCoord(), finalBlueVector.size(), blueVector[i].getLEDTimeON(), blueVector[i].getLEDTimeOFF(), blueVector[i].getIdentification()));
+			finalBlueVector.push_back(LightArea(true, blueVector[i].getCoord(), int(finalBlueVector.size()), blueVector[i].getLEDTimeON(), blueVector[i].getLEDTimeOFF(), blueVector[i].getIdentification()));
 		}
 	}
 }
