@@ -1,0 +1,89 @@
+#pragma once
+
+#include "infraredLight.h"
+
+class AreaClassification {
+public:
+	//! Constructor by default.
+	AreaClassification();
+
+	//! Update the std::vector<infraredLight> infraredVector using the information from std::vector<infraredLight>
+	//! previousInfraredVector attribut. For each infraredLight contained into std::vector<infraredLight>
+	//! previousInfraredVector attribut but not into std::vector<infraredLight> infraredVector, the information is
+	//! updated and push into std::vector<infraredLight> finalInfraredVector attribut. 
+	/*!
+	\param void
+	\return void
+	*/
+	void updateCurrentFromPrevious();
+
+	//! Update the std::vector<infraredLight> previousInfraredVector using the information from std::vector<infraredLight>
+	//! infraredVector attribut. For each infraredLight contained into std::vector<infraredLight> infraredVector attribut,
+	//! it updates the std::vector<infraredLight> previousInfraredVector by comparing the distance between these two areas.
+	//! If there are close enough (cf const static int distanceAreaLight into the infraredLight file), the information is
+	//! updated and push into std::vector<infraredLight> finalInfraredVector attribut. 
+	/*!
+	\param void
+	\return void
+	*/
+	void updatePreviousFromCurrent();
+
+	//! Update the std::vector<infraredLight> finalInfraredVector to determine if the blinking frequency is matching with the
+	//! searched lights. For each infraredLight contained into std::vector<infraredLight> finalInfraredVector attribut, it
+	//! takes into consideration the time spent since the last iteration and determine if the identification is matching
+	//! with any searched infrared light frequency.
+	/*!
+	\param time Time spent since the last iteration.
+	\return void
+	*/
+	void updateIdentification(clock_t time);
+
+	//! Define the last known location of the searched LEDs (TOP and BOTTOM) using the information from the infraredVector and
+	//! previousInfraredVector attributs. 
+	/*!
+	\param void
+	\return void
+	*/
+	void identifyLastKnownLocation();
+
+	//! Display on the image the identification of the infraredLight conntained into the finalInfraredVector which have an
+	//! identification different from "UNKNOWN".
+	/*!
+	\param image Image where the identification will be display at the coordinates of the considered infraredLight.
+	\return void
+	*/
+	cv::Mat displayIdentification(cv::Mat image);
+
+	//! Copy the std::vector<infraredLight> passed as a parameter into the std::vector<infraredLight> infraredVector
+	//! (attribut of the class).
+	/*!
+	\param v std::vector<infraredLight> that will be copied into std::vector<infraredLight> infraredVector attribut.
+	\return void
+	*/
+	void setInfraredVector(std::vector<infraredLight> v);
+
+	//! Copy the std::vector<infraredLight> passed as a parameter into the std::vector<infraredLight> previousInfraredVector
+	//! (attribut of the class).
+	/*!
+	\param v std::vector<infraredLight> that will be copied into std::vector<infraredLight> previousInfraredVector attribut.
+	\return void
+	*/
+	void setPreviousInfraredVector(std::vector<infraredLight> v);
+
+	//! Clear the std::vector<infraredLight> finalInfraredVector attribut and resize it to 0.
+	/*!
+	\param void
+	\return void
+	*/
+	void clearFinalInfraredVector();
+
+	std::vector<infraredLight> getInfraredVector();
+	std::vector<infraredLight> getPreviousInfraredVector();
+	std::vector<infraredLight> getFinalInfraredVector();
+	infraredLight getLastKnownTOP();
+	infraredLight getLastKnownBOTTOM();
+
+private:
+	std::vector<infraredLight> infraredVector, previousInfraredVector, finalInfraredVector;
+	infraredLight lastKnownTOP, lastKnownBOTTOM;
+};

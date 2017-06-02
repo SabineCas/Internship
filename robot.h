@@ -15,18 +15,16 @@ using namespace std;
 class Robot {
 public:
 	Robot();
-	void computeRealPosition();
+	void updatePosition(cv::Point p1, cv::Point p2);
+	cv::Mat displayImagePosition(cv::Mat image);
 
 	cv::Point2d getImagePosition();
 	cv::Point3f getRealPosition();
-	bool getBlueLEDDetected();
 
 	void setImagePosition(int x, int y);
 	void setRealPosition(float x, float y, float z);
-	void setBlueLEDDetected(bool det);
 
 private:
 	cv::Point3f realPosition;
 	cv::Point2d imagePosition;
-	bool blueLEDDetected;
 };

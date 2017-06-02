@@ -13,7 +13,7 @@ Camera::Camera(int numDevice)
 	//this->cap.open("../data/TestLED.mp4");
 	this->cap.open(numDevice);
 	if (!this->cap.isOpened()) {
-		std::cout << "Error opening the framegrapper of the camera" << endl;
+		std::cout << "Error opening the framegrapper of the camera" << std::endl;
 	}
 	this->intrinsicParam = cv::Mat(3, 3, CV_32FC1, double(0));
 	this->distortionParam = cv::Mat(1, 5, CV_32FC1, double(0));
@@ -64,14 +64,14 @@ int Camera::cameraCalib(bool webcam)
 			//imshow("Gray image", acqImageGray);
 		}
 		else {
-			string file = "../data/Calibration/calibrate" + to_string(successes) + ".jpg";
+			std::string file = "../data/Calibration/calibrate" + std::to_string(successes) + ".jpg";
 			// Read the file
 			image = cv::imread(file, CV_LOAD_IMAGE_COLOR);
 
 			// Check for invalid file
 			if (!image.data)
 			{
-				cout << "Could not open or find the image" << std::endl;
+				std::cout << "Could not open or find the image" << std::endl;
 				return -1;
 			}
 			// Transformation from a RGB image to a gray image
@@ -97,7 +97,7 @@ int Camera::cameraCalib(bool webcam)
 				// Display the found corners
 				drawChessboardCorners(image, boardSize, cv::Mat(pointBuf), found);
 				//imshow("Corners detected", image);
-				string file = "../data/Calibration/process" + to_string(successes) + ".jpg";
+				std::string file = "../data/Calibration/process" + std::to_string(successes) + ".jpg";
 				imwrite(file, image);
 				cvWaitKey(10);
 				// Save the found corners points
@@ -113,20 +113,20 @@ int Camera::cameraCalib(bool webcam)
 		}
 	}
 
-	cout << "Etalonnage avec: " << successes << " images" << endl;
+	std::cout << "Etalonnage avec: " << successes << " images" << std::endl;
 
 	// Result of the calibration
-	vector<cv::Mat> rvecs, tvecs;
+	std::vector<cv::Mat> rvecs, tvecs;
 	double rms = 0;
 
 	// Etalonnage caméra
 	rms = calibrateCamera(objectPoints, imagePoints, image.size(), this->intrinsicParam, this->distortionParam, rvecs, tvecs);
 
 	if (0.1 < rms && rms < 1) {
-		cout << "The calibration went well : " << endl;
-		cout << "rms = " << rms << endl;
-		cout << "Intrinsic parameters = " << this->intrinsicParam << endl;
-		cout << "Distortion parameters = " << this->distortionParam << endl;
+		std::cout << "The calibration went well : " << std::endl;
+		std::cout << "rms = " << rms << std::endl;
+		std::cout << "Intrinsic parameters = " << this->intrinsicParam << std::endl;
+		std::cout << "Distortion parameters = " << this->distortionParam << std::endl;
 		cv::destroyAllWindows();
 		return(0);
 	}
@@ -191,16 +191,17 @@ cv::Mat Camera::colorDetection(cv::Mat image, cv::Scalar lower, cv::Scalar upper
 	return image;
 }
 
-std::vector<LightArea> Camera::ledDetection(cv::Mat image, cv::Scalar lower, cv::Scalar upper)
+std::vector<infraredLight> Camera::ledDetection(cv::Mat image, cv::Scalar lower, cv::Scalar upper)
 {
 	// Variable used for edges detection
-	vector<vector<cv::Point> > contours;
-	vector<cv::Vec4i> hierarchy;
+	std::vector<std::vector<cv::Point> > contours;
+	std::vector<cv::Vec4i> hierarchy;
 
 	// Vector of every potential light from the LEDs
-	std::vector<LightArea> ledVector;
+	std::vector<infraredLight> ledVector;
 	int cpt = 0;
 
+	// DEBUG
 	/*image = cv::imread("../data/InfraredLED.PNG");
 	cv::Mat hsv;
 	cv::cvtColor(image, hsv, CV_BGR2HSV);
@@ -215,16 +216,17 @@ std::vector<LightArea> Camera::ledDetection(cv::Mat image, cv::Scalar lower, cv:
 	std::cout << "Value: Min = " << minVal << ", Max = " << maxVal << std::endl;
 	cv::waitKey(0);*/
 
+	// Gaussian filter
 	//cv::GaussianBlur(image, image, cv::Size(5, 5), 1, 1);
 
 	// Isolate every area that have the color of the LED
 	cv::inRange(image, lower, upper, image);
 	// Morphological processing
-	cv::dilate(image, image, getStructuringElement(cv::MORPH_RECT, cv::Size(3, 3)));
+	cv::dilate(image, image, getStructuringElement(cv::MORPH_RECT, cv::Size(5, 5)));
 	cv::morphologyEx(image, image, cv::MORPH_OPEN, getStructuringElement(cv::MORPH_RECT, cv::Size(3, 3), cv::Point(2, 2)));
 	cv::morphologyEx(image, image, cv::MORPH_CLOSE, getStructuringElement(cv::MORPH_RECT, cv::Size(3, 3), cv::Point(2, 2)));
 
-	cv::imshow("LED", image);
+	//cv::imshow("LED", image);
 
 	// Find the edges of each different area
 	findContours(image, contours, hierarchy, cv::RETR_TREE, cv::CHAIN_APPROX_SIMPLE, cv::Point(0, 0));
@@ -247,14 +249,14 @@ std::vector<LightArea> Camera::ledDetection(cv::Mat image, cv::Scalar lower, cv:
 					minY = contours[i][j].y;
 				}
 			}
-			ledVector.push_back(LightArea(true, cv::Point((maxX + minX) / 2, (maxY + minY) / 2), cpt, 0, 0, "UNKNOWN"));
+			ledVector.push_back(infraredLight(true, cv::Point((maxX + minX) / 2, (maxY + minY) / 2), cpt, 0, 0, contourArea(contours[i], false), "UNKNOWN"));
 			cpt++;
 		}
 	}
 
 	// Merge close areas
-	std::vector<std::vector<LightArea>> areas;
-	std::vector<LightArea> ledFinalVector, temp;
+	std::vector<std::vector<infraredLight>> areas;
+	std::vector<infraredLight> ledFinalVector, temp;
 	bool proche_voisin = false;
 	cpt = 0;
 
@@ -264,7 +266,7 @@ std::vector<LightArea> Camera::ledDetection(cv::Mat image, cv::Scalar lower, cv:
 		areas.push_back(temp);
 		ledVector.erase(ledVector.begin());
 
-		for (std::vector<LightArea>::size_type i = 0; i < ledVector.size(); i++) {
+		for (std::vector<infraredLight>::size_type i = 0; i < ledVector.size(); i++) {
 			if (ledVector[i].areClose(areas[cpt][0].getCoord())) {
 				areas[cpt].push_back(ledVector[i]);
 				ledVector.erase(ledVector.begin() + i);
@@ -285,16 +287,17 @@ std::vector<LightArea> Camera::ledDetection(cv::Mat image, cv::Scalar lower, cv:
 			}
 		}*/
 
-		int x = 0, y = 0;
+		int x = 0, y = 0, size = 0;
 		for (std::vector<cv::Point>::size_type i = 0; i < areas[0].size(); i++) {
 			x += areas[cpt][i].getCoord().x;
 			y += areas[cpt][i].getCoord().y;
+			size += areas[cpt][i].getSizeArea();
 		}
 		x = (int)(x / areas[cpt].size());
 		y = (int)(y / areas[cpt].size());
 		areas[cpt].clear();
-		areas[cpt].push_back(LightArea(true, cv::Point(x, y), cpt, 0, 0, "UNKNOWN"));
-		ledFinalVector.push_back(LightArea(true, cv::Point(x, y), cpt, 0, 0, "UNKNOWN"));
+		areas[cpt].push_back(infraredLight(true, cv::Point(x, y), cpt, 0, 0, size, "UNKNOWN"));
+		ledFinalVector.push_back(infraredLight(true, cv::Point(x, y), cpt, 0, 0, size, "UNKNOWN"));
 		cpt++;
 	}
 
@@ -359,8 +362,8 @@ bool Camera::evaluateMarkersPosition(std::vector<cv::Point> blueVector)
 void Camera::circlesDetection(cv::Mat subImage)
 {
 	// Variable used for edges detection
-	vector<vector<cv::Point> > contours;
-	vector<cv::Vec4i> hierarchy;
+	std::vector<std::vector<cv::Point>> contours;
+	std::vector<cv::Vec4i> hierarchy;
 	cv::RNG rng(12345);
 	cv::Mat grayDrawing;
 
@@ -386,7 +389,7 @@ void Camera::circlesDetection(cv::Mat subImage)
 		}
 	}
 
-	vector<cv::Vec3f> temp;
+	std::vector<cv::Vec3f> temp;
 
 	// Circle Hough Detection
 	cvtColor(drawing, grayDrawing, CV_BGR2GRAY);

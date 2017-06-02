@@ -6,27 +6,23 @@
 */
 
 #include "robot.h"
+#include "areaClassification.h"
 #include <windows.h>
 
 int main(int argc, char** argv) {
-
-	// Interface
-	/*int res, typefen = MB_OK;
-	res = MessageBox(NULL, "voila le message", "voila le titre", typefen);
-	printf("Code de retour : %d\n", res);*/
-
 	// Time between two frame in ms
 	clock_t dT = clock();
 
 	// Initialization of the camera and the robot
 	Camera cam(0);
 	Robot robot = Robot();
+	AreaClassification classif = AreaClassification();
 
 	// Blue LED color
 	cv::Scalar blue_lower(0, 0, 233), blue_upper(165, 255, 255), IF_lower(143, 34, 60), IF_upper(175, 128, 244);
 
 	// Last Known position of the LEDs
-	LightArea lastKnownTOP = LightArea(), lastKnownBOTTOM = LightArea();
+	infraredLight lastKnownTOP = infraredLight(), lastKnownBOTTOM = infraredLight();
 	bool found = false;
 	int notFoundCount = 0;
 	bool error = false;
@@ -49,7 +45,7 @@ int main(int argc, char** argv) {
 	cv::setIdentity(kf.measurementNoiseCov, cv::Scalar(0.1));
 
 	cv::Mat image, subImage, thresImage, ANDImage, ORImage;
-	std::vector<LightArea> blueVector, previousBlueVector, finalBlueVector;
+	//std::vector<infraredLight> blueVector, previousBlueVector, finalBlueVector;
 	cv::Ptr<cv::BackgroundSubtractor> pKNN = cv::createBackgroundSubtractorKNN();
 
 	if (cam.cameraCalib(false) != 0) {
@@ -89,67 +85,36 @@ int main(int argc, char** argv) {
 
 		// Detecttion of the LED
 		cv::cvtColor(image, image, CV_BGR2HSV);
-		blueVector = cam.ledDetection(image, IF_lower, IF_upper);
+		classif.setInfraredVector(cam.ledDetection(image, IF_lower, IF_upper));
 		cv::cvtColor(image, image, CV_HSV2BGR);
 
-		updatePreviousToCurrent(previousBlueVector, blueVector, finalBlueVector);
-		updateCurrentToPrevious(previousBlueVector, blueVector, finalBlueVector);
-		updateIdentification(previousBlueVector, finalBlueVector, dT);
+		// Classification of the different areas 
+		classif.updateCurrentFromPrevious();
+		classif.updatePreviousFromCurrent();
+		classif.updateIdentification(dT);
+		classif.identifyLastKnownLocation();
+		//classif.displayIdentification(image);
 
-		// Display the position of the LEDs with their identification
-		for (std::vector<LightArea>::size_type i = 0; i < finalBlueVector.size(); i++) {
-			if (finalBlueVector[i].getIdentification() != "UNKNOWN") {
-				if (finalBlueVector[i].findIn(previousBlueVector) != -1) {
-					if (finalBlueVector[i].getIdentification() == "TOP" && previousBlueVector[finalBlueVector[i].findIn(previousBlueVector)].getIdentification() == "TOP") { // et qu'il est aussi dans previous --> TO DO
-						lastKnownTOP = finalBlueVector[i];
-						//cv::putText(image, "TOP", finalBlueVector[i].getCoord(), cv::FONT_HERSHEY_PLAIN, 1, cv::Scalar(0, 0, 255), 2, 8, false);
-					}
-					else if (finalBlueVector[i].getIdentification() == "BOTTOM" && previousBlueVector[finalBlueVector[i].findIn(previousBlueVector)].getIdentification() == "BOTTOM") {
-						lastKnownBOTTOM = finalBlueVector[i];
-						//cv::putText(image, "BOTTOM", finalBlueVector[i].getCoord(), cv::FONT_HERSHEY_PLAIN, 1, cv::Scalar(0, 0, 255), 2, 8, false);
-					}
-				}
-			}
+		// Update robot data
+		if (classif.getLastKnownBOTTOM().getCoord() != cv::Point(-1, -1) && classif.getLastKnownTOP().getCoord() != cv::Point(-1, -1)) {
+			notFoundCount = 0;
+			found = true;
+			robot.updatePosition(classif.getLastKnownBOTTOM().getCoord(), classif.getLastKnownTOP().getCoord());
+			robot.displayImagePosition(image);
 		}
-
-		if (!(previousBlueVector.empty())) {
-			bool lastTOP = lastKnownTOP.findIn(previousBlueVector) != -1 && previousBlueVector[lastKnownTOP.findIn(previousBlueVector)].getIdentification() == "TOP";
-			bool lastBOTTOM = lastKnownBOTTOM.findIn(previousBlueVector) != -1 && previousBlueVector[lastKnownBOTTOM.findIn(previousBlueVector)].getIdentification() == "BOTTOM";
-			bool currentTOP = lastKnownTOP.findIn(finalBlueVector) != -1 && finalBlueVector[lastKnownTOP.findIn(finalBlueVector)].getIdentification() == "TOP";
-			bool currentBOTTOM = lastKnownBOTTOM.findIn(finalBlueVector) != -1 && finalBlueVector[lastKnownBOTTOM.findIn(finalBlueVector)].getIdentification() == "BOTTOM";
-
-			error = false;
-			if ((currentTOP || lastTOP) && (currentBOTTOM || lastBOTTOM)) {
-				top = lastKnownTOP.getCoord();
-				bottom = lastKnownBOTTOM.getCoord();
-			}
-			else {
-				error = true;
-			}
-
-			if (!error) {
-				found = true;
-				// Update the position of the robot and the searching bounding box area
-				robot.setImagePosition((top.x + bottom.x) / 2, (top.y + bottom.y) / 2);
-				// Display the estimated position
-				circle(image, robot.getImagePosition(), 5, cv::Scalar(0, 0, 255), -1, 8, 0);
-			}
-			else {
-				notFoundCount++;
-				if (notFoundCount >= 100) {
-					found = false;
-				}
+		else {
+			notFoundCount++;
+			if (notFoundCount >= 10) {
+				found = false;
 			}
 		}
 
 		// Update Kalman filter
 		if (found) {
-			notFoundCount = 0;
 			meas.at<float>(0, 0) = float(robot.getImagePosition().x);
 			meas.at<float>(1, 0) = float(robot.getImagePosition().y);
-
 			// First detection
-			if (previousBlueVector.empty())
+			if (classif.getPreviousInfraredVector().empty())
 			{
 				kf.errorCovPre.at<float>(0, 0) = 1.0;
 				kf.errorCovPre.at<float>(1, 1) = 1.0;
@@ -162,28 +127,21 @@ int main(int argc, char** argv) {
 				state.at<float>(3, 0) = 0;
 
 				kf.statePost = state;
-
-				found = true;
 			}
 			else {
 				// Correction Kalman filter
 				kf.correct(meas);
+				// Update the matrix F
+				kf.transitionMatrix.at<float>(0, 2) = float(dT) / 1000;
+				kf.transitionMatrix.at<float>(1, 3) = float(dT) / 1000;
+				// Predict the next position
+				state = kf.predict();
+				//cv::circle(image, cv::Point(int(state.at<float>(0, 0)), int(state.at<float>(1, 0))), 5, cv::Scalar(255, 0, 0), -1);
 			}
 		}
 
-		previousBlueVector = copyLAvector(finalBlueVector, previousBlueVector);
-		finalBlueVector.clear();
-
-		// Kalman filter
-		if (error) {
-			// Update the matrix F
-			kf.transitionMatrix.at<float>(0, 2) = float(dT) / 1000;
-			kf.transitionMatrix.at<float>(1, 3) = float(dT) / 1000;
-
-			// Predict the next position
-			state = kf.predict();
-			cv::circle(image, cv::Point(int(state.at<float>(0, 0)), int(state.at<float>(1, 0))), 5, cv::Scalar(255, 0, 0), -1);
-		}
+		classif.setPreviousInfraredVector(classif.getFinalInfraredVector());
+		classif.clearFinalInfraredVector();
 
 		//writer2.write(image);
 		imshow("Image", image);

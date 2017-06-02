@@ -10,25 +10,14 @@
 #define _CRT_SECURE_NO_DEPRECATE
 #define DEBUG_CHESSBOARD
 
-#include <stdio.h>
-#include <opencv2/opencv.hpp>
 #include <opencv2/highgui.hpp>
 #include <opencv2/video.hpp>
-#include "led.h"
-
-using namespace std;
+#include "infraredLight.h"
 
 // Value used for the threshold
 const static int SENSITIVITY_VALUE = 30;
 // Value used for the widening of the bounding box
 const static int WIDE_BOUNDING_BOX_X = 20;
-
-// Proportional value of the LEDs
-const static int  min_coef_LED = 10;
-const static int max_coef_LED = 1;
-// Proportional value of the robot
-const static int  min_coef_robot = 10;
-const static int max_coef_robot = 1;
 
 class Camera {
 public:
@@ -41,7 +30,7 @@ public:
 	cv::Mat updateBackground(cv::Mat image, cv::Ptr<cv::BackgroundSubtractor> pKNN);
 	cv::Mat improveBackSubtr(cv::Mat image);
 	cv::Mat colorDetection(cv::Mat image, cv::Scalar lower, cv::Scalar upper);
-	std::vector<LightArea> ledDetection(cv::Mat image, cv::Scalar lower, cv::Scalar upper);
+	std::vector<infraredLight> ledDetection(cv::Mat image, cv::Scalar lower, cv::Scalar upper);
 	int ledFrequency(clock_t time, bool detected, bool previousDetected);
 	bool evaluateMarkersPosition(std::vector<cv::Point> blueVector);
 	void circlesDetection(cv::Mat subImage);
@@ -68,7 +57,7 @@ public:
 private:
 	cv::VideoCapture cap;
 	cv::Mat intrinsicParam, distortionParam, map1, map2;
-	vector<cv::Vec3f> circles;
+	std::vector<cv::Vec3f> circles;
 	cv::Rect2d boundingBoxObs;
 	bool detectedCircle, detectedBlueLED;
 	int nbDetectedLED;
