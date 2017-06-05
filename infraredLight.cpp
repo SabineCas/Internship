@@ -22,18 +22,6 @@ infraredLight::infraredLight(bool v, cv::Point c, int n, clock_t on, clock_t off
 	this->identification = id;
 }
 
-//infraredLight::infraredLight(infraredLight & il)
-//{
-//	this->visible = il.visible;
-//	this->coord = il.coord;
-//	this->numArea = il.numArea;
-//	this->LEDTimeON = il.LEDTimeON;
-//	this->LEDTimeOFF = il.LEDTimeOFF;
-//	this->sizeArea = il.sizeArea;
-//	this->identification = il.identification;
-//	this->timeFrames = il.timeFrames;
-//}
-
 bool infraredLight::areClose(cv::Point p)
 {
 	return(cv::norm(this->coord - p) < distanceAreaLight);
@@ -164,12 +152,6 @@ clock_t infraredLight::getLEDTimeON()
 std::string infraredLight::getIdentification()
 {
 	return this->identification;
-}
-
-std::vector<clock_t> infraredLight::getTimeFrames()
-{
-	//return this->timeFrames;
-	return(std::vector<clock_t>());
 }
 
 void infraredLight::setVisible(bool v)

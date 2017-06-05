@@ -10,7 +10,7 @@
 Camera::Camera(int numDevice)
 {
 	// Opening the framegrabber of the camera
-	//this->cap.open("../data/TestLED.mp4");
+	//this->cap.open("../data/TestKalman.mp4");
 	this->cap.open(numDevice);
 	if (!this->cap.isOpened()) {
 		std::cout << "Error opening the framegrapper of the camera" << std::endl;
@@ -19,6 +19,14 @@ Camera::Camera(int numDevice)
 	this->distortionParam = cv::Mat(1, 5, CV_32FC1, double(0));
 	this->boundingBoxObs = cv::Rect2d(0, 0, this->cap.get(cv::CAP_PROP_FRAME_WIDTH), this->cap.get(cv::CAP_PROP_FRAME_HEIGHT));
 	this->circles.push_back(cv::Vec3f(0, 0, 0));
+
+	// Increase the resolution
+	this->cap.set(CV_CAP_PROP_FRAME_HEIGHT, 720);
+	this->cap.set(CV_CAP_PROP_FRAME_WIDTH, 960);
+
+	// Deactivate the autofocus of the camera
+	this->cap.set(cv::CAP_PROP_FOCUS, false);
+	this->cap.set(cv::CAP_PROP_AUTOFOCUS, false);
 }
 
 Camera::~Camera()
@@ -52,8 +60,9 @@ int Camera::cameraCalib(bool webcam)
 	int numVerSquares = 9;
 	cv::Size boardSize(numHorSquares, numVerSquares);
 	// Reference pattern
-	for (int j = 0; j < numHorSquares * numVerSquares; j++)
+	for (int j = 0; j < numHorSquares * numVerSquares; j++) {
 		objectBuf.push_back(cv::Point3d(j / numHorSquares, j % numHorSquares, 0.0f));
+	}
 
 	while (successes < 10) {
 		if (webcam) {
@@ -64,9 +73,8 @@ int Camera::cameraCalib(bool webcam)
 			//imshow("Gray image", acqImageGray);
 		}
 		else {
-			std::string file = "../data/Calibration/calibrate" + std::to_string(successes) + ".jpg";
 			// Read the file
-			image = cv::imread(file, CV_LOAD_IMAGE_COLOR);
+			image = cv::imread("../data/Calibration/calibrate" + std::to_string(successes) + ".jpg", CV_LOAD_IMAGE_COLOR);
 
 			// Check for invalid file
 			if (!image.data)
@@ -90,15 +98,13 @@ int Camera::cameraCalib(bool webcam)
 
 			// Display and save the points
 			if (found) {
-				/*string file = "../data/calibrate" + to_string(successes) + ".jpg";
-				imwrite(file, image);*/
+				imwrite("../data/calibrate" + std::to_string(successes) + ".jpg", image);
 				// Finds the edges in the image
 				cornerSubPix(acqImageGray, pointBuf, cv::Size(11, 11), cv::Size(-1, -1), cv::TermCriteria(CV_TERMCRIT_EPS | CV_TERMCRIT_ITER, 30, 0.1));
 				// Display the found corners
 				drawChessboardCorners(image, boardSize, cv::Mat(pointBuf), found);
 				//imshow("Corners detected", image);
-				std::string file = "../data/Calibration/process" + std::to_string(successes) + ".jpg";
-				imwrite(file, image);
+				imwrite("../data/Calibration/process" + std::to_string(successes) + ".jpg", image);
 				cvWaitKey(10);
 				// Save the found corners points
 				imagePoints.push_back(pointBuf);
@@ -113,7 +119,7 @@ int Camera::cameraCalib(bool webcam)
 		}
 	}
 
-	std::cout << "Etalonnage avec: " << successes << " images" << std::endl;
+	std::cout << "Calibration with: " << successes << " images" << std::endl;
 
 	// Result of the calibration
 	std::vector<cv::Mat> rvecs, tvecs;
@@ -122,21 +128,20 @@ int Camera::cameraCalib(bool webcam)
 	// Etalonnage caméra
 	rms = calibrateCamera(objectPoints, imagePoints, image.size(), this->intrinsicParam, this->distortionParam, rvecs, tvecs);
 
-	if (0.1 < rms && rms < 1) {
-		std::cout << "The calibration went well : " << std::endl;
-		std::cout << "rms = " << rms << std::endl;
-		std::cout << "Intrinsic parameters = " << this->intrinsicParam << std::endl;
-		std::cout << "Distortion parameters = " << this->distortionParam << std::endl;
-		cv::destroyAllWindows();
-		return(0);
-	}
-
-	return(-3);
+	// Display the results
+	std::cout << "The calibration went well : " << std::endl;
+	std::cout << "rms = " << rms << std::endl;
+	std::cout << "Intrinsic parameters = " << this->intrinsicParam << std::endl;
+	std::cout << "Distortion parameters = " << this->distortionParam << std::endl;
+	cv::destroyAllWindows();
+	return(0);
 }
 
-int Camera::cameraCorr()
+void Camera::cameraCorr(double H)
 {
-	cv::Mat R, map1, map2, image, rectImage;
+	cv::Mat R(3, 3, CV_32FC1), map1, map2, image, rectImage;
+	cv::setIdentity(R, cv::Scalar(1));
+	//R.at<float>(2, 2) = H;
 
 	// Determine the size of the frame
 	cv::Size sizeImage((int)this->cap.get(CV_CAP_PROP_FRAME_WIDTH), (int)this->cap.get(CV_CAP_PROP_FRAME_HEIGHT));
@@ -144,8 +149,6 @@ int Camera::cameraCorr()
 
 	// Set paramters to correct distortions
 	initUndistortRectifyMap(this->intrinsicParam, this->distortionParam, R, newCameraMatrix, sizeImage, CV_32FC1, this->map1, this->map2);
-
-	return(0);
 }
 
 cv::Mat Camera::updateBackground(cv::Mat image, cv::Ptr<cv::BackgroundSubtractor> pKNN)
@@ -202,7 +205,7 @@ std::vector<infraredLight> Camera::ledDetection(cv::Mat image, cv::Scalar lower,
 	int cpt = 0;
 
 	// DEBUG
-	/*image = cv::imread("../data/InfraredLED.PNG");
+	/*image = cv::imread("../data/Picture27.jpg");
 	cv::Mat hsv;
 	cv::cvtColor(image, hsv, CV_BGR2HSV);
 	cv::Mat hsvChannels[3];
@@ -221,6 +224,9 @@ std::vector<infraredLight> Camera::ledDetection(cv::Mat image, cv::Scalar lower,
 
 	// Isolate every area that have the color of the LED
 	cv::inRange(image, lower, upper, image);
+	//cv::cvtColor(image, image, CV_BGR2GRAY);
+	//cv::threshold(image, image, 170, 180, 0);
+
 	// Morphological processing
 	cv::dilate(image, image, getStructuringElement(cv::MORPH_RECT, cv::Size(5, 5)));
 	cv::morphologyEx(image, image, cv::MORPH_OPEN, getStructuringElement(cv::MORPH_RECT, cv::Size(3, 3), cv::Point(2, 2)));
@@ -302,61 +308,6 @@ std::vector<infraredLight> Camera::ledDetection(cv::Mat image, cv::Scalar lower,
 	}
 
 	return(ledFinalVector);
-}
-
-int Camera::ledFrequency(clock_t time, bool detected, bool previousDetected)
-{
-	int time1 = 100, time2 = 200;
-	if (detected && !previousDetected) {
-		LEDTimeON = time;
-		if (LEDTimeOFF <= time1 && LEDTimeOFF > 0) {
-			return(1);
-		}
-		else {
-			return(2);
-		}
-	}
-	else if (detected && previousDetected) {
-		LEDTimeON += time;
-		if (LEDTimeOFF <= time1 && LEDTimeOFF > 0) {
-			return(1);
-		}
-		else {
-			return(2);
-		}
-	}
-	else if (!detected && previousDetected) {
-		LEDTimeOFF = time;
-		if (LEDTimeON <= time1 && LEDTimeOFF > 0) {
-			return(1);
-		}
-		else {
-			return(2);
-		}
-	}
-	else {
-		LEDTimeOFF += time;
-		if (LEDTimeON <= time1 && LEDTimeON > 0) {
-			return(1);
-		}
-		else {
-			return(2);
-		}
-	}
-}
-
-bool Camera::evaluateMarkersPosition(std::vector<cv::Point> blueVector)
-{
-	this->nbDetectedLED = 0;
-	if (this->detectedBlueLED) {
-		this->nbDetectedLED++;
-	}
-
-	if (this->nbDetectedLED > 2) {
-		// Check if the positionning of the LED are coherent with the mechanical configuration of the robot
-		return(true);
-	}
-	return(false);
 }
 
 void Camera::circlesDetection(cv::Mat subImage)
@@ -516,26 +467,6 @@ cv::Mat Camera::getMap2()
 bool Camera::getDetectedCircle()
 {
 	return detectedCircle;
-}
-
-bool Camera::getDetectedBlueLED()
-{
-	return this->detectedBlueLED;
-}
-
-int Camera::getNbDetectedLED()
-{
-	return this->nbDetectedLED;
-}
-
-clock_t Camera::getLEDTimeOFF()
-{
-	return (LEDTimeOFF);
-}
-
-clock_t Camera::getLEDTimeON()
-{
-	return (LEDTimeON);
 }
 
 void Camera::setBoundingBoxObs(int minX, int maxX, int minY, int maxY)

@@ -77,10 +77,42 @@ public:
 	*/
 	void clearFinalInfraredVector();
 
+	//! Return the std::vector<infraredLight> infraredVector attribut that represents the the detected area with the same
+	//! color range that the LEDs on the current frame.
+	/*!
+	\param void
+	\return The std::vector<infraredLight> infraredVector attribut
+	*/
 	std::vector<infraredLight> getInfraredVector();
+
+	//! Return the std::vector<infraredLight> previousInfraredVector attribut that represents the the detected area with the
+	//! same color range that the LEDs on the previous frame.
+	/*!
+	\param void
+	\return The std::vector<infraredLight> previousInfraredVector attribut
+	*/
 	std::vector<infraredLight> getPreviousInfraredVector();
+
+	//! Return the std::vector<infraredLight> finalInfraredVector attribut that represents the the detected area with the same
+	//! color range that the LEDs since the first frame after taking into account the previous and the current data.
+	/*!
+	\param void
+	\return The std::vector<infraredLight> finalInfraredVector attribut
+	*/
 	std::vector<infraredLight> getFinalInfraredVector();
+
+	//! Return the infraredLight lastKnownTOP attribut that represents the last known position of the LED on the top of the robot.
+	/*!
+	\param void
+	\return The infraredLight lastKnownTOP attribut
+	*/
 	infraredLight getLastKnownTOP();
+
+	//! Return the infraredLight lastKnownBOTTOM attribut that represents the last known position of the LED on the bottom of the robot
+	/*!
+	\param void
+	\return The infraredLight lastKnownBOTTOM attribut
+	*/
 	infraredLight getLastKnownBOTTOM();
 
 private:

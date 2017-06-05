@@ -12,14 +12,26 @@
 int main(int argc, char** argv) {
 	// Time between two frame in ms
 	clock_t dT = clock();
+	clock_t t = clock();
 
 	// Initialization of the camera and the robot
 	Camera cam(0);
+	cv::Mat image;
 	Robot robot = Robot();
 	AreaClassification classif = AreaClassification();
 
 	// Blue LED color
-	cv::Scalar blue_lower(0, 0, 233), blue_upper(165, 255, 255), IF_lower(143, 34, 60), IF_upper(175, 128, 244);
+	cv::Scalar IF_lower(100, 34, 60), IF_upper(175, 128, 244);
+
+	// Background subtractor initialization
+	cv::Ptr<cv::BackgroundSubtractor> pKNN = cv::createBackgroundSubtractorKNN();
+
+	// Calibration of the camera
+	if (cam.cameraCalib(false) != 0) {
+		std::cout << "Calibration error" << endl;
+		return(-1);
+	}
+	cam.cameraCorr(1.73);
 
 	// Last Known position of the LEDs
 	infraredLight lastKnownTOP = infraredLight(), lastKnownBOTTOM = infraredLight();
@@ -44,30 +56,13 @@ int main(int argc, char** argv) {
 	kf.processNoiseCov.at<float>(3, 3) = float(5.0);
 	cv::setIdentity(kf.measurementNoiseCov, cv::Scalar(0.1));
 
-	cv::Mat image, subImage, thresImage, ANDImage, ORImage;
-	//std::vector<infraredLight> blueVector, previousBlueVector, finalBlueVector;
-	cv::Ptr<cv::BackgroundSubtractor> pKNN = cv::createBackgroundSubtractorKNN();
-
-	if (cam.cameraCalib(false) != 0) {
-		std::cout << "Calibration error" << endl;
-		return(-1);
-	}
-
-	if (cam.cameraCorr() != 0) {
-		std::cout << "Rectification error" << endl;
-		return(-2);
-	}
-
-	// Deactivate the autofocus of the camera
-	cam.getCap().set(cv::CAP_PROP_FOCUS, false);
-	cam.getCap().set(cv::CAP_PROP_AUTOFOCUS, false);
-	clock_t t = clock();
-
 	// DEBUG
-	/*cv::Size size2 = cv::Size(cam.getCap().get(cv::CAP_PROP_FRAME_WIDTH), cam.getCap().get(cv::CAP_PROP_FRAME_HEIGHT));
+	cv::Size size2 = cv::Size(int(cam.getCap().get(cv::CAP_PROP_FRAME_WIDTH)), int(cam.getCap().get(cv::CAP_PROP_FRAME_HEIGHT)));
 	int codec = CV_FOURCC('M', 'J', 'P', 'G');
 	cv::VideoWriter writer2("../data/Result1.avi", codec, 10, size2, true);
-	writer2.open("../data/Result1.avi", codec, 10, size2, true);*/
+	writer2.open("../data/Result1.avi", codec, 20, size2, true);
+	cv::VideoWriter writer3("../data/Result2.avi", codec, 10, size2, true);
+	writer3.open("../data/Result2.avi", codec, 20, size2, true);
 
 	while (cv::waitKey(10) != 27) {
 		// Update of the timer
@@ -82,6 +77,7 @@ int main(int argc, char** argv) {
 		// Fix the optical distorsion of the camera
 		remap(image, image, cam.getMap1(), cam.getMap2(), cv::INTER_NEAREST);
 		//imshow("Image before", image);
+		//writer2.write(image);
 
 		// Detecttion of the LED
 		cv::cvtColor(image, image, CV_BGR2HSV);
@@ -100,11 +96,11 @@ int main(int argc, char** argv) {
 			notFoundCount = 0;
 			found = true;
 			robot.updatePosition(classif.getLastKnownBOTTOM().getCoord(), classif.getLastKnownTOP().getCoord());
-			robot.displayImagePosition(image);
+			//robot.displayImagePosition(image);
 		}
 		else {
 			notFoundCount++;
-			if (notFoundCount >= 10) {
+			if (notFoundCount >= 50) {
 				found = false;
 			}
 		}
@@ -136,18 +132,18 @@ int main(int argc, char** argv) {
 				kf.transitionMatrix.at<float>(1, 3) = float(dT) / 1000;
 				// Predict the next position
 				state = kf.predict();
-				//cv::circle(image, cv::Point(int(state.at<float>(0, 0)), int(state.at<float>(1, 0))), 5, cv::Scalar(255, 0, 0), -1);
+				cv::circle(image, cv::Point(int(state.at<float>(0, 0)), int(state.at<float>(1, 0))), 5, cv::Scalar(255, 0, 0), -1);
 			}
 		}
 
 		classif.setPreviousInfraredVector(classif.getFinalInfraredVector());
 		classif.clearFinalInfraredVector();
 
-		//writer2.write(image);
 		imshow("Image", image);
+		//writer3.write(image);
 
 		dT = (clock() - t);
-		//std::cout << dT << endl;
+		std::cout << dT << endl;
 	}
 	cv::destroyAllWindows();
 }

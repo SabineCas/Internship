@@ -68,6 +68,7 @@ void AreaClassification::updateIdentification(clock_t time)
 		else {
 			infraredLight temp;
 			int indice = 0;
+			// TO DO : chose the best area when there is several area with the same state ("TOP" or "BOTTOM")
 			/*for (std::vector<int>::size_type j = 0; j < index.size(); j++) {
 				if (temp.getSizeArea() < this->finalInfraredVector[i].getSizeArea()) {
 					temp = this->finalInfraredVector[i];
@@ -83,7 +84,7 @@ void AreaClassification::identifyLastKnownLocation()
 {
 	this->lastKnownTOP = infraredLight();
 	this->lastKnownBOTTOM = infraredLight();
-	// Display the position of the LEDs with their identification
+	// Identify the last known location of the different LEDs using the information from the current and previous LEDs vector
 	for (std::vector<infraredLight>::size_type i = 0; i < this->finalInfraredVector.size(); i++) {
 		if (this->finalInfraredVector[i].getIdentification() != "UNKNOWN") {
 			if (!this->finalInfraredVector[i].findIn(this->previousInfraredVector).empty()) {
@@ -109,8 +110,10 @@ void AreaClassification::identifyLastKnownLocation()
 
 cv::Mat AreaClassification::displayIdentification(cv::Mat image)
 {
-	cv::putText(image, this->lastKnownBOTTOM.getIdentification(), this->lastKnownBOTTOM.getCoord(), cv::FONT_HERSHEY_PLAIN, 1, cv::Scalar(0, 0, 255), 2, 8, false);
-	cv::putText(image, this->lastKnownTOP.getIdentification(), this->lastKnownTOP.getCoord(), cv::FONT_HERSHEY_PLAIN, 1, cv::Scalar(0, 0, 255), 2, 8, false);
+	cv::putText(image, this->lastKnownBOTTOM.getIdentification(), this->lastKnownBOTTOM.getCoord(),
+		cv::FONT_HERSHEY_PLAIN, 1, cv::Scalar(0, 0, 255), 2, 8, false);
+	cv::putText(image, this->lastKnownTOP.getIdentification(), this->lastKnownTOP.getCoord(),
+		cv::FONT_HERSHEY_PLAIN, 1, cv::Scalar(0, 0, 255), 2, 8, false);
 	return image;
 }
 

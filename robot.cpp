@@ -40,17 +40,5 @@ cv::Point3f Robot::getRealPosition()
 	return this->realPosition;
 }
 
-void Robot::setImagePosition(int x, int y)
-{
-	this->imagePosition.x = x;
-	this->imagePosition.y = y;
-}
-
-void Robot::setRealPosition(float x, float y, float z)
-{
-	this->realPosition.x = x;
-	this->realPosition.y = y;
-	this->realPosition.z = z;
-}
 
 
