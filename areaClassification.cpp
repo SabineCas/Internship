@@ -86,7 +86,7 @@ void AreaClassification::identifyLastKnownLocation()
 	this->lastKnownBOTTOM = infraredLight();
 	// Identify the last known location of the different LEDs using the information from the current and previous LEDs vector
 	for (std::vector<infraredLight>::size_type i = 0; i < this->finalInfraredVector.size(); i++) {
-		if (this->finalInfraredVector[i].getIdentification() != "UNKNOWN") {
+		//if (this->finalInfraredVector[i].getIdentification() != "UNKNOWN") {
 			if (!this->finalInfraredVector[i].findIn(this->previousInfraredVector).empty()) {
 				std::string id = this->finalInfraredVector[i].getIdentification();
 				std::string prevId = this->previousInfraredVector[this->finalInfraredVector[i].findIn(this->previousInfraredVector)[0]].getIdentification();
@@ -103,18 +103,17 @@ void AreaClassification::identifyLastKnownLocation()
 						this->lastKnownBOTTOM = this->finalInfraredVector[i];
 					}
 				}
-			}
+			//}
 		}
 	}
 }
 
-cv::Mat AreaClassification::displayIdentification(cv::Mat image)
+void AreaClassification::displayIdentification(cv::Mat image)
 {
 	cv::putText(image, this->lastKnownBOTTOM.getIdentification(), this->lastKnownBOTTOM.getCoord(),
 		cv::FONT_HERSHEY_PLAIN, 1, cv::Scalar(0, 0, 255), 2, 8, false);
 	cv::putText(image, this->lastKnownTOP.getIdentification(), this->lastKnownTOP.getCoord(),
 		cv::FONT_HERSHEY_PLAIN, 1, cv::Scalar(0, 0, 255), 2, 8, false);
-	return image;
 }
 
 void AreaClassification::setInfraredVector(std::vector<infraredLight> v)

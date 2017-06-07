@@ -52,7 +52,7 @@ public:
 	\param image Image where the identification will be display at the coordinates of the considered infraredLight.
 	\return void
 	*/
-	cv::Mat displayIdentification(cv::Mat image);
+	void displayIdentification(cv::Mat image);
 
 	//! Copy the std::vector<infraredLight> passed as a parameter into the std::vector<infraredLight> infraredVector
 	//! (attribut of the class).

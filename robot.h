@@ -8,6 +8,7 @@
 #pragma once
 
 #include "camera.h"
+#include "kalman.h"
 #include <stdio.h>
 
 using namespace std;
@@ -15,7 +16,7 @@ using namespace std;
 class Robot {
 public:
 	//! Constructor by default.
-	Robot();
+	Robot(double H, double alphaU, double alphaV, double u0, double v0);
 
 	//! Update the position of the robot on the picture (cv::Point2d imagePosition attribut) accordings to the two detected LEDs
 	//! passed as parameters. 
@@ -31,7 +32,7 @@ public:
 	\param image The current frame
 	\return The current frame with the circle drawn
 	*/
-	cv::Mat displayImagePosition(cv::Mat image);
+	void displayImagePosition(cv::Mat image);
 
 	//! Return the image coordinate of the robot saved into the cv::Point2d imagePosition attribut.
 	/*!
@@ -50,4 +51,5 @@ public:
 private:
 	cv::Point3f realPosition;
 	cv::Point2d imagePosition;
+	double H, alphaU, alphaV, u0, v0, angleOrientation;
 };

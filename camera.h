@@ -105,7 +105,7 @@ public:
 	\param image The current frame
 	\return The current frame with the circle drawn
 	*/
-	cv::Mat displayCircles(cv::Mat image);
+	void displayCircles(cv::Mat image);
 
 	//! Widen the searching bounding box area (cv::Rect2d boundingBoxObs) attribut on each side with the value passed as a parameter.
 	/*!
@@ -120,6 +120,13 @@ public:
 	\return The cv::VideoCapture cap attribut
 	*/
 	cv::VideoCapture getCap();
+
+	//! Return the cv::Mat intrinsicParam attribut that represents the intrinsic parameters of the camera
+	/*!
+	\param void
+	\return The cv::Mat intrinsicParam attribut
+	*/
+	cv::Mat getIntrinsicParameters();
 
 	//! Return the cv::Rect2d boundingBoxObs attribut that represents the searching bounding box area
 	/*!
@@ -167,7 +174,6 @@ public:
 	\return void
 	*/
 	void setDetectedCircle(bool det);
-	
 
 private:
 	cv::VideoCapture cap;

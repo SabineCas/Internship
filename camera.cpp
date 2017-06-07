@@ -70,7 +70,7 @@ int Camera::cameraCalib(bool webcam)
 			this->cap >> image;
 			// Transformation from a RGB image to a gray image
 			cvtColor(image, acqImageGray, CV_BGR2GRAY);
-			//imshow("Gray image", acqImageGray);
+			imshow("Gray image", acqImageGray);
 		}
 		else {
 			// Read the file
@@ -103,7 +103,7 @@ int Camera::cameraCalib(bool webcam)
 				cornerSubPix(acqImageGray, pointBuf, cv::Size(11, 11), cv::Size(-1, -1), cv::TermCriteria(CV_TERMCRIT_EPS | CV_TERMCRIT_ITER, 30, 0.1));
 				// Display the found corners
 				drawChessboardCorners(image, boardSize, cv::Mat(pointBuf), found);
-				//imshow("Corners detected", image);
+				imshow("Corners detected", image);
 				imwrite("../data/Calibration/process" + std::to_string(successes) + ".jpg", image);
 				cvWaitKey(10);
 				// Save the found corners points
@@ -127,6 +127,9 @@ int Camera::cameraCalib(bool webcam)
 
 	// Etalonnage caméra
 	rms = calibrateCamera(objectPoints, imagePoints, image.size(), this->intrinsicParam, this->distortionParam, rvecs, tvecs);
+	if (rms > 1.5) {
+		return(-1);
+	}
 
 	// Display the results
 	std::cout << "The calibration went well : " << std::endl;
@@ -255,7 +258,7 @@ std::vector<infraredLight> Camera::ledDetection(cv::Mat image, cv::Scalar lower,
 					minY = contours[i][j].y;
 				}
 			}
-			ledVector.push_back(infraredLight(true, cv::Point((maxX + minX) / 2, (maxY + minY) / 2), cpt, 0, 0, contourArea(contours[i], false), "UNKNOWN"));
+			ledVector.push_back(infraredLight(true, cv::Point((maxX + minX) / 2, (maxY + minY) / 2), cpt, 0, 0, int(contourArea(contours[i], false)), "UNKNOWN"));
 			cpt++;
 		}
 	}
@@ -386,7 +389,7 @@ cv::Point Camera::coherenceCirclesMarkers(std::vector<cv::Point> blueVector)
 	return(temp);
 }
 
-cv::Mat Camera::displayCircles(cv::Mat image)
+void Camera::displayCircles(cv::Mat image)
 {
 	int maxX = 0, maxY = 0, minX = image.size().width, minY = image.size().height;
 
@@ -429,7 +432,6 @@ cv::Mat Camera::displayCircles(cv::Mat image)
 			//wideringBoundingBox(WIDE_BOUNDING_BOX_X);
 		}
 	}
-	return(image);
 }
 
 void Camera::wideringBoundingBox(int value)
@@ -447,6 +449,11 @@ void Camera::wideringBoundingBox(int value)
 cv::VideoCapture Camera::getCap()
 {
 	return this->cap;
+}
+
+cv::Mat Camera::getIntrinsicParameters()
+{
+	return this->intrinsicParam;
 }
 
 cv::Rect2d Camera::getBoundingBoxObs()

@@ -11,50 +11,35 @@
 
 int main(int argc, char** argv) {
 	// Time between two frame in ms
-	clock_t dT = clock();
-	clock_t t = clock();
+	clock_t dT = clock(), t = clock();
 
 	// Initialization of the camera and the robot
 	Camera cam(0);
 	cv::Mat image;
-	Robot robot = Robot();
-	AreaClassification classif = AreaClassification();
-
-	// Blue LED color
-	cv::Scalar IF_lower(100, 34, 60), IF_upper(175, 128, 244);
-
-	// Background subtractor initialization
-	cv::Ptr<cv::BackgroundSubtractor> pKNN = cv::createBackgroundSubtractorKNN();
-
+	
 	// Calibration of the camera
 	if (cam.cameraCalib(false) != 0) {
 		std::cout << "Calibration error" << endl;
 		return(-1);
 	}
-	cam.cameraCorr(1.73);
+	const static double height = 1.73;
+	cam.cameraCorr(height);
 
-	// Last Known position of the LEDs
-	infraredLight lastKnownTOP = infraredLight(), lastKnownBOTTOM = infraredLight();
-	bool found = false;
-	int notFoundCount = 0;
-	bool error = false;
-	cv::Point top, bottom;
+	// Infrared LED color
+	cv::Scalar IF_lower(100, 34, 60), IF_upper(175, 128, 244);
+	AreaClassification classif = AreaClassification();
+
+	// Background subtractor initialization
+	cv::Ptr<cv::BackgroundSubtractor> pKNN = cv::createBackgroundSubtractorKNN();
+
+	// Robot
+	Robot robot = Robot(height, cam.getIntrinsicParameters().at<double>(0, 0), cam.getIntrinsicParameters().at<double>(1, 1),
+		cam.getIntrinsicParameters().at<double>(0, 2), cam.getIntrinsicParameters().at<double>(1, 2));
 
 	// Kalman filter
-	int stateSize = 4, measSize = 2, contrSize = 0;
-	unsigned int type = CV_32F;
-	cv::KalmanFilter kf(stateSize, measSize, contrSize, type);
-	cv::Mat state(stateSize, 1, type);  // (x, y, v_x, v_y) : state vector
-	cv::Mat meas(measSize, 1, type); // (z_x, z_y) : measurements vector
-	cv::setIdentity(kf.transitionMatrix); // Transition matrix : describes relationship between model parameters at step k and at step k + 1
-	kf.measurementMatrix = cv::Mat::zeros(measSize, stateSize, type);
-	kf.measurementMatrix.at<float>(0, 0) = float(1.0);
-	kf.measurementMatrix.at<float>(1, 1) = float(1.0);
-	kf.processNoiseCov.at<float>(0, 0) = float(0.01);
-	kf.processNoiseCov.at<float>(1, 1) = float(0.01);
-	kf.processNoiseCov.at<float>(2, 2) = float(5.0);
-	kf.processNoiseCov.at<float>(3, 3) = float(5.0);
-	cv::setIdentity(kf.measurementNoiseCov, cv::Scalar(0.1));
+	Kalman kalman = Kalman();
+	bool found = false, error = false;
+	int notFoundCount = 0;
 
 	// DEBUG
 	cv::Size size2 = cv::Size(int(cam.getCap().get(cv::CAP_PROP_FRAME_WIDTH)), int(cam.getCap().get(cv::CAP_PROP_FRAME_HEIGHT)));
@@ -68,7 +53,7 @@ int main(int argc, char** argv) {
 		// Update of the timer
 		t = clock();
 
-		// Get the next frame
+		// Get the next frame 
 		cam.getCap().read(image);
 		if (image.size() == cv::Size(0, 0)) {
 			break;
@@ -76,7 +61,6 @@ int main(int argc, char** argv) {
 
 		// Fix the optical distorsion of the camera
 		remap(image, image, cam.getMap1(), cam.getMap2(), cv::INTER_NEAREST);
-		//imshow("Image before", image);
 		//writer2.write(image);
 
 		// Detecttion of the LED
@@ -89,14 +73,14 @@ int main(int argc, char** argv) {
 		classif.updatePreviousFromCurrent();
 		classif.updateIdentification(dT);
 		classif.identifyLastKnownLocation();
-		//classif.displayIdentification(image);
+		classif.displayIdentification(image);
 
-		// Update robot data
+		// Update robot position and orientation
 		if (classif.getLastKnownBOTTOM().getCoord() != cv::Point(-1, -1) && classif.getLastKnownTOP().getCoord() != cv::Point(-1, -1)) {
 			notFoundCount = 0;
 			found = true;
-			robot.updatePosition(classif.getLastKnownBOTTOM().getCoord(), classif.getLastKnownTOP().getCoord());
-			//robot.displayImagePosition(image);
+			robot.updatePosition(classif.getLastKnownTOP().getCoord(), classif.getLastKnownBOTTOM().getCoord());
+			robot.displayImagePosition(image);
 		}
 		else {
 			notFoundCount++;
@@ -107,35 +91,17 @@ int main(int argc, char** argv) {
 
 		// Update Kalman filter
 		if (found) {
-			meas.at<float>(0, 0) = float(robot.getImagePosition().x);
-			meas.at<float>(1, 0) = float(robot.getImagePosition().y);
-			// First detection
-			if (classif.getPreviousInfraredVector().empty())
-			{
-				kf.errorCovPre.at<float>(0, 0) = 1.0;
-				kf.errorCovPre.at<float>(1, 1) = 1.0;
-				kf.errorCovPre.at<float>(2, 2) = 1.0;
-				kf.errorCovPre.at<float>(3, 3) = 1.0;
-
-				state.at<float>(0, 0) = meas.at<float>(0, 0);
-				state.at<float>(1, 0) = meas.at<float>(1, 0);
-				state.at<float>(2, 0) = 0;
-				state.at<float>(3, 0) = 0;
-
-				kf.statePost = state;
+			kalman.updateMeas(int(robot.getImagePosition().x), int(robot.getImagePosition().y));
+			if (classif.getPreviousInfraredVector().empty()) {
+				kalman.initiateKalmanFilter();
 			}
 			else {
-				// Correction Kalman filter
-				kf.correct(meas);
-				// Update the matrix F
-				kf.transitionMatrix.at<float>(0, 2) = float(dT) / 1000;
-				kf.transitionMatrix.at<float>(1, 3) = float(dT) / 1000;
-				// Predict the next position
-				state = kf.predict();
-				cv::circle(image, cv::Point(int(state.at<float>(0, 0)), int(state.at<float>(1, 0))), 5, cv::Scalar(255, 0, 0), -1);
+				kalman.predictKalmanFilter(dT);
 			}
+			//kalman.displayEstimatePosition(image);
 		}
 
+		// Update the previous LEDs vector
 		classif.setPreviousInfraredVector(classif.getFinalInfraredVector());
 		classif.clearFinalInfraredVector();
 
