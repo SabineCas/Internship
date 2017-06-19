@@ -42,22 +42,27 @@ void Robot::updatePosition(cv::Point p1, cv::Point p2)
 void Robot::displayImagePosition(cv::Mat image)
 {
 	// Display the position
-	cv::circle(image, this->imagePosition, 5, cv::Scalar(0, 0, 255), -1, 8, 0);
+	cv::circle(image, this->imagePosition, 5, cv::Scalar(255, 0, 0), -1, 8, 0);
 	
 	// Display the data
 	cv::Point temp = this->imagePosition;
 
 	temp.x = temp.x + 15;
 	cv::putText(image, std::to_string(this->realPosition.x), temp, cv::FONT_HERSHEY_PLAIN,
-		1, cv::Scalar(0, 0, 255), 2, 8, false);
+		1, cv::Scalar(255, 0, 0), 1, 5, false);
 
 	temp.y = temp.y + 20;
 	cv::putText(image, std::to_string(this->realPosition.y), temp, cv::FONT_HERSHEY_PLAIN,
-		1, cv::Scalar(0, 0, 255), 2, 8, false);
+		1, cv::Scalar(255, 0, 0), 1, 5, false);
 
 	temp.y = temp.y + 20;
 	cv::putText(image, std::to_string(this->angleOrientation), temp, cv::FONT_HERSHEY_PLAIN,
-		1, cv::Scalar(0, 0, 255), 2, 8, false);
+		1, cv::Scalar(255, 0, 0), 1, 5, false);
+}
+
+void Robot::displayImageOrientation(cv::Mat image, cv::Point top)
+{
+	cv::arrowedLine(image, this->imagePosition, top, cv::Scalar(255, 0, 0), 3, 8, 0, 0.1);
 }
 
 cv::Point2d Robot::getImagePosition()

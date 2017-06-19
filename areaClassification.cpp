@@ -68,7 +68,8 @@ void AreaClassification::updateIdentification(clock_t time)
 		else {
 			infraredLight temp;
 			int indice = 0;
-			// TO DO : chose the best area when there is several area with the same state ("TOP" or "BOTTOM")
+			// TODO : chose the best area when there is several area with the same state ("TOP" or "BOTTOM")
+			// Will depend of the number of robot
 			/*for (std::vector<int>::size_type j = 0; j < index.size(); j++) {
 				if (temp.getSizeArea() < this->finalInfraredVector[i].getSizeArea()) {
 					temp = this->finalInfraredVector[i];
@@ -86,7 +87,7 @@ void AreaClassification::identifyLastKnownLocation()
 	this->lastKnownBOTTOM = infraredLight();
 	// Identify the last known location of the different LEDs using the information from the current and previous LEDs vector
 	for (std::vector<infraredLight>::size_type i = 0; i < this->finalInfraredVector.size(); i++) {
-		//if (this->finalInfraredVector[i].getIdentification() != "UNKNOWN") {
+		if (this->finalInfraredVector[i].getIdentification() != "UNKNOWN") {
 			if (!this->finalInfraredVector[i].findIn(this->previousInfraredVector).empty()) {
 				std::string id = this->finalInfraredVector[i].getIdentification();
 				std::string prevId = this->previousInfraredVector[this->finalInfraredVector[i].findIn(this->previousInfraredVector)[0]].getIdentification();
@@ -96,14 +97,15 @@ void AreaClassification::identifyLastKnownLocation()
 				else if (id == "BOTTOM" && prevId == "BOTTOM") {
 					this->lastKnownBOTTOM = this->finalInfraredVector[i];
 				}
-				else if (lastKnownTOP.getCoord() == cv::Point(-1, -1)) {
-					if (this->finalInfraredVector[i].getIdentification() == "TOP") {
+				// Make the application less robust but accept to suppose that the LED could be recognize at these coordinate
+				/*else if (lastKnownTOP.getCoord() == cv::Point(-1, -1)) {
+					if (id == "TOP") {
 						this->lastKnownTOP = this->finalInfraredVector[i];
-					} else if (this->finalInfraredVector[i].getIdentification() == "BOTTOM") {
+					} else if (id == "BOTTOM") {
 						this->lastKnownBOTTOM = this->finalInfraredVector[i];
 					}
-				}
-			//}
+				}*/
+			}
 		}
 	}
 }

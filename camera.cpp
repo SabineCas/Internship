@@ -15,14 +15,15 @@ Camera::Camera(int numDevice)
 	if (!this->cap.isOpened()) {
 		std::cout << "Error opening the framegrapper of the camera" << std::endl;
 	}
+
+	// Increase the resolution
+	this->cap.set(CV_CAP_PROP_FRAME_WIDTH, 640);
+	this->cap.set(CV_CAP_PROP_FRAME_HEIGHT, 480);
+
 	this->intrinsicParam = cv::Mat(3, 3, CV_32FC1, double(0));
 	this->distortionParam = cv::Mat(1, 5, CV_32FC1, double(0));
 	this->boundingBoxObs = cv::Rect2d(0, 0, this->cap.get(cv::CAP_PROP_FRAME_WIDTH), this->cap.get(cv::CAP_PROP_FRAME_HEIGHT));
 	this->circles.push_back(cv::Vec3f(0, 0, 0));
-
-	// Increase the resolution
-	this->cap.set(CV_CAP_PROP_FRAME_HEIGHT, 720);
-	this->cap.set(CV_CAP_PROP_FRAME_WIDTH, 960);
 
 	// Deactivate the autofocus of the camera
 	this->cap.set(cv::CAP_PROP_FOCUS, false);
@@ -136,13 +137,13 @@ int Camera::cameraCalib(bool webcam)
 	std::cout << "rms = " << rms << std::endl;
 	std::cout << "Intrinsic parameters = " << this->intrinsicParam << std::endl;
 	std::cout << "Distortion parameters = " << this->distortionParam << std::endl;
-	cv::destroyAllWindows();
+	cv::destroyWindow("Corners detected");
 	return(0);
 }
 
 void Camera::cameraCorr(double H)
 {
-	cv::Mat R(3, 3, CV_32FC1), map1, map2, image, rectImage;
+	cv::Mat R(3, 3, CV_32FC1);
 	cv::setIdentity(R, cv::Scalar(1));
 	//R.at<float>(2, 2) = H;
 

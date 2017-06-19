@@ -1,85 +1,34 @@
-/**
-* Project : Detection and navigation of a spherical robot
-* Author : Cassat Sabine
-* Mail : sabinecassat@gmail.com
-* Module : Main function
-*/
-
-#include "robot.h"
-#include "areaClassification.h"
-#include "interface.h"
-#include <windows.h>
-
-//#include <QApplication>
-//#include <QVBoxLayout>
-//#include <QLabel>
-//#include <QSpinBox>
-//#include <QSlider>
-
-#include "interface2.h"
 #include "algo.h"
+#include "interface2.h"
+
+#include <thread>
 #include <iostream>
 
-using namespace cv;
-using namespace std;
+class Algo::Impl {
 
+public:
+	std::thread runThr;
+	void run();
+	bool started;
+	bool finished;
+	bool close;
+	Impl();
 
+	//interface ptr
+	Interface * interface;
 
-#include <QApplication>
-#include <QDebug>
-#include <QtDesigner>
-#include <QtCore>
-#include "interface3.h"
+	//specific stuff;
+	int value;
+};
 
+Algo::Impl::Impl()
+	: started(false)
+	, finished(false)
+	, close(false)
+{}
 
-
-
-Mat getmat();
-Mat getmat()
+void Algo::Impl::run()
 {
-	Mat mat;
-	VideoCapture camera(0);
-	camera >> mat;// vous pouvez ensuite executer autant de transformation que vous voulez, le tout est de renvoyer un cv::Mat
-	return mat;
-}
-
-
-int main(int argc, char** argv) {
-
-
-	//QApplication a(argc, argv);
-
-	//QPixmap pq;
-
-	//QMat qmat(getmat);
-	//qmat.show();//ne pas oublier sinon pas d'affichage
-
-	//return a.exec();
-
-
-
-
-	// Interface
-	/*WindowInterface windowInterface(1, 30);
-	windowInterface.show();
-	return(0);*/
-
-	// Interface 2
-	Interface i(argc, argv);
-	Algo algo;
-	algo.setInterface(&i);
-	i.setAlgo(&algo);
-	algo.start();
-	int run = i.run();
-	return run;
-
-
-
-
-
-
-
-
 	// Time between two frame in ms
 	clock_t dT = clock(), t = clock();
 
@@ -90,10 +39,9 @@ int main(int argc, char** argv) {
 	// Calibration of the camera
 	if (cam.cameraCalib(false) != 0) {
 		std::cout << "Calibration error" << endl;
-		return(-1);
 	}
-	const static double height = 1.73;
-	cam.cameraCorr(height);
+	double height = 1.73;
+	//cam.cameraCorr(height);
 
 	// Infrared LED color
 	cv::Scalar IF_lower(100, 34, 60), IF_upper(175, 128, 244);
@@ -108,15 +56,9 @@ int main(int argc, char** argv) {
 	bool found = false, error = false;
 	int notFoundCount = 0;
 
-	// DEBUG
-	cv::Size size2 = cv::Size(int(cam.getCap().get(cv::CAP_PROP_FRAME_WIDTH)), int(cam.getCap().get(cv::CAP_PROP_FRAME_HEIGHT)));
-	int codec = CV_FOURCC('M', 'J', 'P', 'G');
-	cv::VideoWriter writer2("../data/Result1.avi", codec, 10, size2, true);
-	writer2.open("../data/Result1.avi", codec, 20, size2, true);
-	cv::VideoWriter writer3("../data/Result2.avi", codec, 10, size2, true);
-	writer3.open("../data/Result2.avi", codec, 20, size2, true);
+	started = true;
 
-	while (cv::waitKey(10) != 27) {
+	while (!close) {
 		// Update of the timer
 		t = clock();
 
@@ -126,8 +68,11 @@ int main(int argc, char** argv) {
 			break;
 		}
 
+		dT = (clock() - t);
+		std::cout << dT << " ";
+
 		// Fix the optical distorsion of the camera
-		remap(image, image, cam.getMap1(), cam.getMap2(), cv::INTER_NEAREST);
+		//remap(image, image, cam.getMap1(), cam.getMap2(), cv::INTER_NEAREST);
 		//writer2.write(image);
 
 		// Detecttion of the LED
@@ -140,7 +85,8 @@ int main(int argc, char** argv) {
 		classif.updatePreviousFromCurrent();
 		classif.updateIdentification(dT);
 		classif.identifyLastKnownLocation();
-		//classif.displayIdentification(image);
+		classif.displayIdentification(image);
+
 
 		// Update robot position and orientation
 		if (classif.getLastKnownBOTTOM().getCoord() != cv::Point(-1, -1) && classif.getLastKnownTOP().getCoord() != cv::Point(-1, -1)) {
@@ -148,6 +94,9 @@ int main(int argc, char** argv) {
 			found = true;
 			robot.updatePosition(classif.getLastKnownTOP().getCoord(), classif.getLastKnownBOTTOM().getCoord());
 			robot.displayImagePosition(image);
+			robot.displayImageOrientation(image, classif.getLastKnownTOP().getCoord());
+
+
 		}
 		else {
 			notFoundCount++;
@@ -155,6 +104,9 @@ int main(int argc, char** argv) {
 				found = false;
 			}
 		}
+
+		dT = (clock() - t);
+		std::cout << dT << " ";
 
 		// Update Kalman filter
 		if (found) {
@@ -168,15 +120,65 @@ int main(int argc, char** argv) {
 			//kalman.displayEstimatePosition(image);
 		}
 
+		dT = (clock() - t);
+		std::cout << dT << " ";
+
 		// Update the previous LEDs vector
 		classif.setPreviousInfraredVector(classif.getFinalInfraredVector());
 		classif.clearFinalInfraredVector();
 
-		imshow("Image", image);
 		//writer3.write(image);
+		dT = (clock() - t);
+		std::cout << dT << " ";
+
+		cv::cvtColor(image, image, CV_BGR2RGB);
+		QImage img(image.data, image.cols, image.rows, QImage::Format_RGB888);
+		interface->SetImage(img);
 
 		dT = (clock() - t);
-		std::cout << dT << endl;
+		std::cout << dT << std::endl;
+
+		//std::cout << "value : " << value << std::endl;
+		
 	}
-	cv::destroyAllWindows();
+
+	std::this_thread::sleep_for(std::chrono::seconds(1));
+	interface->end();
+	finished = false;
 }
+
+Algo::Algo()
+{
+	impl.reset(new Algo::Impl);
+}
+
+void Algo::start()
+{
+	impl->runThr = std::thread(&Algo::Impl::run, impl.get());
+}
+
+void Algo::forceQuit()
+{
+	if (!impl->started)
+		return;
+	if (!impl->close)
+		impl->close = true;
+	if (!impl->finished)
+		impl->runThr.join();
+}
+
+void Algo::setInterface(Interface *i)
+{
+	impl->interface = i;
+}
+
+void Algo::setValue(int i)
+{
+	impl->value = i;
+}
+
+int Algo::getValue()
+{
+	return impl->value;
+}
+

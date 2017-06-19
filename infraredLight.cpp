@@ -60,12 +60,12 @@ std::string infraredLight::findMatchLEDTime(std::vector<clock_t> timeFrames, clo
 		}
 		for (std::vector<clock_t>::size_type i = 0; i < timeFrames.size(); i++) {
 			if (i == 0) {
-				if (this->LEDTimeON > 0 && this->LEDTimeON < timeFrames[i] + time) {
+				if (this->LEDTimeON > 0 && this->LEDTimeON <= timeFrames[i]) {
 					return("TOP");
 				}
 			}
 			else if (i > 0) {
-				if (this->LEDTimeON >= timeFrames[i - 1] && this->LEDTimeON < timeFrames[i] + time) {
+				if (this->LEDTimeON > timeFrames[i - 1] && this->LEDTimeON < timeFrames[i] + time) {
 					return("BOTTOM");
 				}
 			}
@@ -78,12 +78,12 @@ std::string infraredLight::findMatchLEDTime(std::vector<clock_t> timeFrames, clo
 		}
 		for (std::vector<clock_t>::size_type i = 0; i < timeFrames.size(); i++) {
 			if (i == 0) {
-				if (this->LEDTimeOFF > 0 && this->LEDTimeOFF < timeFrames[i] + time) {
+				if (this->LEDTimeOFF > 0 && this->LEDTimeOFF <= timeFrames[i]) {
 					return("TOP");
 				}
 			}
 			else if (i > 0) {
-				if (this->LEDTimeOFF >= timeFrames[i - 1] && this->LEDTimeOFF < timeFrames[i] + time) {
+				if (this->LEDTimeOFF > timeFrames[i - 1] && this->LEDTimeOFF < timeFrames[i] + time) {
 					return("BOTTOM");
 				}
 			}

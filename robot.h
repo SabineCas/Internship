@@ -34,6 +34,14 @@ public:
 	*/
 	void displayImagePosition(cv::Mat image);
 
+	//! Display an arrow on the currect frame at the coordinate saved into the cv::Point2d imagePosition attribut that represents the
+	//! orientation of the robot.
+	/*!
+	\param image The current frame
+	\return The current frame with the arrow drawn
+	*/
+	void displayImageOrientation(cv::Mat image, cv::Point top);
+
 	//! Return the image coordinate of the robot saved into the cv::Point2d imagePosition attribut.
 	/*!
 	\param void
