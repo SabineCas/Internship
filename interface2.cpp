@@ -1,103 +1,102 @@
-
-
 #include <windows.h>
 #include "interface2.h"
 
-#include <QApplication>
-#include <QVBoxLayout>
-#include <QLabel>
-#include <QSpinBox>
-#include <QSlider>
 #include "algo.h"
 
-class Interface::Impl {
-public:
-
-	void create();
-	Impl(int argc, char *argv[]);
-	void run();
-	Algo * algo;
-
-	// main app
-	QApplication app;
-
-	//window
-	QWidget window;
-	QVBoxLayout* mainLayout;
-	QLabel* label;
-	QSpinBox* spinBox;
-	QSlider* slider;
-};
-
-
-Interface::Impl::Impl(int argc, char * argv[])
-	: app(argc, argv)
+MainInterface::MainInterface(int argc, char * argv[]) : app(argc, argv)
 {
-}
-void Interface::Impl::run()
-{
-	app.exec();
-}
-void Interface::Impl::create()
-{
-
-	mainLayout = new QVBoxLayout(&window);
-	label = new QLabel("Image");
-	spinBox = new QSpinBox;
-	slider = new QSlider(Qt::Horizontal);
-
-	mainLayout->addWidget(label);
-	mainLayout->addWidget(spinBox);
-	mainLayout->addWidget(slider);
-
-	//QObject::connect(spinBox, SIGNAL(valueChanged(int)), label, SLOT(setNum(int)));
-	QObject::connect(spinBox, SIGNAL(valueChanged(int)), slider, SLOT(setValue(int)));
-	//QObject::connect(slider, SIGNAL(valueChanged(int)), label, SLOT(setNum(int)));
-	QObject::connect(slider, SIGNAL(valueChanged(int)), spinBox, SLOT(setValue(int)));
-
-	// both works
-	//QObject::connect(slider, &QSlider::valueChanged, [=](int value) {this->algo->SetValue(value); });
-	QObject::connect(slider, &QSlider::valueChanged, std::bind(&Algo::setValue, std::ref(this->algo), std::placeholders::_1));
-
-	QImage image(1280, 720, QImage::Format_RGB32);
-	label->resize(QSize(1280, 720));
-	label->setPixmap(QPixmap::fromImage(image));
+	this->create();
 }
 
-Interface::Interface(int argc, char * argv[])
+int MainInterface::run()
 {
-	impl.reset(new Impl(argc, argv));
-	impl->create();
-}
+	this->window.show();
+	this->label->show();
 
-int Interface::run()
-{
-	impl->window.show();
-	impl->label->show();
-
-	int res = impl->app.exec();
-	impl->algo->forceQuit();
+	int res = this->app.exec();
+	this->algo->forceQuit();
 	return res;
 }
 
-void Interface::end()
+void MainInterface::create()
 {
-	impl->app.exit();
+	mainLayout = new QVBoxLayout();
+	hboxLayout = new QHBoxLayout(&window);
+
+	textResolution = new QLabel("Resolution of the camera : ");
+	label = new QLabel("Image");
+	checkPosition = new QCheckBox("Display the position of the robot : ");
+	checkOrientation = new QCheckBox("Display the orientation of the robot : ");
+	checkIdentification = new QCheckBox("Display the identification of each region that can be recognized as a LED of the robot : ");
+	checkKalman = new QCheckBox("Display the estimated position fo the robot (Kalman) : ");
+
+	spinBox = new QSpinBox;
+	slider = new QSlider(Qt::Horizontal);
+	comboBox = new QComboBox();
+
+	hboxLayout->addWidget(label);
+	hboxLayout->addLayout(mainLayout);
+
+	// Setting the resolution of the camera
+	mainLayout->addWidget(textResolution);
+	comboBox->addItem("640 x 480");
+	comboBox->addItem("1280 x 960");
+	comboBox->addItem("1920 x 1440");
+	mainLayout->addWidget(comboBox);
+
+	// Setting the displayed information
+	mainLayout->addWidget(checkPosition);
+	mainLayout->addWidget(checkOrientation);
+	mainLayout->addWidget(checkIdentification);
+	mainLayout->addWidget(checkKalman);
+
+	mainLayout->addWidget(spinBox);
+	mainLayout->addWidget(slider);
+	
+
+	QObject::connect(spinBox, SIGNAL(valueChanged(int)), slider, SLOT(setValue(int)));
+	QObject::connect(slider, SIGNAL(valueChanged(int)), spinBox, SLOT(setValue(int)));
+	void (QComboBox::*indexChangedSignal)(int) = &QComboBox::currentIndexChanged;
+	QObject::connect(comboBox, indexChangedSignal, std::bind(&MainInterface::translateComboBox, this, std::placeholders::_1));
+	QObject::connect(checkPosition, &QCheckBox::stateChanged, std::bind(&Algo::setDisplayPosition, std::ref(this->algo), std::placeholders::_1));
+	QObject::connect(checkOrientation, &QCheckBox::stateChanged, std::bind(&Algo::setDisplayOrientation, std::ref(this->algo), std::placeholders::_1));
+	QObject::connect(checkIdentification, &QCheckBox::stateChanged, std::bind(&Algo::setDisplayIdentification, std::ref(this->algo), std::placeholders::_1));
+	QObject::connect(checkKalman, &QCheckBox::stateChanged, std::bind(&Algo::setDisplayKalman, std::ref(this->algo), std::placeholders::_1));
+	QObject::connect(slider, &QSlider::valueChanged, std::bind(&Algo::setDistanceAreaLight, std::ref(this->algo), std::placeholders::_1));
 }
 
-void Interface::setValue(int i)
+void MainInterface::end()
 {
-	impl->spinBox->setValue(i);
+	this->app.exit();
 }
 
-void Interface::SetImage(const QImage & image)
+void MainInterface::setValue(int i)
+{
+	this->spinBox->setValue(i);
+}
+
+void MainInterface::SetImage(const QImage & image)
 {
 	QPixmap p;
 	p.convertFromImage(image);
-	impl->label->setPixmap(p);
+	this->label->setPixmap(p);
 }
 
-void Interface::setAlgo(Algo *a)
+void MainInterface::translateComboBox(int cbb)
 {
-	impl->algo = a;
+	switch (cbb) {
+	case 0:
+		this->algo->setResolution(640, 480);
+	case 1:
+		this->algo->setResolution(1280, 960);
+	case 2:
+		this->algo->setResolution(1920, 1440);
+	default:
+		this->algo->setResolution(640, 480);
+	}
+}
+
+void MainInterface::setAlgo(Algo *a)
+{
+	this->algo = a;
 }

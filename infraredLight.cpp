@@ -1,5 +1,7 @@
 #include "infraredLight.h"
 
+int distanceAreaLight = 30;
+
 infraredLight::infraredLight()
 {
 	this->visible = false;

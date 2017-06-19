@@ -10,11 +10,7 @@
 #include "interface.h"
 #include <windows.h>
 
-//#include <QApplication>
-//#include <QVBoxLayout>
-//#include <QLabel>
-//#include <QSpinBox>
-//#include <QSlider>
+
 
 #include "interface2.h"
 #include "algo.h"
@@ -65,7 +61,7 @@ int main(int argc, char** argv) {
 	return(0);*/
 
 	// Interface 2
-	Interface i(argc, argv);
+	MainInterface i(argc, argv);
 	Algo algo;
 	algo.setInterface(&i);
 	i.setAlgo(&algo);

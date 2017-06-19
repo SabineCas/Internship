@@ -4,7 +4,7 @@
 #include <opencv2/opencv.hpp>
 
 //! Minimal distance between two area infrared light.
-const static int distanceAreaLight = 30;
+extern int distanceAreaLight;
 //! Minimal size of a infraredLight to be take into account in the algorithm.
 const static int minimumSizeAreaLight = 0;
 //! Maximal size of a infraredLight to be take into account in the algorithm.

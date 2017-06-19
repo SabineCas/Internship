@@ -1,39 +1,22 @@
 #include "algo.h"
-#include "interface2.h"
-
-#include <thread>
+#include "infraredLight.h"
 #include <iostream>
 
-class Algo::Impl {
 
-public:
-	std::thread runThr;
-	void run();
-	bool started;
-	bool finished;
-	bool close;
-	Impl();
-
-	//interface ptr
-	Interface * interface;
-
-	//specific stuff;
-	int value;
-};
-
-Algo::Impl::Impl()
+Algo::Algo()
 	: started(false)
 	, finished(false)
 	, close(false)
+	, cam(0)
 {}
 
-void Algo::Impl::run()
+void Algo::run()
 {
 	// Time between two frame in ms
 	clock_t dT = clock(), t = clock();
 
 	// Initialization of the camera and the robot
-	Camera cam(0);
+	//Camera cam(0);
 	cv::Mat image;
 
 	// Calibration of the camera
@@ -41,7 +24,7 @@ void Algo::Impl::run()
 		std::cout << "Calibration error" << endl;
 	}
 	double height = 1.73;
-	//cam.cameraCorr(height);
+	cam.cameraCorr(height);
 
 	// Infrared LED color
 	cv::Scalar IF_lower(100, 34, 60), IF_upper(175, 128, 244);
@@ -57,13 +40,16 @@ void Algo::Impl::run()
 	int notFoundCount = 0;
 
 	started = true;
+	
 
 	while (!close) {
 		// Update of the timer
 		t = clock();
 
 		// Get the next frame
+		mtx.lock();
 		cam.getCap().read(image);
+		mtx.unlock();
 		if (image.size() == cv::Size(0, 0)) {
 			break;
 		}
@@ -72,7 +58,7 @@ void Algo::Impl::run()
 		std::cout << dT << " ";
 
 		// Fix the optical distorsion of the camera
-		//remap(image, image, cam.getMap1(), cam.getMap2(), cv::INTER_NEAREST);
+		remap(image, image, cam.getMap1(), cam.getMap2(), cv::INTER_NEAREST);
 		//writer2.write(image);
 
 		// Detecttion of the LED
@@ -85,18 +71,21 @@ void Algo::Impl::run()
 		classif.updatePreviousFromCurrent();
 		classif.updateIdentification(dT);
 		classif.identifyLastKnownLocation();
-		classif.displayIdentification(image);
-
+		if (this->displayIdentification) {
+			classif.displayIdentification(image);
+		}
 
 		// Update robot position and orientation
 		if (classif.getLastKnownBOTTOM().getCoord() != cv::Point(-1, -1) && classif.getLastKnownTOP().getCoord() != cv::Point(-1, -1)) {
 			notFoundCount = 0;
 			found = true;
 			robot.updatePosition(classif.getLastKnownTOP().getCoord(), classif.getLastKnownBOTTOM().getCoord());
-			robot.displayImagePosition(image);
-			robot.displayImageOrientation(image, classif.getLastKnownTOP().getCoord());
-
-
+			if (this->displayPosition) {
+				robot.displayImagePosition(image);
+			}
+			if (this->displayOrientation) {
+				robot.displayImageOrientation(image, classif.getLastKnownTOP().getCoord());
+			}
 		}
 		else {
 			notFoundCount++;
@@ -117,7 +106,9 @@ void Algo::Impl::run()
 			else {
 				kalman.predictKalmanFilter(dT);
 			}
-			//kalman.displayEstimatePosition(image);
+			if (this->displayKalman) {
+				kalman.displayEstimatePosition(image);
+			}
 		}
 
 		dT = (clock() - t);
@@ -133,7 +124,7 @@ void Algo::Impl::run()
 
 		cv::cvtColor(image, image, CV_BGR2RGB);
 		QImage img(image.data, image.cols, image.rows, QImage::Format_RGB888);
-		interface->SetImage(img);
+		interf->SetImage(img);
 
 		dT = (clock() - t);
 		std::cout << dT << std::endl;
@@ -143,42 +134,62 @@ void Algo::Impl::run()
 	}
 
 	std::this_thread::sleep_for(std::chrono::seconds(1));
-	interface->end();
+	interf->end();
 	finished = false;
-}
-
-Algo::Algo()
-{
-	impl.reset(new Algo::Impl);
 }
 
 void Algo::start()
 {
-	impl->runThr = std::thread(&Algo::Impl::run, impl.get());
+	runThr = std::thread(&Algo::run, this);
 }
 
 void Algo::forceQuit()
 {
-	if (!impl->started)
+	if (!this->started)
 		return;
-	if (!impl->close)
-		impl->close = true;
-	if (!impl->finished)
-		impl->runThr.join();
+	if (!this->close)
+		this->close = true;
+	if (!this->finished)
+		this->runThr.join();
 }
 
-void Algo::setInterface(Interface *i)
+void Algo::setInterface(MainInterface *i)
 {
-	impl->interface = i;
+	this->interf = i;
 }
 
-void Algo::setValue(int i)
+void Algo::setDistanceAreaLight(int i)
 {
-	impl->value = i;
+	distanceAreaLight = i;
 }
 
-int Algo::getValue()
+void Algo::setDisplayPosition(bool val)
 {
-	return impl->value;
+	this->displayPosition = val;
+}
+
+void Algo::setDisplayOrientation(bool val)
+{
+	this->displayOrientation = val;
+}
+
+void Algo::setDisplayIdentification(bool val)
+{
+	this->displayIdentification = val;
+}
+
+void Algo::setDisplayKalman(bool val)
+{
+	this->displayKalman = val;
+}
+
+void Algo::setResolution(int width, int height)
+{
+	mtx.lock();
+	cam.getCap().set(CV_CAP_PROP_FRAME_WIDTH, width);
+	cam.getCap().set(CV_CAP_PROP_FRAME_HEIGHT, height);
+	std::cout << "Setting : " << cam.getCap().get(CV_CAP_PROP_FRAME_WIDTH) << " x " <<
+		cam.getCap().get(CV_CAP_PROP_FRAME_HEIGHT) << std::endl;
+	mtx.unlock();
 }
 
