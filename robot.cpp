@@ -39,11 +39,34 @@ void Robot::updatePosition(cv::Point p1, cv::Point p2)
 	//std::cout << "Orientation : " << this->angleOrientation << std::endl;
 }
 
+double Robot::calculateRotation(cv::Point p)
+{
+	// Calculate the angle difference between the robot and the point p passed as parameter
+	double angle = this->angleOrientation - cvFastArctan(p.y - this->imagePosition.y, p.x - this->imagePosition.x);
+
+	// Chose the shorter rotation
+	if (angle <= -180 && angle >= -360) {
+		return(angle + 360);
+	}
+	else if (angle >= 180 && angle <= 360) {
+		return(angle - 360);
+	}
+	return angle;
+}
+
+double Robot::calculateDistance(cv::Point p)
+{
+	double distanceX = (float(this->H * (p.x - this->u0) / this->alphaU) * 100) - this->realPosition.x;
+	double distanceY = (float(this->H * (p.y - this->v0) / this->alphaV) * 100) - this->realPosition.y;
+	//double distanceZ = 0;
+	return sqrt(distanceX * distanceX + distanceY * distanceY);
+}
+
 void Robot::displayImagePosition(cv::Mat image)
 {
 	// Display the position
 	cv::circle(image, this->imagePosition, 5, cv::Scalar(255, 0, 0), -1, 8, 0);
-	
+
 	// Display the data
 	cv::Point temp = this->imagePosition;
 

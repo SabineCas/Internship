@@ -54,8 +54,8 @@ void Algo::run()
 			break;
 		}
 
-		dT = (clock() - t);
-		std::cout << dT << " ";
+		/*dT = (clock() - t);
+		std::cout << dT << " ";*/
 
 		// Fix the optical distorsion of the camera
 		remap(image, image, cam.getMap1(), cam.getMap2(), cv::INTER_NEAREST);
@@ -94,8 +94,8 @@ void Algo::run()
 			}
 		}
 
-		dT = (clock() - t);
-		std::cout << dT << " ";
+		/*dT = (clock() - t);
+		std::cout << dT << " ";*/
 
 		// Update Kalman filter
 		if (found) {
@@ -111,26 +111,24 @@ void Algo::run()
 			}
 		}
 
-		dT = (clock() - t);
-		std::cout << dT << " ";
+		/*dT = (clock() - t);
+		std::cout << dT << " ";*/
 
 		// Update the previous LEDs vector
 		classif.setPreviousInfraredVector(classif.getFinalInfraredVector());
 		classif.clearFinalInfraredVector();
 
 		//writer3.write(image);
-		dT = (clock() - t);
-		std::cout << dT << " ";
+		/*dT = (clock() - t);
+		std::cout << dT << " ";*/
 
+		// Update the image of the interface
 		cv::cvtColor(image, image, CV_BGR2RGB);
 		QImage img(image.data, image.cols, image.rows, QImage::Format_RGB888);
 		interf->SetImage(img);
 
-		dT = (clock() - t);
-		std::cout << dT << std::endl;
-
-		//std::cout << "value : " << value << std::endl;
-		
+		/*dT = (clock() - t);
+		std::cout << dT << std::endl;*/		
 	}
 
 	std::this_thread::sleep_for(std::chrono::seconds(1));

@@ -21,30 +21,83 @@ class MainInterface;
 
 class Algo {
 public:
+	//! Constructor by default
 	Algo();
 
-	// Init
-	void setInterface(MainInterface *);
+	//! Initialize the pointer to the interface that will update the algorithm or be updated by the algorithm.
+	/*!
+	\param mi The pointer MainInterface instance that will update the algorithm or be updated by the algorithm.
+	\return void
+	*/
+	void setInterface(MainInterface * mi);
 
-	// Start the thread of the algo
+	//! Function that will start the thread of the algorithm which is different from the frame of the interface, but it will
+	//! not run the algorithm. It needs to call the private function "void run();" to do that.
+	/*!
+	\param void
+	\return void
+	*/
 	void start();
-	// Terminate the thread
+
+	//! Function that will terminate the thread of the algorithm which is different from the frame of the interface.
+	/*!
+	\param void
+	\return void
+	*/
 	void forceQuit();
 
-	// When the interface is modified, this fucntion is called to update the value inside the Algo instance (<=> callback)
+	//! When the interface is modified, this function is called to update the value inside the Algo instance (<=> callback).
+	/*!
+	\param i The new maximal distance between two pixels that will belong to the same area
+	\return void
+	*/
 	void setDistanceAreaLight(int i);
 
-	// Set resolution of the camera of the camera attribut
+	//! Set resolution of the camera of the camera attribut. this function is called when the interface is modified. 
+	/*!
+	\param width The new width of the captured frame from the camera.
+	\param height The new height of the captured frame from the camera.
+	\return void
+	*/
 	void setResolution(int width, int height);
 
-	// Set the parameters that will determine the displayed information on the picture
+	//! Set the parameter that will determine if the position of the robot is displayed or not on the captured frame
+	/*!
+	\param val If the parameter val is True, the position of the robot is displayed on the frame, otherwise it is not displayed.
+	\return void
+	*/
 	void setDisplayPosition(bool val);
+
+	//! Set the parameter that will determine if the orientation of the robot is displayed or not on the captured frame
+	/*!
+	\param val If the parameter val is True, the orientation of the robot is displayed on the frame, otherwise it is not displayed.
+	\return void
+	*/
 	void setDisplayOrientation(bool val);
+
+	//! Set the parameter that will determine if the identification of each detected area (other than "UNKNOWN") is
+	//! displayed or not on the captured frame
+	/*!
+	\param val If the parameter val is True, the identification of each area is displayed on the frame, otherwise it is not displayed.
+	\return void
+	*/
 	void setDisplayIdentification(bool val);
+
+	//! Set the parameter that will determine if the estimate position of the robot from the Kalman filter is displayed
+	//! or not on the captured frame
+	/*!
+	\param val If the parameter val is True, the estimate position of the robot is displayed on the frame, otherwise it is not displayed.
+	\return void
+	*/
 	void setDisplayKalman(bool val);
 
 private:
-	// Run the detection algorithm
+	//! Run the algorithm inside the std::thread runThr attribut that have been created. Warning : the public function
+	//! "void start();" have to be call before to initiate the thread of the algorithm.
+	/*!
+	\param void
+	\return void
+	*/
 	void run();
 
 	bool started, finished, close;

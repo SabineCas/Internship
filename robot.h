@@ -27,6 +27,21 @@ public:
 	*/
 	void updatePosition(cv::Point p1, cv::Point p2);
 
+	//! Compute the angle between the position of the robot and the cv::Point parameter that the robot wants to reach. 
+	/*!
+	\param p Coordinate that the robot want to reach
+	\return The difference angle between the orientation of the robot and the point p
+	*/
+	double calculateRotation(cv::Point p);
+
+	//! Compute the distance between the position of the robot and the cv::Point parameter that the robot wants to reach.
+	//! if the returned value is < 0, then the robot has to turn right, otherwise the robot has to turn left.
+	/*!
+	\param p Coordinate that the robot want to reach
+	\return The distance angle between the orientation of the robot and the point p
+	*/
+	double calculateDistance(cv::Point p);
+
 	//! Display a filled circle on the currect frame at the coordinate saved into the cv::Point2d imagePosition attribut.
 	/*!
 	\param image The current frame

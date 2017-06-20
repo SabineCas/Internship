@@ -29,7 +29,6 @@ void MainInterface::create()
 	checkOrientation = new QCheckBox("Display the orientation of the robot : ");
 	checkIdentification = new QCheckBox("Display the identification of each region that can be recognized as a LED of the robot : ");
 	checkKalman = new QCheckBox("Display the estimated position fo the robot (Kalman) : ");
-
 	spinBox = new QSpinBox;
 	slider = new QSlider(Qt::Horizontal);
 	comboBox = new QComboBox();
@@ -40,8 +39,8 @@ void MainInterface::create()
 	// Setting the resolution of the camera
 	mainLayout->addWidget(textResolution);
 	comboBox->addItem("640 x 480");
-	comboBox->addItem("1280 x 960");
-	comboBox->addItem("1920 x 1440");
+	comboBox->addItem("1280 x 720");
+	comboBox->addItem("1920 x 1080");
 	mainLayout->addWidget(comboBox);
 
 	// Setting the displayed information
@@ -50,12 +49,13 @@ void MainInterface::create()
 	mainLayout->addWidget(checkIdentification);
 	mainLayout->addWidget(checkKalman);
 
+	// Distance between two pixels to belong to the same area
 	mainLayout->addWidget(spinBox);
 	mainLayout->addWidget(slider);
 	
 
-	QObject::connect(spinBox, SIGNAL(valueChanged(int)), slider, SLOT(setValue(int)));
-	QObject::connect(slider, SIGNAL(valueChanged(int)), spinBox, SLOT(setValue(int)));
+	QObject::connect(spinBox, SIGNAL(valueChanged(int)), slider, SLOT(setDistanceBetwTwoPix(int)));
+	QObject::connect(slider, SIGNAL(valueChanged(int)), spinBox, SLOT(setDistanceBetwTwoPix(int)));
 	void (QComboBox::*indexChangedSignal)(int) = &QComboBox::currentIndexChanged;
 	QObject::connect(comboBox, indexChangedSignal, std::bind(&MainInterface::translateComboBox, this, std::placeholders::_1));
 	QObject::connect(checkPosition, &QCheckBox::stateChanged, std::bind(&Algo::setDisplayPosition, std::ref(this->algo), std::placeholders::_1));
@@ -70,7 +70,7 @@ void MainInterface::end()
 	this->app.exit();
 }
 
-void MainInterface::setValue(int i)
+void MainInterface::setDistanceBetwTwoPix(int i)
 {
 	this->spinBox->setValue(i);
 }
@@ -87,10 +87,13 @@ void MainInterface::translateComboBox(int cbb)
 	switch (cbb) {
 	case 0:
 		this->algo->setResolution(640, 480);
+		break;
 	case 1:
-		this->algo->setResolution(1280, 960);
+		this->algo->setResolution(1280, 720);
+		break;
 	case 2:
-		this->algo->setResolution(1920, 1440);
+		this->algo->setResolution(1920, 1080);
+		break;
 	default:
 		this->algo->setResolution(640, 480);
 	}
