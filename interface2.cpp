@@ -54,8 +54,8 @@ void MainInterface::create()
 	mainLayout->addWidget(slider);
 	
 
-	QObject::connect(spinBox, SIGNAL(valueChanged(int)), slider, SLOT(setDistanceBetwTwoPix(int)));
-	QObject::connect(slider, SIGNAL(valueChanged(int)), spinBox, SLOT(setDistanceBetwTwoPix(int)));
+	QObject::connect(spinBox, SIGNAL(valueChanged(int)), slider, SLOT(setValue(int)));
+	QObject::connect(slider, SIGNAL(valueChanged(int)), spinBox, SLOT(setValue(int)));
 	void (QComboBox::*indexChangedSignal)(int) = &QComboBox::currentIndexChanged;
 	QObject::connect(comboBox, indexChangedSignal, std::bind(&MainInterface::translateComboBox, this, std::placeholders::_1));
 	QObject::connect(checkPosition, &QCheckBox::stateChanged, std::bind(&Algo::setDisplayPosition, std::ref(this->algo), std::placeholders::_1));
@@ -70,7 +70,7 @@ void MainInterface::end()
 	this->app.exit();
 }
 
-void MainInterface::setDistanceBetwTwoPix(int i)
+void MainInterface::setValue(int i)
 {
 	this->spinBox->setValue(i);
 }

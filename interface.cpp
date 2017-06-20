@@ -11,7 +11,7 @@ WindowInterface::WindowInterface(int nbRobot, int valueDist)
 	this->previousFactorResolution = 3;
 }
 
-void WindowInterface::show()
+int WindowInterface::show()
 {
 	// Time between two frame in ms
 	clock_t dT = clock(), t = clock();
@@ -144,6 +144,9 @@ void WindowInterface::show()
 			std::cout << "DOWN" << std::endl;
 		}
 	}
+
+	cv::destroyAllWindows();
+	return(0);
 }
 
 void WindowInterface::callbackButtonPosition(int state, void * data)

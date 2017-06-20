@@ -16,8 +16,7 @@ int main(int argc, char** argv) {
 
 	// Interface with the Qt framework of OpenCV
 	/*WindowInterface windowInterface(1, 30);
-	windowInterface.show();
-	return(0);*/
+	return(windowInterface.show());*/
 
 	// Interface with Qt librairie only
 	MainInterface i(argc, argv);
@@ -25,6 +24,5 @@ int main(int argc, char** argv) {
 	algo.setInterface(&i);
 	i.setAlgo(&algo);
 	algo.start();
-	int run = i.run();
-	return run;
+	return (i.run());
 }

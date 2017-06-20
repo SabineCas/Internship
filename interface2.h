@@ -45,7 +45,7 @@ public:
 	\param int The maximal distance value
 	\return void
 	*/
-	void setDistanceBetwTwoPix(int v);
+	void setValue(int);
 
 	//! Set the data of the QImage contained inside the QLabel label attribut that will be used to display the 
 	// image of the camera at each loop of the algorithm. 
