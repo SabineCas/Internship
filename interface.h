@@ -13,7 +13,13 @@
 class WindowInterface
 {
 public:
-	//! Constructor by default
+	//! Constructor that take the number of robot and the maximal distance between two pixels belonging to the same area
+	//! as parameters.
+	/*!
+	\param nbRobot Maximal number of robot that will appear in each frame
+	\param valueDist Minimal distance between two pixels belonging to the same area
+	\return void
+	*/
 	WindowInterface(int nbRobot, int valueDist);
 
 	//! Callback function of the checkbox that will displayed the position of the robot on the current frame

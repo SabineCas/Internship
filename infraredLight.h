@@ -17,7 +17,7 @@ public:
 	//! Constructor by default.
 	infraredLight();
 
-	//! Constructor by copy.
+	//! Constructor by copy setting each attributs passed as parameters in this function.
 	/*!
 	\param v Boolean for the state (visible or not)
 	\param c cv::Point for the coordinate of the infraredLight

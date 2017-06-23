@@ -8,7 +8,20 @@ Algo::Algo()
 	, finished(false)
 	, close(false)
 	, cam(0)
-{}
+	, height(1.73)
+{
+
+	// Calibration of the camera
+	if (cam.cameraCalib(false) != 0) {
+		std::cout << "Calibration error" << std::endl;
+	}
+	cam.cameraCorr(this->height);
+
+	// Initialization of the robot instance
+	this->robot = Robot(height, cam.getIntrinsicParameters().at<double>(0, 0),
+		cam.getIntrinsicParameters().at<double>(1, 1), cam.getIntrinsicParameters().at<double>(0, 2),
+		cam.getIntrinsicParameters().at<double>(1, 2));
+}
 
 void Algo::run()
 {
@@ -19,28 +32,21 @@ void Algo::run()
 	//Camera cam(0);
 	cv::Mat image;
 
-	// Calibration of the camera
-	if (cam.cameraCalib(false) != 0) {
-		std::cout << "Calibration error" << endl;
-	}
-	double height = 1.73;
-	cam.cameraCorr(height);
-
 	// Infrared LED color
 	cv::Scalar IF_lower(100, 34, 60), IF_upper(175, 128, 244);
 	AreaClassification classif = AreaClassification();
 
 	// Robot
-	Robot robot = Robot(height, cam.getIntrinsicParameters().at<double>(0, 0), cam.getIntrinsicParameters().at<double>(1, 1),
-		cam.getIntrinsicParameters().at<double>(0, 2), cam.getIntrinsicParameters().at<double>(1, 2));
+	//Robot robot = Robot(height, cam.getIntrinsicParameters().at<double>(0, 0), cam.getIntrinsicParameters().at<double>(1, 1),
+	//	cam.getIntrinsicParameters().at<double>(0, 2), cam.getIntrinsicParameters().at<double>(1, 2));
 
 	// Kalman filter
 	Kalman kalman = Kalman();
 	bool found = false, error = false;
 	int notFoundCount = 0;
 
+	// Algorithm is starting
 	started = true;
-	
 
 	while (!close) {
 		// Update of the timer
@@ -54,12 +60,9 @@ void Algo::run()
 			break;
 		}
 
-		/*dT = (clock() - t);
-		std::cout << dT << " ";*/
-
 		// Fix the optical distorsion of the camera
-		remap(image, image, cam.getMap1(), cam.getMap2(), cv::INTER_NEAREST);
-		//writer2.write(image);
+		// remap(image, image, cam.getMap1(), cam.getMap2(), cv::INTER_NEAREST);
+		// writer2.write(image);
 
 		// Detecttion of the LED
 		cv::cvtColor(image, image, CV_BGR2HSV);
@@ -94,9 +97,6 @@ void Algo::run()
 			}
 		}
 
-		/*dT = (clock() - t);
-		std::cout << dT << " ";*/
-
 		// Update Kalman filter
 		if (found) {
 			kalman.updateMeas(int(robot.getImagePosition().x), int(robot.getImagePosition().y));
@@ -111,24 +111,21 @@ void Algo::run()
 			}
 		}
 
-		/*dT = (clock() - t);
-		std::cout << dT << " ";*/
-
 		// Update the previous LEDs vector
 		classif.setPreviousInfraredVector(classif.getFinalInfraredVector());
 		classif.clearFinalInfraredVector();
 
-		//writer3.write(image);
-		/*dT = (clock() - t);
-		std::cout << dT << " ";*/
+		this->robot.sendCommandToRobot();
+		// writer3.write(image);
 
 		// Update the image of the interface
+		cv::resize(image, image, cv::Size(640, 480));
 		cv::cvtColor(image, image, CV_BGR2RGB);
 		QImage img(image.data, image.cols, image.rows, QImage::Format_RGB888);
 		interf->SetImage(img);
 
-		/*dT = (clock() - t);
-		std::cout << dT << std::endl;*/		
+		dT = (clock() - t);
+		// std::cout << dT << std::endl;
 	}
 
 	std::this_thread::sleep_for(std::chrono::seconds(1));
@@ -179,6 +176,27 @@ void Algo::setDisplayIdentification(bool val)
 void Algo::setDisplayKalman(bool val)
 {
 	this->displayKalman = val;
+}
+
+void Algo::setDesiredPoint(int x, int y)
+{
+	x = double(x) * this->cam.getCap().get(CV_CAP_PROP_FRAME_WIDTH) / 640;
+	y = double(y) * this->cam.getCap().get(CV_CAP_PROP_FRAME_HEIGHT) / 480;
+	std::cout << x << ", " << y << std::endl;
+	this->robot.setDesiredPosition(cv::Point(x, y));
+}
+
+void Algo::setNbRobot(int r)
+{
+	this->nbRobot = r;
+	std::cout << "Nb robot : " << r << std::endl;
+}
+
+void Algo::setHeight(int h)
+{
+	// Conversion in meters
+	this->height = double(h) / 100;
+	this->robot.setHeight(this->height);
 }
 
 void Algo::setResolution(int width, int height)

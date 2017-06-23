@@ -21,7 +21,7 @@ const static int WIDE_BOUNDING_BOX_X = 20;
 
 class Camera {
 public:
-	//! Constructor by default.
+	//! Constructor using the number identification device to open a video channel.
 	/*!
 	\param numDevice Number of the target device (0 is the device by default)
 	*/

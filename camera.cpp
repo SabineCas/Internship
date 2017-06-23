@@ -104,9 +104,10 @@ int Camera::cameraCalib(bool webcam)
 				cornerSubPix(acqImageGray, pointBuf, cv::Size(11, 11), cv::Size(-1, -1), cv::TermCriteria(CV_TERMCRIT_EPS | CV_TERMCRIT_ITER, 30, 0.1));
 				// Display the found corners
 				drawChessboardCorners(image, boardSize, cv::Mat(pointBuf), found);
-				imshow("Corners detected", image);
+				if (webcam) {
+					imshow("Corners detected", image);
+				}
 				imwrite("../data/Calibration/process" + std::to_string(successes) + ".jpg", image);
-				cvWaitKey(10);
 				// Save the found corners points
 				imagePoints.push_back(pointBuf);
 				objectPoints.push_back(objectBuf);
@@ -137,7 +138,9 @@ int Camera::cameraCalib(bool webcam)
 	std::cout << "rms = " << rms << std::endl;
 	std::cout << "Intrinsic parameters = " << this->intrinsicParam << std::endl;
 	std::cout << "Distortion parameters = " << this->distortionParam << std::endl;
-	cv::destroyWindow("Corners detected");
+	if (webcam) {
+		cv::destroyWindow("Corners detected");
+	}
 	return(0);
 }
 
@@ -182,6 +185,7 @@ cv::Mat Camera::colorDetection(cv::Mat image, cv::Scalar lower, cv::Scalar upper
 	//cv::Mat image2 = cv::imread("../data/data.png");
 	cv::cvtColor(image, image, CV_BGR2HSV);
 
+	// DEBUG
 	/*cv::Mat hsvChannels[3];
 	double minVal, maxVal;
 	cv::split(hsv, hsvChannels);

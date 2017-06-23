@@ -11,6 +11,8 @@ Robot::Robot(double H, double alphaU, double alphaV, double u0, double v0)
 {
 	this->imagePosition.x = -1;
 	this->imagePosition.y = -1;
+	this->desiredPosition.x = -1;
+	this->desiredPosition.y = -1;
 	this->realPosition.x = -1;
 	this->realPosition.y = -1;
 	this->realPosition.z = -1;
@@ -20,6 +22,37 @@ Robot::Robot(double H, double alphaU, double alphaV, double u0, double v0)
 	this->alphaV = alphaV;
 	this->H = H;
 	this->angleOrientation = 0;
+
+	// Initiate the communication with the MC
+	serial = new QSerialPort();
+	serial->setPortName("COM6");
+	serial->setBaudRate(QSerialPort::Baud9600);
+	serial->setDataBits(QSerialPort::Data8);
+	serial->setParity(QSerialPort::NoParity);
+	serial->setStopBits(QSerialPort::OneStop);
+	serial->setFlowControl(QSerialPort::NoFlowControl);
+	if (serial->open(QIODevice::WriteOnly)) {
+		std::cout << "INIT COM6 OK" << std::endl;
+	}
+	else {
+		std::cout << "INIT COM6 have encounted a pbl" << std::endl;
+	}
+}
+
+Robot::Robot()
+{
+	this->imagePosition.x = -1;
+	this->imagePosition.y = -1;
+	this->desiredPosition.x = -1;
+	this->desiredPosition.y = -1;
+	this->realPosition.x = -1;
+	this->realPosition.y = -1;
+	this->realPosition.z = -1;
+}
+
+Robot::~Robot()
+{
+	//CloseHandle(this->g_hPort);
 }
 
 void Robot::updatePosition(cv::Point p1, cv::Point p2)
@@ -39,10 +72,11 @@ void Robot::updatePosition(cv::Point p1, cv::Point p2)
 	//std::cout << "Orientation : " << this->angleOrientation << std::endl;
 }
 
-double Robot::calculateRotation(cv::Point p)
+double Robot::calculateRotation()
 {
 	// Calculate the angle difference between the robot and the point p passed as parameter
-	double angle = this->angleOrientation - cvFastArctan(p.y - this->imagePosition.y, p.x - this->imagePosition.x);
+	double angle = this->angleOrientation - cvFastArctan(this->desiredPosition.y - this->imagePosition.y,
+		this->desiredPosition.x - this->imagePosition.x);
 
 	// Chose the shorter rotation
 	if (angle <= -180 && angle >= -360) {
@@ -54,12 +88,54 @@ double Robot::calculateRotation(cv::Point p)
 	return angle;
 }
 
-double Robot::calculateDistance(cv::Point p)
+double Robot::calculateDistance()
 {
-	double distanceX = (float(this->H * (p.x - this->u0) / this->alphaU) * 100) - this->realPosition.x;
-	double distanceY = (float(this->H * (p.y - this->v0) / this->alphaV) * 100) - this->realPosition.y;
+	// Calculate the real distance
+	double distanceX = (float(this->H * (this->desiredPosition.x - this->u0) / this->alphaU) * 100) - this->realPosition.x;
+	double distanceY = (float(this->H * (this->desiredPosition.y - this->v0) / this->alphaV) * 100) - this->realPosition.y;
 	//double distanceZ = 0;
 	return sqrt(distanceX * distanceX + distanceY * distanceY);
+}
+
+void Robot::sendCommandToRobot()
+{
+	// Word of 4 bits
+	char c = '0';
+
+	if (this->serial->isOpen()) {
+		if (this->calculateDistance() <= errorPosition) {
+			// Send STOP
+			c = 'S';
+		}
+		else {
+			double angle = this->calculateRotation();
+			if (abs(angle) <= errorOrientation) {
+				// Send STRAIGHT/FORWARD
+				c = 'F';
+			}
+			else if (abs(angle - 180) <= errorOrientation) {
+				// Send BACK
+				c = 'B';
+			}
+			else if (angle > 0) {
+				// Send LEFT
+				c = 'L';
+			}
+			else {
+				// Send RIGHT
+				c = 'R';
+			}
+		}
+		if (c != '0') {
+			// Send the emssage
+			if (this->serial->write(&c)) {
+				std::cout << "Msg send : " << c << std::endl;
+			}
+			else {
+				std::cout << "Error : Msg not send" << std::endl;
+			}
+		}
+	}
 }
 
 void Robot::displayImagePosition(cv::Mat image)
@@ -96,6 +172,16 @@ cv::Point2d Robot::getImagePosition()
 cv::Point3f Robot::getRealPosition()
 {
 	return this->realPosition;
+}
+
+void Robot::setDesiredPosition(cv::Point p)
+{
+	this->desiredPosition = p;
+}
+
+void Robot::setHeight(double h)
+{
+	this->H = h;
 }
 
 

@@ -77,5 +77,5 @@ void Kalman::predictKalmanFilter(clock_t dT) {
 
 void Kalman::displayEstimatePosition(cv::Mat image)
 {
-	cv::circle(image, cv::Point(int(this->state.at<float>(0, 0)), int(this->state.at<float>(1, 0))), 5, cv::Scalar(255, 0, 0), -1);
+	cv::circle(image, cv::Point(int(this->state.at<float>(0, 0)), int(this->state.at<float>(1, 0))), 5, cv::Scalar(0, 255, 0), -1);
 }

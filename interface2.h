@@ -8,12 +8,18 @@
 #include <QSlider>
 #include <QComboBox>
 #include <QCheckBox>
+#include "clickablelabel.h"
 
 class Algo;
 
 class MainInterface {
 public:
-	//! Constructor by default
+	//! Constructor that the input of the main function as parameters.
+	/*!
+	\param argc Argc parameter of the main function
+	\param argv Argv parameter of the main function
+	\return void
+	*/
 	MainInterface(int argc, char * argv[]);
 
 	//! Initialize the pointer to the algorithm that will update the graphical interface or be updated by the graphical
@@ -45,7 +51,7 @@ public:
 	\param int The maximal distance value
 	\return void
 	*/
-	void setValue(int);
+	void setDistance(int);
 
 	//! Set the data of the QImage contained inside the QLabel label attribut that will be used to display the 
 	// image of the camera at each loop of the algorithm. 
@@ -77,15 +83,25 @@ private:
 	QWidget window;
 	QVBoxLayout* mainLayout;
 	QHBoxLayout* hboxLayout;
-	QLabel* label;
+	ClickableLabel * label;
+
 	QLabel * textResolution;
+	QLabel * textDisplayOpt;
+	QLabel * textDistanceArea;
+	QLabel * textNbRobot;
+	QLabel * textHeight;
 
 	QCheckBox * checkPosition;
 	QCheckBox * checkOrientation;
 	QCheckBox * checkIdentification;
 	QCheckBox * checkKalman;
 
-	QSpinBox* spinBox;
-	QSlider* slider;
+	QSpinBox* spinBoxDist;
+	QSlider* sliderDist;
+	QSpinBox* spinBoxRobot;
+	QSlider* sliderRobot;
+	QSpinBox* spinBoxHeight;
+	QSlider* sliderHeight;
+
 	QComboBox * comboBox;
 };

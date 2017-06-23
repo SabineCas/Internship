@@ -25,7 +25,7 @@ int WindowInterface::show()
 
 	// Calibration of the camera
 	if (cam.cameraCalib(false) != 0) {
-		std::cout << "Calibration error" << endl;
+		std::cout << "Calibration error" << std::endl;
 	}
 	const static double height = 1.73;
 	cam.cameraCorr(height);
@@ -122,6 +122,7 @@ int WindowInterface::show()
 		classif.setPreviousInfraredVector(classif.getFinalInfraredVector());
 		classif.clearFinalInfraredVector();
 
+		//cv::resize(image, image, cv::Size(640, 480));
 		IplImage img1 = (IplImage)image;
 		cvShowImage(titleWindows, &img1);
 		//writer3.write(image);
@@ -144,7 +145,6 @@ int WindowInterface::show()
 			std::cout << "DOWN" << std::endl;
 		}
 	}
-
 	cv::destroyAllWindows();
 	return(0);
 }

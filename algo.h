@@ -91,6 +91,29 @@ public:
 	*/
 	void setDisplayKalman(bool val);
 
+	//! Set the desired position point that the robot will try to reach.
+	/*!
+	\param x The position of the point on the X axis
+	\param y The position of the point on the Y axis
+	\return void
+	*/
+	void setDesiredPoint(int x, int y);
+
+	//! Set the maximal number of robot that will appear in the frame
+	/*!
+	\param r Number of robots
+	\return void
+	*/
+	void setNbRobot(int r);
+
+	//! Set the distance between the ground and the fixed camera, that will be used to calculate the real position of
+	//! the robot.
+	/*!
+	\param h Height of the camera
+	\return void
+	*/
+	void setHeight(int h);
+
 private:
 	//! Run the algorithm inside the std::thread runThr attribut that have been created. Warning : the public function
 	//! "void start();" have to be call before to initiate the thread of the algorithm.
@@ -102,8 +125,11 @@ private:
 
 	bool started, finished, close;
 	bool displayPosition, displayOrientation, displayIdentification, displayKalman;
+	double height;
+	int nbRobot;
+	Camera cam;
+	Robot robot;
 	std::thread runThr;
 	MainInterface * interf;
-	Camera cam;
 	std::mutex mtx;
 };
