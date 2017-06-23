@@ -52,7 +52,7 @@ void Algo::run()
 		// Update of the timer
 		t = clock();
 
-		// Get the next frame
+		// Get the next frame (using mutex to avoid conflict access)
 		mtx.lock();
 		cam.getCap().read(image);
 		mtx.unlock();

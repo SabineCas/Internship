@@ -9,11 +9,14 @@
 
 Kalman::Kalman()
 {
-	int stateSize = 4, measSize = 2, contrSize = 0;
+	int stateSize = 3, measSize = 2, contrSize = 0;
 	this->kf = cv::KalmanFilter(stateSize, measSize, contrSize, CV_32F);
 
-	// State vector (x, y, vx, vy)
-	this->state = cv::Mat(stateSize, 1, CV_32F);
+	// State vector (x, y, theta)
+	this->state = cv::Mat::zeros(stateSize, 1, CV_32F);
+
+	// Control vector
+	this->kf.controlMatrix = cv::Mat::zeros(stateSize, 1, CV_32F);
 
 	// Measurements vector (x, y)
 	this->meas = cv::Mat(measSize, 1, CV_32F);
@@ -30,10 +33,6 @@ Kalman::Kalman()
 	this->kf.processNoiseCov.at<float>(1, 1) = float(0.01);
 	this->kf.processNoiseCov.at<float>(2, 2) = float(5.0);
 	this->kf.processNoiseCov.at<float>(3, 3) = float(5.0);
-
-	/*for (int i = 0; i < measSize; i++) {
-		this->kf.processNoiseCov.at<float>(i, i) = float(0.01);
-	}*/
 
 	// Measurement noise covariance
 	cv::setIdentity(this->kf.measurementNoiseCov, cv::Scalar(0.1));
