@@ -9,7 +9,7 @@
 
 Kalman::Kalman()
 {
-	int stateSize = 3, measSize = 2, contrSize = 0;
+	int stateSize = 4, measSize = 2, contrSize = 0;
 	this->kf = cv::KalmanFilter(stateSize, measSize, contrSize, CV_32F);
 
 	// State vector (x, y, theta)

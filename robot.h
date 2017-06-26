@@ -12,6 +12,10 @@
 
 #include <QSerialPort>
 #include <stdio.h>
+#include <conio.h>
+#include <windows.h>
+#include <tchar.h>
+//#include <sdkddkver.h>
 
 class Robot {
 public:
@@ -114,7 +118,10 @@ private:
 	cv::Point3f realPosition;
 	cv::Point2d imagePosition, desiredPosition;
 	double H, alphaU, alphaV, u0, v0, angleOrientation;
-	QSerialPort * serial;
+
+	DCB dcb;
+	BOOL result;
+	HANDLE g_hPort;
 
 	// Margin of error that are tolerate for the orientation of the robot
 	const static int errorOrientation = 10;

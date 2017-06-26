@@ -24,14 +24,18 @@ Robot::Robot(double H, double alphaU, double alphaV, double u0, double v0)
 	this->angleOrientation = 0;
 
 	// Initiate the communication with the MC
-	serial = new QSerialPort();
-	serial->setPortName("COM6");
-	serial->setBaudRate(QSerialPort::Baud9600);
-	serial->setDataBits(QSerialPort::Data8);
-	serial->setParity(QSerialPort::NoParity);
-	serial->setStopBits(QSerialPort::OneStop);
-	serial->setFlowControl(QSerialPort::NoFlowControl);
-	if (serial->open(QIODevice::WriteOnly)) {
+	g_hPort = CreateFile(_T("COM6"), GENERIC_READ | GENERIC_WRITE, 0, NULL, CREATE_NEW, 0, NULL);
+	GetCommState(g_hPort, &dcb);
+	dcb.BaudRate = 9600;
+	dcb.fParity = FALSE;
+	dcb.ByteSize = 8;
+	dcb.StopBits = ONESTOPBIT;
+	dcb.fOutxCtsFlow = FALSE;
+	dcb.fOutxDsrFlow = FALSE;
+	dcb.fDtrControl = DTR_CONTROL_DISABLE;
+	dcb.fRtsControl = RTS_CONTROL_DISABLE;
+	result = SetCommState(g_hPort, &dcb);
+	if (result) {
 		std::cout << "INIT COM6 OK" << std::endl;
 	}
 	else {
@@ -52,7 +56,17 @@ Robot::Robot()
 
 Robot::~Robot()
 {
-	//CloseHandle(this->g_hPort);
+	// Stop the robot before shutting down the program
+	unsigned char c1 = (unsigned char)0xA0;
+	unsigned char c2 = (unsigned char)0x60;
+	DWORD dwWriteBytes;
+	WriteFile(g_hPort, &c1, 1, &dwWriteBytes, NULL);
+	Sleep(10);
+	WriteFile(g_hPort, &c2, 1, &dwWriteBytes, NULL);
+	Sleep(10);
+
+	// Close the COM port
+	CloseHandle(g_hPort);
 }
 
 void Robot::updatePosition(cv::Point p1, cv::Point p2)
@@ -99,43 +113,76 @@ double Robot::calculateDistance()
 
 void Robot::sendCommandToRobot()
 {
-	// Word of 4 bits
-	char c = '0';
+	// Data to send
+	DWORD dwWriteBytes;
+	unsigned char c1 = '0', c2 = '0';
+	c1 = (unsigned char)0xBF;
+	c2 = (unsigned char)0x4E;
 
-	if (this->serial->isOpen()) {
+	// DEBUG
+	/*WriteFile(g_hPort, &c1, 1, &dwWriteBytes, NULL);
+	Sleep(10);
+	WriteFile(g_hPort, &c2, 1, &dwWriteBytes, NULL);*/
+
+	// Meaning of the data
+	unsigned char c = '0';
+
+	if (result) {
 		if (this->calculateDistance() <= errorPosition) {
 			// Send STOP
-			c = 'S';
+			c = 's';
+			c1 = (unsigned char)0xA0;
+			c2 = (unsigned char)0x60;
 		}
 		else {
 			double angle = this->calculateRotation();
-			if (abs(angle) <= errorOrientation) {
-				// Send STRAIGHT/FORWARD
-				c = 'F';
+			if (abs(angle) <= errorOrientation || 1) {
+				// STRAIGHT/FORWARD command
+				c = 'f';
+				c1 = (unsigned char)0xBF;
+				c2 = (unsigned char)0x7F;
 			}
 			else if (abs(angle - 180) <= errorOrientation) {
-				// Send BACK
-				c = 'B';
+				// BACK command
+				c = 'b';
+				c1 = (unsigned char)0x8E;
+				c2 = (unsigned char)0x4E;
 			}
 			else if (angle > 0) {
-				// Send LEFT
-				c = 'L';
+				// LEFT command
+				c = 'l';
+				c1 = (unsigned char)0x8E;
+				c2 = (unsigned char)0x7F;
 			}
 			else {
-				// Send RIGHT
-				c = 'R';
+				// RIGHT command
+				c = 'r';
+				c1 = (unsigned char)0xBF;
+				c2 = (unsigned char)0x4E;
 			}
 		}
 		if (c != '0') {
-			// Send the emssage
-			if (this->serial->write(&c)) {
-				std::cout << "Msg send : " << c << std::endl;
-			}
-			else {
-				std::cout << "Error : Msg not send" << std::endl;
-			}
+			// Send the message
+			WriteFile(g_hPort, &c1, 1, &dwWriteBytes, NULL);
+			Sleep(10);
+			WriteFile(g_hPort, &c2, 1, &dwWriteBytes, NULL);
+			std::cout << "Msg send : " << c << std::endl;
 		}
 	}
+
+	//if (c != '0') {
+	//	// Send the message
+	//	this->serial->write(&c1);
+	//	cv::waitKey(10);
+	//	this->serial->write(&c2);
+	//	if (1) {
+	//		//std::cout << "Msg send : " << c << std::endl;
+	//	}
+	//	else {
+	//		std::cout << "Error : Msg not send" << std::endl;
+	//	}
+	//}
+
 }
 
 void Robot::displayImagePosition(cv::Mat image)
