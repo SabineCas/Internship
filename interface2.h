@@ -90,18 +90,25 @@ private:
 	QLabel * textDistanceArea;
 	QLabel * textNbRobot;
 	QLabel * textHeight;
+	QLabel * textfreqLED1;
+	QLabel * textfreqLED2;
 
 	QCheckBox * checkPosition;
 	QCheckBox * checkOrientation;
 	QCheckBox * checkIdentification;
 	QCheckBox * checkKalman;
+	QCheckBox * buttonCommand;
 
-	QSpinBox* spinBoxDist;
-	QSlider* sliderDist;
-	QSpinBox* spinBoxRobot;
-	QSlider* sliderRobot;
-	QSpinBox* spinBoxHeight;
-	QSlider* sliderHeight;
+	QSpinBox * spinBoxDist;
+	QSlider * sliderDist;
+	QSpinBox * spinBoxRobot;
+	QSlider * sliderRobot;
+	QSpinBox * spinBoxHeight;
+	QSlider * sliderHeight;
+	QSpinBox * spinBoxFreqLED1;
+	QSlider * sliderFreqLED1;
+	QSpinBox * spinBoxFreqLED2;
+	QSlider * sliderFreqLED2;
 
 	QComboBox * comboBox;
 };

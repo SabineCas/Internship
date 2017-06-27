@@ -17,8 +17,8 @@ Camera::Camera(int numDevice)
 	}
 
 	// Increase the resolution
-	this->cap.set(CV_CAP_PROP_FRAME_WIDTH, 640);
-	this->cap.set(CV_CAP_PROP_FRAME_HEIGHT, 480);
+	this->cap.set(CV_CAP_PROP_FRAME_WIDTH, 1280);
+	this->cap.set(CV_CAP_PROP_FRAME_HEIGHT, 720);
 
 	this->intrinsicParam = cv::Mat(3, 3, CV_32FC1, double(0));
 	this->distortionParam = cv::Mat(1, 5, CV_32FC1, double(0));

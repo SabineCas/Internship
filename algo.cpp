@@ -10,7 +10,6 @@ Algo::Algo()
 	, cam(0)
 	, height(1.73)
 {
-
 	// Calibration of the camera
 	if (cam.cameraCalib(false) != 0) {
 		std::cout << "Calibration error" << std::endl;
@@ -36,10 +35,6 @@ void Algo::run()
 	cv::Scalar IF_lower(100, 34, 60), IF_upper(175, 128, 244);
 	AreaClassification classif = AreaClassification();
 
-	// Robot
-	//Robot robot = Robot(height, cam.getIntrinsicParameters().at<double>(0, 0), cam.getIntrinsicParameters().at<double>(1, 1),
-	//	cam.getIntrinsicParameters().at<double>(0, 2), cam.getIntrinsicParameters().at<double>(1, 2));
-
 	// Kalman filter
 	Kalman kalman = Kalman();
 	bool found = false, error = false;
@@ -47,6 +42,12 @@ void Algo::run()
 
 	// Algorithm is starting
 	started = true;
+
+	// Recorder - DEBUG
+	cv::Size size2 = cv::Size(int(cam.getCap().get(cv::CAP_PROP_FRAME_WIDTH)), int(cam.getCap().get(cv::CAP_PROP_FRAME_HEIGHT)));
+	int codec = CV_FOURCC('M', 'J', 'P', 'G');
+	cv::VideoWriter writer3("../data/Result1.avi", codec, 10, size2, true);
+	writer3.open("../data/Result1.avi", codec, 20, size2, true);
 
 	while (!close) {
 		// Update of the timer
@@ -77,6 +78,8 @@ void Algo::run()
 		if (this->displayIdentification) {
 			classif.displayIdentification(image);
 		}
+
+		robot.displayDesiredPosition(image);
 
 		// Update robot position and orientation
 		if (classif.getLastKnownBOTTOM().getCoord() != cv::Point(-1, -1) && classif.getLastKnownTOP().getCoord() != cv::Point(-1, -1)) {
@@ -116,7 +119,7 @@ void Algo::run()
 		classif.clearFinalInfraredVector();
 
 		this->robot.sendCommandToRobot();
-		// writer3.write(image);
+		writer3.write(image);
 
 		// Update the image of the interface
 		cv::resize(image, image, cv::Size(640, 480));
@@ -127,6 +130,8 @@ void Algo::run()
 		dT = (clock() - t);
 		// std::cout << dT << std::endl;
 	}
+	// Stop the robot and close the communication port
+	this->robot.closeCom();
 
 	std::this_thread::sleep_for(std::chrono::seconds(1));
 	interf->end();
@@ -156,6 +161,16 @@ void Algo::setInterface(MainInterface *i)
 void Algo::setDistanceAreaLight(int i)
 {
 	distanceAreaLight = i;
+}
+
+void Algo::setFreqLED1(int i)
+{
+	timeLED1 = i;
+}
+
+void Algo::setFreqLED2(int i)
+{
+	timeLED2 = i;
 }
 
 void Algo::setDisplayPosition(bool val)
@@ -197,6 +212,11 @@ void Algo::setHeight(int h)
 	// Conversion in meters
 	this->height = double(h) / 100;
 	this->robot.setHeight(this->height);
+}
+
+void Algo::sendCommand(bool c)
+{
+	this->robot.setSendCommand(c);
 }
 
 void Algo::setResolution(int width, int height)

@@ -1,6 +1,8 @@
 #include "infraredLight.h"
 
 int distanceAreaLight = 30;
+int timeLED1 = 125;
+int timeLED2 = 250;
 
 infraredLight::infraredLight()
 {
@@ -32,8 +34,8 @@ bool infraredLight::areClose(cv::Point p)
 void infraredLight::areaBlinkFreq(clock_t time, bool previousVisible)
 {
 	std::vector<clock_t> timeFrames;
-	timeFrames.push_back(clock_t(100));
-	timeFrames.push_back(clock_t(200));
+	timeFrames.push_back(clock_t(timeLED1));
+	timeFrames.push_back(clock_t(timeLED2));
 
 	if (this->visible && !previousVisible) {
 		this->LEDTimeON = time;

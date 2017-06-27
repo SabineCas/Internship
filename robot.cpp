@@ -9,23 +9,26 @@
 
 Robot::Robot(double H, double alphaU, double alphaV, double u0, double v0)
 {
-	this->imagePosition.x = -1;
-	this->imagePosition.y = -1;
-	this->desiredPosition.x = -1;
-	this->desiredPosition.y = -1;
-	this->realPosition.x = -1;
-	this->realPosition.y = -1;
-	this->realPosition.z = -1;
 	this->u0 = u0;
 	this->v0 = v0;
 	this->alphaU = alphaU;
 	this->alphaV = alphaV;
 	this->H = H;
+
+	this->imagePosition.x = 0;
+	this->imagePosition.y = 0;
+	this->desiredPosition.x = 0;
+	this->desiredPosition.y = 0;
+	this->realPosition.x = -1;
+	this->realPosition.y = -1;
+	this->realPosition.z = -1;
 	this->angleOrientation = 0;
+	this->sendCommand = false;
+	this->result = false;
 
 	// Initiate the communication with the MC
-	g_hPort = CreateFile(_T("COM6"), GENERIC_READ | GENERIC_WRITE, 0, NULL, CREATE_NEW, 0, NULL);
-	GetCommState(g_hPort, &dcb);
+	this->g_hPort = CreateFile(_T("COM6"), GENERIC_READ | GENERIC_WRITE, 0, NULL, CREATE_NEW, 0, NULL);
+	GetCommState(this->g_hPort, &dcb);
 	dcb.BaudRate = 9600;
 	dcb.fParity = FALSE;
 	dcb.ByteSize = 8;
@@ -34,8 +37,8 @@ Robot::Robot(double H, double alphaU, double alphaV, double u0, double v0)
 	dcb.fOutxDsrFlow = FALSE;
 	dcb.fDtrControl = DTR_CONTROL_DISABLE;
 	dcb.fRtsControl = RTS_CONTROL_DISABLE;
-	result = SetCommState(g_hPort, &dcb);
-	if (result) {
+	this->result = SetCommState(this->g_hPort, &dcb);
+	if (this->result) {
 		std::cout << "INIT COM6 OK" << std::endl;
 	}
 	else {
@@ -45,28 +48,15 @@ Robot::Robot(double H, double alphaU, double alphaV, double u0, double v0)
 
 Robot::Robot()
 {
-	this->imagePosition.x = -1;
-	this->imagePosition.y = -1;
-	this->desiredPosition.x = -1;
-	this->desiredPosition.y = -1;
+	this->imagePosition.x = 0;
+	this->imagePosition.y = 0;
+	this->desiredPosition.x = 0;
+	this->desiredPosition.y = 0;
 	this->realPosition.x = -1;
 	this->realPosition.y = -1;
 	this->realPosition.z = -1;
-}
-
-Robot::~Robot()
-{
-	// Stop the robot before shutting down the program
-	unsigned char c1 = (unsigned char)0xA0;
-	unsigned char c2 = (unsigned char)0x60;
-	DWORD dwWriteBytes;
-	WriteFile(g_hPort, &c1, 1, &dwWriteBytes, NULL);
-	Sleep(10);
-	WriteFile(g_hPort, &c2, 1, &dwWriteBytes, NULL);
-	Sleep(10);
-
-	// Close the COM port
-	CloseHandle(g_hPort);
+	this->sendCommand = false;
+	this->result = false;
 }
 
 void Robot::updatePosition(cv::Point p1, cv::Point p2)
@@ -116,11 +106,11 @@ void Robot::sendCommandToRobot()
 	// Data to send
 	DWORD dwWriteBytes;
 	unsigned char c1 = '0', c2 = '0';
-	c1 = (unsigned char)0xBF;
-	c2 = (unsigned char)0x4E;
 
 	// DEBUG
-	/*WriteFile(g_hPort, &c1, 1, &dwWriteBytes, NULL);
+	/*c1 = (unsigned char)0xBF;
+	c2 = (unsigned char)0x7F;
+	WriteFile(g_hPort, &c1, 1, &dwWriteBytes, NULL);
 	Sleep(10);
 	WriteFile(g_hPort, &c2, 1, &dwWriteBytes, NULL);*/
 
@@ -128,7 +118,7 @@ void Robot::sendCommandToRobot()
 	unsigned char c = '0';
 
 	if (result) {
-		if (this->calculateDistance() <= errorPosition) {
+		if (this->calculateDistance() <= errorPosition || this->imagePosition.x < 0) {
 			// Send STOP
 			c = 's';
 			c1 = (unsigned char)0xA0;
@@ -136,17 +126,21 @@ void Robot::sendCommandToRobot()
 		}
 		else {
 			double angle = this->calculateRotation();
-			if (abs(angle) <= errorOrientation || 1) {
+			if (abs(angle) <= errorOrientation) {
 				// STRAIGHT/FORWARD command
 				c = 'f';
-				c1 = (unsigned char)0xBF;
-				c2 = (unsigned char)0x7F;
+				/*c1 = (unsigned char)0xBF;
+				c2 = (unsigned char)0x7F;*/
+				c1 = (unsigned char)0x8E;
+				c2 = (unsigned char)0x4E;
 			}
 			else if (abs(angle - 180) <= errorOrientation) {
 				// BACK command
 				c = 'b';
-				c1 = (unsigned char)0x8E;
-				c2 = (unsigned char)0x4E;
+				/*c1 = (unsigned char)0x8E;
+				c2 = (unsigned char)0x4E;*/
+				c1 = (unsigned char)0xBF;
+				c2 = (unsigned char)0x7F;
 			}
 			else if (angle > 0) {
 				// LEFT command
@@ -161,7 +155,7 @@ void Robot::sendCommandToRobot()
 				c2 = (unsigned char)0x4E;
 			}
 		}
-		if (c != '0') {
+		if (c != '0' && sendCommand) {
 			// Send the message
 			WriteFile(g_hPort, &c1, 1, &dwWriteBytes, NULL);
 			Sleep(10);
@@ -169,20 +163,6 @@ void Robot::sendCommandToRobot()
 			std::cout << "Msg send : " << c << std::endl;
 		}
 	}
-
-	//if (c != '0') {
-	//	// Send the message
-	//	this->serial->write(&c1);
-	//	cv::waitKey(10);
-	//	this->serial->write(&c2);
-	//	if (1) {
-	//		//std::cout << "Msg send : " << c << std::endl;
-	//	}
-	//	else {
-	//		std::cout << "Error : Msg not send" << std::endl;
-	//	}
-	//}
-
 }
 
 void Robot::displayImagePosition(cv::Mat image)
@@ -206,9 +186,34 @@ void Robot::displayImagePosition(cv::Mat image)
 		1, cv::Scalar(255, 0, 0), 1, 5, false);
 }
 
+void Robot::displayDesiredPosition(cv::Mat image)
+{
+	// Display the position
+	cv::circle(image, this->desiredPosition, 5, cv::Scalar(0, 0, 255), -1, 8, 0);
+}
+
 void Robot::displayImageOrientation(cv::Mat image, cv::Point top)
 {
-	cv::arrowedLine(image, this->imagePosition, top, cv::Scalar(255, 0, 0), 3, 8, 0, 0.1);
+	cv::arrowedLine(image, this->imagePosition, top, cv::Scalar(255, 0, 0), 1, 8, 0, 0.1);
+}
+
+void Robot::closeCom()
+{
+	// Stop the robot before shutting down the program
+	unsigned char c1 = (unsigned char)0xA0;
+	unsigned char c2 = (unsigned char)0x60;
+	DWORD dwWriteBytes;
+	WriteFile(g_hPort, &c1, 1, &dwWriteBytes, NULL);
+	Sleep(10);
+	WriteFile(g_hPort, &c2, 1, &dwWriteBytes, NULL);
+	Sleep(1000);
+
+	if (GetCommState(g_hPort, &dcb)) {
+		// Close file
+		DeleteFile(_T("COM6"));
+		// Close the COM port
+		CloseHandle(g_hPort);
+	}
 }
 
 cv::Point2d Robot::getImagePosition()
@@ -229,6 +234,21 @@ void Robot::setDesiredPosition(cv::Point p)
 void Robot::setHeight(double h)
 {
 	this->H = h;
+}
+
+void Robot::setSendCommand(bool c)
+{
+	this->sendCommand = c;
+	if (!c) {
+		// Stop the robot before shutting down the program
+		unsigned char c1 = (unsigned char)0xA0;
+		unsigned char c2 = (unsigned char)0x60;
+		DWORD dwWriteBytes;
+		WriteFile(g_hPort, &c1, 1, &dwWriteBytes, NULL);
+		Sleep(10);
+		WriteFile(g_hPort, &c2, 1, &dwWriteBytes, NULL);
+		Sleep(1000);
+	}
 }
 
 

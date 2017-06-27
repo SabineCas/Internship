@@ -33,9 +33,6 @@ public:
 	//! Constructor by default.
 	Robot();
 
-	//! Destructor.
-	~Robot();
-
 	//! Update the position of the robot on the picture (cv::Point2d imagePosition attribut) accordings to the two detected LEDs
 	//! passed as parameters. 
 	/*!
@@ -70,12 +67,19 @@ public:
 	*/
 	void sendCommandToRobot();
 
-	//! Display a filled circle on the currect frame at the coordinate saved into the cv::Point2d imagePosition attribut.
+	//! Display a filled circle on the current frame at the coordinate saved into the cv::Point2d imagePosition attribut.
 	/*!
 	\param image The current frame
 	\return The current frame with the circle drawn
 	*/
 	void displayImagePosition(cv::Mat image);
+
+	//! Display a filled circle on the current frame at the coordinate saved into the cv::Point2d desiredPosition attribut.
+	/*!
+	\param image The current frame
+	\return The current frame with the circle drawn
+	*/
+	void displayDesiredPosition(cv::Mat image);
 
 	//! Display an arrow on the currect frame at the coordinate saved into the cv::Point2d imagePosition attribut that represents the
 	//! orientation of the robot.
@@ -84,6 +88,13 @@ public:
 	\return The current frame with the arrow drawn
 	*/
 	void displayImageOrientation(cv::Mat image, cv::Point top);
+
+	//! Close properly the serial port communication before shutting down the program
+	/*!
+	\param void
+	\return void
+	*/
+	void closeCom();
 
 	//! Return the image coordinate of the robot saved into the cv::Point2d imagePosition attribut.
 	/*!
@@ -114,17 +125,25 @@ public:
 	*/
 	void setHeight(double h);
 
+	//! Change the value of the boolean sendCommand parameter that represents the parameters that will allow to send
+	//! the motion command to the robot or not.
+	/*!
+	\param void
+	\return void
+	*/
+	void setSendCommand(bool c);
+
 private:
 	cv::Point3f realPosition;
 	cv::Point2d imagePosition, desiredPosition;
 	double H, alphaU, alphaV, u0, v0, angleOrientation;
-
+	boolean sendCommand;
 	DCB dcb;
 	BOOL result;
 	HANDLE g_hPort;
 
 	// Margin of error that are tolerate for the orientation of the robot
-	const static int errorOrientation = 10;
+	const static int errorOrientation = 15;
 
 	// Margin of error that are tolerate for the position of the robot
 	const static int errorPosition = 5;

@@ -53,6 +53,20 @@ public:
 	*/
 	void setDistanceAreaLight(int i);
 
+	//! 
+	/*!
+	\param i 
+	\return void
+	*/
+	void setFreqLED1(int i);
+
+	//! 
+	/*!
+	\param i 
+	\return void
+	*/
+	void setFreqLED2(int i);
+
 	//! Set resolution of the camera of the camera attribut. this function is called when the interface is modified. 
 	/*!
 	\param width The new width of the captured frame from the camera.
@@ -113,6 +127,13 @@ public:
 	\return void
 	*/
 	void setHeight(int h);
+
+	//! 
+	/*!
+	\param void
+	\return void
+	*/
+	void sendCommand(bool c);
 
 private:
 	//! Run the algorithm inside the std::thread runThr attribut that have been created. Warning : the public function

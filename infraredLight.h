@@ -5,6 +5,8 @@
 
 //! Minimal distance between two area infrared light.
 extern int distanceAreaLight;
+extern int timeLED1;
+extern int timeLED2;
 //! Minimal size of a infraredLight to be take into account in the algorithm.
 const static int minimumSizeAreaLight = 0;
 //! Maximal size of a infraredLight to be take into account in the algorithm.
