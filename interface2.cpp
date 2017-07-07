@@ -15,6 +15,7 @@ int MainInterface::run()
 
 	int res = this->app.exec();
 	this->algo->forceQuit();
+
 	return res;
 }
 
@@ -34,13 +35,17 @@ void MainInterface::create()
 	textHeight = new QLabel("Height distance between the camera and the ground (in centimeters) : ");
 	textfreqLED1 = new QLabel("Blinking frequency of the LED1 (in milliseconds) : ");
 	textfreqLED2 = new QLabel("Blinking frequency of the LED2 (in milliseconds) : ");
+	textMotorR = new QLabel("Gain of the right motor (between 1 and 31) which is used in debug mode : ");
+	textMotorL = new QLabel("Gain of the left motor (between 1 and 31) which is used in debug mode : ");
 	label = new ClickableLabel();
+	label->setAlignment(Qt::AlignTop);
 
 	checkPosition = new QCheckBox("Display the position of the robot : ");
 	checkOrientation = new QCheckBox("Display the orientation of the robot : ");
 	checkIdentification = new QCheckBox("Display the identification of each region that can be recognized as a LED of the robot : ");
 	checkKalman = new QCheckBox("Display the estimated position fo the robot (Kalman) : ");
 	buttonCommand = new QCheckBox("Send command to the robot");
+	debug = new QCheckBox("Setting the debug mode : ");
 
 	spinBoxDist = new QSpinBox;
 	spinBoxDist->setValue(30);
@@ -68,6 +73,24 @@ void MainInterface::create()
 	sliderFreqLED2 = new QSlider(Qt::Horizontal);
 	sliderFreqLED2->setMaximum(500);
 	sliderFreqLED2->setValue(250);
+
+	spinBoxMotor1 = new QSpinBox;
+	spinBoxMotor1->setMaximum(32);
+	spinBoxMotor1->setMinimum(1);
+	spinBoxMotor1->setValue(14);
+	sliderMotor1 = new QSlider(Qt::Horizontal);
+	sliderMotor1->setMaximum(32);
+	sliderMotor1->setMinimum(1);
+	sliderMotor1->setValue(14);
+	spinBoxMotor2 = new QSpinBox;
+	spinBoxMotor2->setMaximum(32);
+	spinBoxMotor2->setMinimum(1);
+	spinBoxMotor2->setValue(14);
+	sliderMotor2 = new QSlider(Qt::Horizontal);
+	sliderMotor2->setMaximum(32);
+	sliderMotor2->setMinimum(1);
+	sliderMotor2->setValue(14);
+
 
 	comboBox = new QComboBox();
 
@@ -110,21 +133,33 @@ void MainInterface::create()
 	mainLayout->addWidget(spinBoxRobot);
 	mainLayout->addWidget(sliderRobot);
 
-	// height of the camera
+	// Height of the camera
 	mainLayout->addWidget(textHeight);
 	mainLayout->addWidget(spinBoxHeight);
 	mainLayout->addWidget(sliderHeight);
+
+	// Debug mode
+	// mainLayout->addWidget(textDebug);
+	mainLayout->addWidget(debug);
+
+	// Gain of the motors
+	mainLayout->addWidget(textMotorR);
+	mainLayout->addWidget(spinBoxMotor1);
+	mainLayout->addWidget(sliderMotor1);
+	mainLayout->addWidget(textMotorL);
+	mainLayout->addWidget(spinBoxMotor2);
+	mainLayout->addWidget(sliderMotor2);
 
 	QObject::connect(label, &ClickableLabel::clicked, std::bind(&Algo::setDesiredPoint, std::ref(this->algo), std::placeholders::_1, std::placeholders::_2));
 	QObject::connect(spinBoxDist, SIGNAL(valueChanged(int)), sliderDist, SLOT(setValue(int)));
 	QObject::connect(sliderDist, SIGNAL(valueChanged(int)), spinBoxDist, SLOT(setValue(int)));
 	QObject::connect(sliderDist, &QSlider::valueChanged, std::bind(&Algo::setDistanceAreaLight, std::ref(this->algo), std::placeholders::_1));
 
-	QObject::connect(spinBoxFreqLED1, SIGNAL(valueChanged(int)), sliderDist, SLOT(setValue(int)));
-	QObject::connect(sliderFreqLED1, SIGNAL(valueChanged(int)), spinBoxDist, SLOT(setValue(int)));
+	QObject::connect(spinBoxFreqLED1, SIGNAL(valueChanged(int)), sliderFreqLED1, SLOT(setValue(int)));
+	QObject::connect(sliderFreqLED1, SIGNAL(valueChanged(int)), spinBoxFreqLED1, SLOT(setValue(int)));
 	QObject::connect(sliderFreqLED1, &QSlider::valueChanged, std::bind(&Algo::setFreqLED1, std::ref(this->algo), std::placeholders::_1));
-	QObject::connect(spinBoxFreqLED2, SIGNAL(valueChanged(int)), sliderDist, SLOT(setValue(int)));
-	QObject::connect(sliderFreqLED2, SIGNAL(valueChanged(int)), spinBoxDist, SLOT(setValue(int)));
+	QObject::connect(spinBoxFreqLED2, SIGNAL(valueChanged(int)), sliderFreqLED2, SLOT(setValue(int)));
+	QObject::connect(sliderFreqLED2, SIGNAL(valueChanged(int)), spinBoxFreqLED2, SLOT(setValue(int)));
 	QObject::connect(sliderFreqLED2, &QSlider::valueChanged, std::bind(&Algo::setFreqLED2, std::ref(this->algo), std::placeholders::_1));
 
 	QObject::connect(spinBoxRobot, SIGNAL(valueChanged(int)), sliderRobot, SLOT(setValue(int)));
@@ -134,6 +169,13 @@ void MainInterface::create()
 	QObject::connect(sliderHeight, SIGNAL(valueChanged(int)), spinBoxHeight, SLOT(setValue(int)));
 	QObject::connect(sliderHeight, &QSlider::valueChanged, std::bind(&Algo::setHeight, std::ref(this->algo), std::placeholders::_1));
 
+	QObject::connect(spinBoxMotor1, SIGNAL(valueChanged(int)), sliderMotor1, SLOT(setValue(int)));
+	QObject::connect(sliderMotor1, SIGNAL(valueChanged(int)), spinBoxMotor1, SLOT(setValue(int)));
+	QObject::connect(sliderMotor1, &QSlider::valueChanged, std::bind(&Algo::setGainMotor1, std::ref(this->algo), std::placeholders::_1));
+	QObject::connect(spinBoxMotor2, SIGNAL(valueChanged(int)), sliderMotor2, SLOT(setValue(int)));
+	QObject::connect(sliderMotor2, SIGNAL(valueChanged(int)), spinBoxMotor2, SLOT(setValue(int)));
+	QObject::connect(sliderMotor2, &QSlider::valueChanged, std::bind(&Algo::setGainMotor2, std::ref(this->algo), std::placeholders::_1));
+
 	void (QComboBox::*indexChangedSignal)(int) = &QComboBox::currentIndexChanged;
 	QObject::connect(comboBox, indexChangedSignal, std::bind(&MainInterface::translateComboBox, this, std::placeholders::_1));
 	QObject::connect(checkPosition, &QCheckBox::stateChanged, std::bind(&Algo::setDisplayPosition, std::ref(this->algo), std::placeholders::_1));
@@ -141,6 +183,7 @@ void MainInterface::create()
 	QObject::connect(checkIdentification, &QCheckBox::stateChanged, std::bind(&Algo::setDisplayIdentification, std::ref(this->algo), std::placeholders::_1));
 	QObject::connect(checkKalman, &QCheckBox::stateChanged, std::bind(&Algo::setDisplayKalman, std::ref(this->algo), std::placeholders::_1));
 	QObject::connect(buttonCommand, &QCheckBox::stateChanged, std::bind(&Algo::sendCommand, std::ref(this->algo), std::placeholders::_1));
+	QObject::connect(debug, &QCheckBox::stateChanged, std::bind(&Algo::setDebug, std::ref(this->algo), std::placeholders::_1));
 }
 
 void MainInterface::end()

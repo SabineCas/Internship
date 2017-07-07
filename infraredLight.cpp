@@ -118,11 +118,6 @@ std::vector<int> infraredLight::findIn(std::vector<infraredLight> vector)
 	return(res);
 }
 
-void infraredLight::addTimeFrame(clock_t time)
-{
-	//this->timeFrames.push_back(time);
-}
-
 bool infraredLight::getVisible()
 {
 	return this->visible;

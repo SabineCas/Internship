@@ -32,7 +32,7 @@ void Algo::run()
 	cv::Mat image;
 
 	// Infrared LED color
-	cv::Scalar IF_lower(100, 34, 60), IF_upper(175, 128, 244);
+	cv::Scalar IF_lower(90, 30, 40), IF_upper(250, 250, 250);
 	AreaClassification classif = AreaClassification();
 
 	// Kalman filter
@@ -49,6 +49,8 @@ void Algo::run()
 	cv::VideoWriter writer3("../data/Result1.avi", codec, 10, size2, true);
 	writer3.open("../data/Result1.avi", codec, 20, size2, true);
 
+	cv::imshow("DEBUG", cv::Mat::zeros(cv::Size(5, 5), CV_32F));
+
 	while (!close) {
 		// Update of the timer
 		t = clock();
@@ -63,7 +65,6 @@ void Algo::run()
 
 		// Fix the optical distorsion of the camera
 		// remap(image, image, cam.getMap1(), cam.getMap2(), cv::INTER_NEAREST);
-		// writer2.write(image);
 
 		// Detecttion of the LED
 		cv::cvtColor(image, image, CV_BGR2HSV);
@@ -79,6 +80,7 @@ void Algo::run()
 			classif.displayIdentification(image);
 		}
 
+		// Display the position on the picture that we want the robot reaches
 		robot.displayDesiredPosition(image);
 
 		// Update robot position and orientation
@@ -95,7 +97,7 @@ void Algo::run()
 		}
 		else {
 			notFoundCount++;
-			if (notFoundCount >= 50) {
+			if (notFoundCount >= 25) {
 				found = false;
 			}
 		}
@@ -118,7 +120,21 @@ void Algo::run()
 		classif.setPreviousInfraredVector(classif.getFinalInfraredVector());
 		classif.clearFinalInfraredVector();
 
-		this->robot.sendCommandToRobot();
+		// Security : if we don't see the robot on the picture for too long, we send stop to the robot
+		if (found) {
+			if (this->debug) {
+				this->robot.sendCommandToRobotDEBUG();
+			}
+			else {
+				this->robot.sendCommandToRobotArranged(dT);
+			}
+
+		}
+		else {
+			this->robot.sendStop();
+		}
+
+		// Record the video flux
 		writer3.write(image);
 
 		// Update the image of the interface
@@ -219,6 +235,16 @@ void Algo::sendCommand(bool c)
 	this->robot.setSendCommand(c);
 }
 
+void Algo::setGainMotor1(int g)
+{
+	this->robot.setGainMotor1(g);
+}
+
+void Algo::setGainMotor2(int g)
+{
+	this->robot.setGainMotor2(g);
+}
+
 void Algo::setResolution(int width, int height)
 {
 	mtx.lock();
@@ -229,3 +255,7 @@ void Algo::setResolution(int width, int height)
 	mtx.unlock();
 }
 
+void Algo::setDebug(bool d)
+{
+	this->debug = d;
+}

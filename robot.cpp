@@ -25,6 +25,12 @@ Robot::Robot(double H, double alphaU, double alphaV, double u0, double v0)
 	this->angleOrientation = 0;
 	this->sendCommand = false;
 	this->result = false;
+	this->gainMotor1 = 14;
+	this->gainMotor2 = 14;
+	this->timeSTOP = 0;
+	this->timeBACK = 0;
+	this->timeRIGHT = 0;
+	this->timeLEFT = 0;
 
 	// Initiate the communication with the MC
 	this->g_hPort = CreateFile(_T("COM6"), GENERIC_READ | GENERIC_WRITE, 0, NULL, CREATE_NEW, 0, NULL);
@@ -106,63 +112,217 @@ void Robot::sendCommandToRobot()
 	// Data to send
 	DWORD dwWriteBytes;
 	unsigned char c1 = '0', c2 = '0';
-
-	// DEBUG
-	/*c1 = (unsigned char)0xBF;
-	c2 = (unsigned char)0x7F;
-	WriteFile(g_hPort, &c1, 1, &dwWriteBytes, NULL);
-	Sleep(10);
-	WriteFile(g_hPort, &c2, 1, &dwWriteBytes, NULL);*/
+	int gainMotorR = 0, gainMotorL = 0;
 
 	// Meaning of the data
 	unsigned char c = '0';
 
-	if (result) {
-		if (this->calculateDistance() <= errorPosition || this->imagePosition.x < 0) {
+	if (result && sendCommand) {
+		double distance = this->calculateDistance();
+
+		if (distance <= errorPosition || this->desiredPosition.x < 0) {
 			// Send STOP
-			c = 's';
-			c1 = (unsigned char)0xA0;
-			c2 = (unsigned char)0x60;
+			this->sendStop();
 		}
 		else {
 			double angle = this->calculateRotation();
 			if (abs(angle) <= errorOrientation) {
 				// STRAIGHT/FORWARD command
 				c = 'f';
-				/*c1 = (unsigned char)0xBF;
-				c2 = (unsigned char)0x7F;*/
-				c1 = (unsigned char)0x8E;
-				c2 = (unsigned char)0x4E;
+				this->sendForward(false);
 			}
 			else if (abs(angle - 180) <= errorOrientation) {
 				// BACK command
 				c = 'b';
-				/*c1 = (unsigned char)0x8E;
-				c2 = (unsigned char)0x4E;*/
-				c1 = (unsigned char)0xBF;
-				c2 = (unsigned char)0x7F;
+				this->sendBack(false);
 			}
-			else if (angle > 0) {
+			else if ((angle >= 0 && angle <= 90) || (angle >= -180 && angle <= -90)) {
 				// LEFT command
 				c = 'l';
-				c1 = (unsigned char)0x8E;
-				c2 = (unsigned char)0x7F;
+				this->sendLeft(false);
 			}
 			else {
 				// RIGHT command
 				c = 'r';
-				c1 = (unsigned char)0xBF;
-				c2 = (unsigned char)0x4E;
+				this->sendRight(false);
 			}
 		}
-		if (c != '0' && sendCommand) {
-			// Send the message
-			WriteFile(g_hPort, &c1, 1, &dwWriteBytes, NULL);
-			Sleep(10);
-			WriteFile(g_hPort, &c2, 1, &dwWriteBytes, NULL);
-			std::cout << "Msg send : " << c << std::endl;
+	}
+}
+
+void Robot::sendCommandToRobotDEBUG()
+{
+	unsigned char c = '0', c1, c2;
+	DWORD dwWriteBytes;
+
+	if (result) {
+		int key = cv::waitKey(10);
+		if (key == 38 || key == 122) {
+			//Forward
+			c = 'f';
+			this->sendForward(true);
+		}
+		else if (key == 37 || key == 113) {
+			// Left
+			c = 'l';
+			this->sendLeft(true);
+		}
+		else if (key == 39 || key == 100) {
+			// Right
+			c = 'r';
+			this->sendRight(true);
+		}
+		else if (key == 40 || key == 115) {
+			// Backward
+			c = 'b';
+			this->sendBack(true);
+		}
+		else if (key == 32) {
+			this->sendStop();
 		}
 	}
+}
+
+void Robot::sendCommandToRobotArranged(clock_t dT)
+{
+	// Timer for each command and time between commands
+	int timeBetweenCom = 1500, timeRIGHTCom = 100, timeLEFTCom = 100, timeBACKCom = 800;
+
+	// Meaning of the data
+	unsigned char c = '0';
+
+	if (result && sendCommand) {
+		// Choose the command to send depending of the position and orientation of the robot
+		if (this->calculateDistance() <= errorPosition || this->desiredPosition.x < 0) {
+			// Send STOP
+			c = 's';
+		}
+		else {
+			if (abs(this->calculateRotation() - 180) <= errorOrientation ||
+				abs(this->calculateRotation() + 180) <= errorOrientation) {
+				// Go backward for timeBACKCom milliseconds max
+				c = 'b';
+			}
+			else if(abs(this->calculateRotation() - 180) <= 180) {
+				// Turn right for timeRIGHTCom milliseconds max
+				c = 'l';
+			}
+			else {
+				// Turn right for timeRIGHTCom milliseconds max
+				c = 'r';
+			}
+		}
+
+		// Adapting the command depending of the previous command and the rest time between two command
+		// If the current command is STOP
+		if (c == 's') {
+			if (this->previousCom != 's') {
+				this->timeSTOP = 0;
+			}
+			else {
+				this->timeSTOP += dT;
+			}
+		}
+		// If the current command is BACK
+		else if (c == 'b' && this->previousCom == 'b') {
+			if (this->timeBACK <= timeBACKCom) {
+				this->timeBACK += dT;
+			}
+			else {
+				c = 's';
+				this->timeSTOP = 0;
+			}
+		}
+		else if (c == 'b' && (this->previousCom == 'r' || this->previousCom == 'l')) {
+			c = 's';
+			this->timeSTOP = 0;
+		}
+		else if (c == 'b' && this->previousCom == 's') {
+			if (this->timeSTOP >= timeBetweenCom) {
+				this->timeBACK = 0;
+			}
+			else {
+				c = 's';
+				this->timeSTOP += dT;
+			}
+		}
+		// If the current command is RIGHT
+		else if (c == 'r' && this->previousCom == 'r') {
+			if (this->timeRIGHT <= timeRIGHTCom) {
+				this->timeRIGHT += dT;
+			}
+			else {
+				c = 's';
+				this->timeSTOP = 0;
+			}
+		}
+		else if (c == 'r' && (this->previousCom == 'b' || this->previousCom == 'l')) {
+			c = 's';
+			this->timeSTOP = 0;
+		}
+		else if (c == 'r' && this->previousCom == 's') {
+			if (this->timeSTOP >= timeBetweenCom) {
+				this->timeRIGHT = 0;
+			}
+			else {
+				c = 's';
+				this->timeSTOP += dT;
+			}
+		}
+		// If the current command is LEFT
+		else if (c == 'l' && this->previousCom == 'l') {
+			if (this->timeLEFT <= timeLEFTCom) {
+				this->timeLEFT += dT;
+			}
+			else {
+				c = 's';
+				this->timeSTOP = 0;
+			}
+		}
+		else if (c == 'l' && (this->previousCom == 'b' || this->previousCom == 'r')) {
+			c = 's';
+			this->timeSTOP = 0;
+		}
+		else if (c == 'l' && this->previousCom == 's') {
+			if (this->timeSTOP >= timeBetweenCom) {
+				this->timeLEFT = 0;
+			}
+			else {
+				c = 's';
+				this->timeSTOP += dT;
+			}
+		}
+
+		// Send the real command
+		if (c == 'b') {
+			this->sendBack(false);
+		}
+		else if (c == 'r') {
+			this->sendRight(false);
+		}
+		else if (c == 'l') {
+			this->sendLeft(false);
+		}
+		else {
+			this->sendStop();
+		}
+
+		// Update the previous command
+		this->previousCom = c;
+	}
+}
+
+std::string Robot::convertFromDecTo6BitsBinary(int dec)
+{
+	std::string valueBin;
+	while (dec != 0) {
+		valueBin.append(std::to_string(dec % 2));
+		dec /= 2;
+	}
+	while (valueBin.size() < 6) {
+		valueBin.append("0");
+	}
+	return valueBin;
 }
 
 void Robot::displayImagePosition(cv::Mat image)
@@ -194,7 +354,7 @@ void Robot::displayDesiredPosition(cv::Mat image)
 
 void Robot::displayImageOrientation(cv::Mat image, cv::Point top)
 {
-	cv::arrowedLine(image, this->imagePosition, top, cv::Scalar(255, 0, 0), 1, 8, 0, 0.1);
+	cv::arrowedLine(image, this->imagePosition, top, cv::Scalar(0, 255, 0), 1, 8, 0, 0.1);
 }
 
 void Robot::closeCom()
@@ -213,6 +373,18 @@ void Robot::closeCom()
 		DeleteFile(_T("COM6"));
 		// Close the COM port
 		CloseHandle(g_hPort);
+	}
+}
+
+int Robot::calculateGain(double dist)
+{
+	// When the robot is at 50 cm from the robot, the speed is the most higher
+	double coef = 50.0 / 31.0;
+	if (dist > 50) {
+		return(31);
+	}
+	else {
+		return(int(dist / coef));
 	}
 }
 
@@ -247,7 +419,225 @@ void Robot::setSendCommand(bool c)
 		WriteFile(g_hPort, &c1, 1, &dwWriteBytes, NULL);
 		Sleep(10);
 		WriteFile(g_hPort, &c2, 1, &dwWriteBytes, NULL);
-		Sleep(1000);
+	}
+}
+
+void Robot::setGainMotor1(int g)
+{
+	this->gainMotor1 = g;
+}
+
+void Robot::setGainMotor2(int g)
+{
+	this->gainMotor2 = g;
+}
+
+void Robot::sendStop()
+{
+	// Stop the robot before shutting down the program
+	unsigned char c1 = (unsigned char)0xA0;
+	unsigned char c2 = (unsigned char)0x60;
+
+	DWORD dwWriteBytes;
+	WriteFile(g_hPort, &c1, 1, &dwWriteBytes, NULL);
+	Sleep(10);
+	WriteFile(g_hPort, &c2, 1, &dwWriteBytes, NULL);
+	std::cout << "STOP" << std::endl;
+}
+
+void Robot::sendBack(bool debug)
+{
+	int gainMotorR, gainMotorL;
+
+	if (!debug) {
+		gainMotorR = 7;
+		gainMotorL = 7;
+	}
+	else {
+		gainMotorR = this->gainMotor1;
+		gainMotorL = this->gainMotor2;
+	}
+
+	int valueR = 31 - gainMotorR;
+	int valueL = 31 - gainMotorL;
+
+	// Conversion from decimal to binary
+	std::string valueBin1 = convertFromDecTo6BitsBinary(valueR);
+	std::string valueBin2 = convertFromDecTo6BitsBinary(valueL);
+
+	// Add the "command" part
+	valueBin1.append("01");
+	valueBin2.append("10");
+
+	// Reverse the binary value
+	std::reverse(valueBin1.begin(), valueBin1.end());
+	std::reverse(valueBin2.begin(), valueBin2.end());
+
+	// Convert to the hexadecimal value
+	std::bitset<8> valueHex1(valueBin1);
+	std::bitset<8> valueHex2(valueBin2);
+
+	// Cast the hexadecimal value into a char
+	unsigned char c1 = static_cast<unsigned char>(valueHex1.to_ulong());
+	unsigned char c2 = static_cast<unsigned char>(valueHex2.to_ulong());
+
+	if (sendCommand) {
+		// DEBUG
+		std::cout << "Command : Going BACKWARD" << std::endl;
+
+		// Send the message
+		DWORD dwWriteBytes;
+		WriteFile(g_hPort, &c1, 1, &dwWriteBytes, NULL);
+		Sleep(10);
+		WriteFile(g_hPort, &c2, 1, &dwWriteBytes, NULL);
+		std::cout << "Msg send : BACKWARD" << std::endl;
+	}
+}
+
+void Robot::sendRight(bool debug)
+{
+	int gainMotorR, gainMotorL;
+
+	if (!debug) {
+		gainMotorR = 5;
+		gainMotorL = 6;
+	}
+	else {
+		gainMotorR = this->gainMotor1;
+		gainMotorL = this->gainMotor2;
+	}
+
+	int valueR = 32 + gainMotorR;
+	int valueL = 31 - gainMotorL;
+
+	// Conversion from decimal to binary
+	std::string valueBin1 = convertFromDecTo6BitsBinary(valueR);
+	std::string valueBin2 = convertFromDecTo6BitsBinary(valueL);
+
+	// Add the "command" part
+	valueBin1.append("01");
+	valueBin2.append("10");
+
+	// Reverse the binary value
+	std::reverse(valueBin1.begin(), valueBin1.end());
+	std::reverse(valueBin2.begin(), valueBin2.end());
+
+	// Convert to the hexadecimal value
+	std::bitset<8> valueHex1(valueBin1);
+	std::bitset<8> valueHex2(valueBin2);
+
+	// Cast the hexadecimal value into a char
+	unsigned char c1 = static_cast<unsigned char>(valueHex1.to_ulong());
+	unsigned char c2 = static_cast<unsigned char>(valueHex2.to_ulong());
+
+	if (sendCommand) {
+		// DEBUG
+		std::cout << "Command : Going RIGHT" << std::endl;
+
+		// Send the message
+		DWORD dwWriteBytes;
+		WriteFile(g_hPort, &c1, 1, &dwWriteBytes, NULL);
+		Sleep(10);
+		WriteFile(g_hPort, &c2, 1, &dwWriteBytes, NULL);
+		std::cout << "Msg send : RIGHT" << std::endl;
+	}
+}
+
+void Robot::sendLeft(bool debug)
+{
+	int gainMotorR, gainMotorL;
+
+	if (!debug) {
+		gainMotorR = 8;
+		gainMotorL = 6;
+	}
+	else {
+		gainMotorR = this->gainMotor1;
+		gainMotorL = this->gainMotor2;
+	}
+
+	int valueR = 31 - gainMotorR;
+	int valueL = 32 + gainMotorL;
+
+	// Conversion from decimal to binary
+	std::string valueBin1 = convertFromDecTo6BitsBinary(valueR);
+	std::string valueBin2 = convertFromDecTo6BitsBinary(valueL);
+
+	// Add the "command" part
+	valueBin1.append("01");
+	valueBin2.append("10");
+
+	// Reverse the binary value
+	std::reverse(valueBin1.begin(), valueBin1.end());
+	std::reverse(valueBin2.begin(), valueBin2.end());
+
+	// Convert to the hexadecimal value
+	std::bitset<8> valueHex1(valueBin1);
+	std::bitset<8> valueHex2(valueBin2);
+
+	// Cast the hexadecimal value into a char
+	unsigned char c1 = static_cast<unsigned char>(valueHex1.to_ulong());
+	unsigned char c2 = static_cast<unsigned char>(valueHex2.to_ulong());
+
+	if (sendCommand) {
+		// DEBUG
+		std::cout << "Command : Going LEFT" << std::endl;
+
+		// Send the message
+		DWORD dwWriteBytes;
+		WriteFile(g_hPort, &c1, 1, &dwWriteBytes, NULL);
+		Sleep(10);
+		WriteFile(g_hPort, &c2, 1, &dwWriteBytes, NULL);
+		std::cout << "Msg send : LEFT" << std::endl;
+	}
+}
+
+void Robot::sendForward(bool debug)
+{
+	int gainMotorR, gainMotorL;
+
+	if (!debug) {
+		gainMotorR = 10;
+		gainMotorL = 8;
+	}
+	else {
+		gainMotorR = this->gainMotor1;
+		gainMotorL = this->gainMotor2;
+	}
+
+	int valueR = 32 + gainMotorR;
+	int valueL = 32 + gainMotorL;
+
+	// Conversion from decimal to binary
+	std::string valueBin1 = convertFromDecTo6BitsBinary(valueR);
+	std::string valueBin2 = convertFromDecTo6BitsBinary(valueL);
+
+	// Add the "command" part
+	valueBin1.append("01");
+	valueBin2.append("10");
+
+	// Reverse the binary value
+	std::reverse(valueBin1.begin(), valueBin1.end());
+	std::reverse(valueBin2.begin(), valueBin2.end());
+
+	// Convert to the hexadecimal value
+	std::bitset<8> valueHex1(valueBin1);
+	std::bitset<8> valueHex2(valueBin2);
+
+	// Cast the hexadecimal value into a char
+	unsigned char c1 = static_cast<unsigned char>(valueHex1.to_ulong());
+	unsigned char c2 = static_cast<unsigned char>(valueHex2.to_ulong());
+
+	if (sendCommand) {
+		// DEBUG
+		std::cout << "Command : Going FORWARD" << std::endl;
+
+		// Send the message
+		DWORD dwWriteBytes;
+		WriteFile(g_hPort, &c1, 1, &dwWriteBytes, NULL);
+		Sleep(10);
+		WriteFile(g_hPort, &c2, 1, &dwWriteBytes, NULL);
+		std::cout << "Msg send : FORWARD" << std::endl;
 	}
 }
 

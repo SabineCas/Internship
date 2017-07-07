@@ -135,6 +135,12 @@ public:
 	*/
 	void sendCommand(bool c);
 
+	void setGainMotor1(int g);
+
+	void setGainMotor2(int g);
+
+	void setDebug(bool d);
+
 private:
 	//! Run the algorithm inside the std::thread runThr attribut that have been created. Warning : the public function
 	//! "void start();" have to be call before to initiate the thread of the algorithm.
@@ -144,7 +150,7 @@ private:
 	*/
 	void run();
 
-	bool started, finished, close;
+	bool started, finished, close, debug;
 	bool displayPosition, displayOrientation, displayIdentification, displayKalman;
 	double height;
 	int nbRobot;

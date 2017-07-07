@@ -15,7 +15,7 @@
 #include <conio.h>
 #include <windows.h>
 #include <tchar.h>
-//#include <sdkddkver.h>
+#include <bitset>
 
 class Robot {
 public:
@@ -67,6 +67,22 @@ public:
 	*/
 	void sendCommandToRobot();
 
+	void sendCommandToRobotDEBUG();
+
+	void sendCommandToRobotArranged(clock_t dT);
+
+	void sendStop();
+
+	void sendBack(bool debug);
+
+	void sendRight(bool debug);
+
+	void sendLeft(bool debug);
+
+	void sendForward(bool debug);
+
+	std::string convertFromDecTo6BitsBinary(int dec);
+
 	//! Display a filled circle on the current frame at the coordinate saved into the cv::Point2d imagePosition attribut.
 	/*!
 	\param image The current frame
@@ -95,6 +111,8 @@ public:
 	\return void
 	*/
 	void closeCom();
+
+	int calculateGain(double dist);
 
 	//! Return the image coordinate of the robot saved into the cv::Point2d imagePosition attribut.
 	/*!
@@ -133,18 +151,26 @@ public:
 	*/
 	void setSendCommand(bool c);
 
+	void setGainMotor1(int g);
+
+	void setGainMotor2(int g);
+
 private:
 	cv::Point3f realPosition;
 	cv::Point2d imagePosition, desiredPosition;
 	double H, alphaU, alphaV, u0, v0, angleOrientation;
-	boolean sendCommand;
+	bool sendCommand, debug;
+	int gainMotor1, gainMotor2;
+	clock_t timeSTOP, timeBACK, timeRIGHT, timeLEFT;
+	char previousCom;
+
 	DCB dcb;
 	BOOL result;
 	HANDLE g_hPort;
 
 	// Margin of error that are tolerate for the orientation of the robot
-	const static int errorOrientation = 15;
+	const static int errorOrientation = 20;
 
 	// Margin of error that are tolerate for the position of the robot
-	const static int errorPosition = 5;
+	const static int errorPosition = 10;
 };

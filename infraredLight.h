@@ -70,13 +70,6 @@ public:
 	*/
 	std::vector<int> findIn(std::vector<infraredLight> vector);
 
-	//! Add time frame to the std::vector<clock_t> timeFrames attribut. It will be used to search every area that matching with this time frame.
-	/*!
-	\param time Blinking time (time when the area stay ON or time when the area stay OFF).
-	\return void
-	*/
-	void addTimeFrame(clock_t time);
-
 	//! Return the boolean visible attribut that represents the state of the LED (ON or OFF)
 	/*!
 	\param void

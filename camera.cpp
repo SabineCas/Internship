@@ -213,7 +213,7 @@ std::vector<infraredLight> Camera::ledDetection(cv::Mat image, cv::Scalar lower,
 	int cpt = 0;
 
 	// DEBUG
-	/*image = cv::imread("../data/Picture27.jpg");
+	/*image = cv::imread("../data/testLED1.png");
 	cv::Mat hsv;
 	cv::cvtColor(image, hsv, CV_BGR2HSV);
 	cv::Mat hsvChannels[3];
@@ -232,15 +232,13 @@ std::vector<infraredLight> Camera::ledDetection(cv::Mat image, cv::Scalar lower,
 
 	// Isolate every area that have the color of the LED
 	cv::inRange(image, lower, upper, image);
-	//cv::cvtColor(image, image, CV_BGR2GRAY);
-	//cv::threshold(image, image, 170, 180, 0);
 
 	// Morphological processing
 	cv::dilate(image, image, getStructuringElement(cv::MORPH_RECT, cv::Size(5, 5)));
 	cv::morphologyEx(image, image, cv::MORPH_OPEN, getStructuringElement(cv::MORPH_RECT, cv::Size(3, 3), cv::Point(2, 2)));
 	cv::morphologyEx(image, image, cv::MORPH_CLOSE, getStructuringElement(cv::MORPH_RECT, cv::Size(3, 3), cv::Point(2, 2)));
 
-	//cv::imshow("LED", image);
+	// cv::imshow("LED", image);
 
 	// Find the edges of each different area
 	findContours(image, contours, hierarchy, cv::RETR_TREE, cv::CHAIN_APPROX_SIMPLE, cv::Point(0, 0));
@@ -263,8 +261,11 @@ std::vector<infraredLight> Camera::ledDetection(cv::Mat image, cv::Scalar lower,
 					minY = contours[i][j].y;
 				}
 			}
-			ledVector.push_back(infraredLight(true, cv::Point((maxX + minX) / 2, (maxY + minY) / 2), cpt, 0, 0, int(contourArea(contours[i], false)), "UNKNOWN"));
-			cpt++;
+			// To avoid the reflexion on the first pixel (material default of the camera)
+			if ((maxX + minX) / 2 > 20) {
+				ledVector.push_back(infraredLight(true, cv::Point((maxX + minX) / 2, (maxY + minY) / 2), cpt, 0, 0, int(contourArea(contours[i], false)), "UNKNOWN"));
+				cpt++;
+			}
 		}
 	}
 

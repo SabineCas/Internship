@@ -69,6 +69,8 @@ public:
 	*/
 	void translateComboBox(int v);
 
+	
+
 private:
 	//! Create the QObjects and connect them to the interface by positionning them and create a signal that will act
 	//! like a callback function.
@@ -92,12 +94,16 @@ private:
 	QLabel * textHeight;
 	QLabel * textfreqLED1;
 	QLabel * textfreqLED2;
+	QLabel * textMotorR;
+	QLabel * textMotorL;
+	QLabel * textDebug;
 
 	QCheckBox * checkPosition;
 	QCheckBox * checkOrientation;
 	QCheckBox * checkIdentification;
 	QCheckBox * checkKalman;
 	QCheckBox * buttonCommand;
+	QCheckBox * debug;
 
 	QSpinBox * spinBoxDist;
 	QSlider * sliderDist;
@@ -109,6 +115,11 @@ private:
 	QSlider * sliderFreqLED1;
 	QSpinBox * spinBoxFreqLED2;
 	QSlider * sliderFreqLED2;
+
+	QSpinBox * spinBoxMotor1;
+	QSlider * sliderMotor1;
+	QSpinBox * spinBoxMotor2;
+	QSlider * sliderMotor2;
 
 	QComboBox * comboBox;
 };
