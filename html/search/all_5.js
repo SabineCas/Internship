@@ -1,0 +1,23 @@
+var searchData=
+[
+  ['getboundingboxobs',['getBoundingBoxObs',['../class_camera.html#a30c76cadb36b0b7a0ef523dcd7a75b61',1,'Camera']]],
+  ['getcap',['getCap',['../class_camera.html#a621548a4d3a371871145999b4c55628b',1,'Camera']]],
+  ['getcoord',['getCoord',['../classinfrared_light.html#aa7dda23bd240b183e5ab5616180836cd',1,'infraredLight']]],
+  ['getdetectedcircle',['getDetectedCircle',['../class_camera.html#aa6e1dd542bdc803104904ff050c592c9',1,'Camera']]],
+  ['getfinalinfraredvector',['getFinalInfraredVector',['../class_area_classification.html#aa50357fd8f57cdd56251746bec4d7b6c',1,'AreaClassification']]],
+  ['getidentification',['getIdentification',['../classinfrared_light.html#a4fdfc460e2be484807d2b6b2857ac97e',1,'infraredLight']]],
+  ['getimageposition',['getImagePosition',['../class_robot.html#a2f489333657680cabc32208a304ad2e5',1,'Robot']]],
+  ['getinfraredvector',['getInfraredVector',['../class_area_classification.html#ae3e70cb145468bf58f7d72f8fac193da',1,'AreaClassification']]],
+  ['getintrinsicparameters',['getIntrinsicParameters',['../class_camera.html#ad694f2fbcf9bbb8188efdbb0772a2304',1,'Camera']]],
+  ['getlastknownbottom',['getLastKnownBOTTOM',['../class_area_classification.html#ac59432b0f66abf928ec2a32e6f1b1fad',1,'AreaClassification']]],
+  ['getlastknowntop',['getLastKnownTOP',['../class_area_classification.html#a4d070f07f2e3680caff1d1bbbdccd2a1',1,'AreaClassification']]],
+  ['getledtimeoff',['getLEDTimeOFF',['../classinfrared_light.html#a2e30ea2029ba607144f161cabb946c3c',1,'infraredLight']]],
+  ['getledtimeon',['getLEDTimeON',['../classinfrared_light.html#a47a96d45e9df74da23d36e731a40b199',1,'infraredLight']]],
+  ['getmap1',['getMap1',['../class_camera.html#a67257565bc9bc8eea028ab2a1fba8312',1,'Camera']]],
+  ['getmap2',['getMap2',['../class_camera.html#a4dba6aed0977ae9e01fcc9eb095109e5',1,'Camera']]],
+  ['getnumarea',['getNumArea',['../classinfrared_light.html#a81994f6793fcee16e4ee821a7df37622',1,'infraredLight']]],
+  ['getpreviousinfraredvector',['getPreviousInfraredVector',['../class_area_classification.html#aa38079b3bd252bef125ed9d82500530b',1,'AreaClassification']]],
+  ['getrealposition',['getRealPosition',['../class_robot.html#a9f93482296ebcb94b792eabbf6ce9b39',1,'Robot']]],
+  ['getsizearea',['getSizeArea',['../classinfrared_light.html#a4d68256630550fc9ac27824e30041d98',1,'infraredLight']]],
+  ['getvisible',['getVisible',['../classinfrared_light.html#a2ec5728cf5a79dc373c38f0e5081563d',1,'infraredLight']]]
+];
