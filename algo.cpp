@@ -1,7 +1,11 @@
-#include "algo.h"
-#include "infraredLight.h"
-#include <iostream>
+/**
+* Project : Detection and navigation of a spherical robot
+* Author : Cassat Sabine
+* Mail : sabinecassat@gmail.com
+* Module : Detection and command algorithm
+*/
 
+#include "algo.h"
 
 Algo::Algo()
 	: started(false)
@@ -27,12 +31,11 @@ void Algo::run()
 	// Time between two frame in ms
 	clock_t dT = clock(), t = clock();
 
-	// Initialization of the camera and the robot
-	//Camera cam(0);
+	// Variable that store the data from the current frame
 	cv::Mat image;
 
 	// Infrared LED color
-	cv::Scalar IF_lower(90, 30, 40), IF_upper(250, 250, 250);
+	cv::Scalar IF_lower(100, 30, 40), IF_upper(250, 250, 250);
 	AreaClassification classif = AreaClassification();
 
 	// Kalman filter
@@ -43,12 +46,13 @@ void Algo::run()
 	// Algorithm is starting
 	started = true;
 
-	// Recorder - DEBUG
+	// Recorder of the camera's images
 	cv::Size size2 = cv::Size(int(cam.getCap().get(cv::CAP_PROP_FRAME_WIDTH)), int(cam.getCap().get(cv::CAP_PROP_FRAME_HEIGHT)));
 	int codec = CV_FOURCC('M', 'J', 'P', 'G');
 	cv::VideoWriter writer3("../data/Result1.avi", codec, 10, size2, true);
 	writer3.open("../data/Result1.avi", codec, 20, size2, true);
 
+	// Windows for the keyboard event
 	cv::imshow("DEBUG", cv::Mat::zeros(cv::Size(5, 5), CV_32F));
 
 	while (!close) {
@@ -128,7 +132,6 @@ void Algo::run()
 			else {
 				this->robot.sendCommandToRobotArranged(dT);
 			}
-
 		}
 		else {
 			this->robot.sendStop();
@@ -137,18 +140,20 @@ void Algo::run()
 		// Record the video flux
 		writer3.write(image);
 
-		// Update the image of the interface
+		// Update the image of the interface with a resizement fo the image, so it will fit
 		cv::resize(image, image, cv::Size(640, 480));
 		cv::cvtColor(image, image, CV_BGR2RGB);
 		QImage img(image.data, image.cols, image.rows, QImage::Format_RGB888);
 		interf->SetImage(img);
 
+		// Update the timer between two frame
 		dT = (clock() - t);
-		// std::cout << dT << std::endl;
 	}
+
 	// Stop the robot and close the communication port
 	this->robot.closeCom();
 
+	// join the thread and close the program
 	std::this_thread::sleep_for(std::chrono::seconds(1));
 	interf->end();
 	finished = false;
@@ -213,20 +218,19 @@ void Algo::setDesiredPoint(int x, int y)
 {
 	x = double(x) * this->cam.getCap().get(CV_CAP_PROP_FRAME_WIDTH) / 640;
 	y = double(y) * this->cam.getCap().get(CV_CAP_PROP_FRAME_HEIGHT) / 480;
-	std::cout << x << ", " << y << std::endl;
 	this->robot.setDesiredPosition(cv::Point(x, y));
 }
 
 void Algo::setNbRobot(int r)
 {
 	this->nbRobot = r;
-	std::cout << "Nb robot : " << r << std::endl;
 }
 
 void Algo::setHeight(int h)
 {
 	// Conversion in meters
 	this->height = double(h) / 100;
+	// Update the value
 	this->robot.setHeight(this->height);
 }
 
@@ -247,15 +251,27 @@ void Algo::setGainMotor2(int g)
 
 void Algo::setResolution(int width, int height)
 {
+	// Ask the mutex
 	mtx.lock();
+
+	// Change the resolution
 	cam.getCap().set(CV_CAP_PROP_FRAME_WIDTH, width);
 	cam.getCap().set(CV_CAP_PROP_FRAME_HEIGHT, height);
 	std::cout << "Setting : " << cam.getCap().get(CV_CAP_PROP_FRAME_WIDTH) << " x " <<
 		cam.getCap().get(CV_CAP_PROP_FRAME_HEIGHT) << std::endl;
+
+	// Release the mutex
 	mtx.unlock();
 }
 
 void Algo::setDebug(bool d)
 {
 	this->debug = d;
+}
+
+void Algo::loadGainFile(bool d)
+{
+	if (this->debug && d) {
+		this->robot.loadGainFile();
+	}
 }

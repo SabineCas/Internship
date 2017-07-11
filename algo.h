@@ -1,24 +1,31 @@
+/**
+* Project : Detection and navigation of a spherical robot
+* Author : Cassat Sabine
+* Mail : sabinecassat@gmail.com
+* Module : Detection and command algorithm
+*/
+
 #pragma once
-
-#include <memory>
-#include <thread>
-#include <mutex> 
-
-#include <opencv\cv.h>
-#include <opencv\highgui.h>
-#include <opencv2\opencv.hpp>
-
 #include "robot.h"
 #include "areaClassification.h"
 #include "camera.h"
 #include "interface2.h"
+#include "infraredLight.h"
 
 #include <QApplication>
 #include <QImage>
 #include <QLabel>
 
+#include <thread>
+#include <mutex> 
+#include <iostream>
+
+#include <opencv\highgui.h>
+#include <opencv2\opencv.hpp>
+
 class MainInterface;
 
+//! Algo class represents the class that will run the detection algorithm of the project.
 class Algo {
 public:
 	//! Constructor by default
@@ -53,14 +60,14 @@ public:
 	*/
 	void setDistanceAreaLight(int i);
 
-	//! 
+	//! Set the blinking frequency of the LEDs in the front of the robot.
 	/*!
 	\param i 
 	\return void
 	*/
 	void setFreqLED1(int i);
 
-	//! 
+	//! Set the blinking frequency of the LEDs in the back of the robot.
 	/*!
 	\param i 
 	\return void
@@ -128,18 +135,41 @@ public:
 	*/
 	void setHeight(int h);
 
-	//! 
+	//! Set the attribut bool sendCommand that will allow the software to send another command tha STOP to the robot.
 	/*!
-	\param void
+	\param c Value of the CheckBox sendCommand in the interface
 	\return void
 	*/
 	void sendCommand(bool c);
 
+	//! Set the attribut gainMotor1 that will be used for setting the gain of the right motor in debug mode.
+	/*!
+	\param g Gain of the right motor
+	\return void
+	*/
 	void setGainMotor1(int g);
 
+	//! Set the attribut gainMotor1 that will be used for setting the gain of the left motor in debug mode.
+	/*!
+	\param g Gain of the left motor
+	\return void
+	*/
 	void setGainMotor2(int g);
 
+	//! Set the attribut debug that will allow the program to switch in debug mode or normal mode.
+	/*!
+	\param d Value of the CheckBox debug in the interface
+	\return void
+	*/
 	void setDebug(bool d);
+
+	//! Load the gain of each motor for each direction using the information contain t=in the text file
+	//! "../data/Motor.Gain/gain.txt".
+	/*!
+	\param d Value of the CheckBox loadGainFile in the interface
+	\return void
+	*/
+	void loadGainFile(bool d);
 
 private:
 	//! Run the algorithm inside the std::thread runThr attribut that have been created. Warning : the public function

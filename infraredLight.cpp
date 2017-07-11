@@ -1,4 +1,12 @@
+/**
+* Project : Detection and navigation of a spherical robot
+* Author : Cassat Sabine
+* Mail : sabinecassat@gmail.com
+* Module : Infrared light
+*/
+
 #include "infraredLight.h"
+#include <stdio.h>
 
 int distanceAreaLight = 30;
 int timeLED1 = 125;

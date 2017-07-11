@@ -2,15 +2,16 @@
 * Project : Detection and navigation of a spherical robot
 * Author : Cassat Sabine
 * Mail : sabinecassat@gmail.com
-* Module : Camera calibration
+* Module : Camera calibration and image processing
 */
 
 #include "camera.h"
 
 Camera::Camera(int numDevice)
 {
+	// DEBUG - Opening a video file instead of the camera
+	// this->cap.open("../data/video.mp4");
 	// Opening the framegrabber of the camera
-	//this->cap.open("../data/TestKalman.mp4");
 	this->cap.open(numDevice);
 	if (!this->cap.isOpened()) {
 		std::cout << "Error opening the framegrapper of the camera" << std::endl;
@@ -85,7 +86,6 @@ int Camera::cameraCalib(bool webcam)
 			}
 			// Transformation from a RGB image to a gray image
 			cvtColor(image, acqImageGray, CV_BGR2GRAY);
-			//imshow("Gray image", acqImageGray);
 		}
 
 		// Search into the captured images the chessboard by pressing SPACE
@@ -99,7 +99,6 @@ int Camera::cameraCalib(bool webcam)
 
 			// Display and save the points
 			if (found) {
-				imwrite("../data/calibrate" + std::to_string(successes) + ".jpg", image);
 				// Finds the edges in the image
 				cornerSubPix(acqImageGray, pointBuf, cv::Size(11, 11), cv::Size(-1, -1), cv::TermCriteria(CV_TERMCRIT_EPS | CV_TERMCRIT_ITER, 30, 0.1));
 				// Display the found corners
@@ -148,7 +147,6 @@ void Camera::cameraCorr(double H)
 {
 	cv::Mat R(3, 3, CV_32FC1);
 	cv::setIdentity(R, cv::Scalar(1));
-	//R.at<float>(2, 2) = H;
 
 	// Determine the size of the frame
 	cv::Size sizeImage((int)this->cap.get(CV_CAP_PROP_FRAME_WIDTH), (int)this->cap.get(CV_CAP_PROP_FRAME_HEIGHT));
@@ -185,7 +183,8 @@ cv::Mat Camera::colorDetection(cv::Mat image, cv::Scalar lower, cv::Scalar upper
 	//cv::Mat image2 = cv::imread("../data/data.png");
 	cv::cvtColor(image, image, CV_BGR2HSV);
 
-	// DEBUG
+	// DEBUG - Check in a loaded picture the maximum value of Hue, Saturation and Value and display
+	// it in the console. It will wait that the user push a button on the keyboard to continue.
 	/*cv::Mat hsvChannels[3];
 	double minVal, maxVal;
 	cv::split(hsv, hsvChannels);
@@ -212,7 +211,8 @@ std::vector<infraredLight> Camera::ledDetection(cv::Mat image, cv::Scalar lower,
 	std::vector<infraredLight> ledVector;
 	int cpt = 0;
 
-	// DEBUG
+	// DEBUG - Check in a loaded picture the maximum value of Hue, Saturation and Value and display
+	// it in the console. It will wait that the user push a button on the keyboard to continue.
 	/*image = cv::imread("../data/testLED1.png");
 	cv::Mat hsv;
 	cv::cvtColor(image, hsv, CV_BGR2HSV);
@@ -227,7 +227,7 @@ std::vector<infraredLight> Camera::ledDetection(cv::Mat image, cv::Scalar lower,
 	std::cout << "Value: Min = " << minVal << ", Max = " << maxVal << std::endl;
 	cv::waitKey(0);*/
 
-	// Gaussian filter
+	// Gaussian filter - Can be necessary in some case, but usually don't
 	//cv::GaussianBlur(image, image, cv::Size(5, 5), 1, 1);
 
 	// Isolate every area that have the color of the LED
@@ -237,8 +237,6 @@ std::vector<infraredLight> Camera::ledDetection(cv::Mat image, cv::Scalar lower,
 	cv::dilate(image, image, getStructuringElement(cv::MORPH_RECT, cv::Size(5, 5)));
 	cv::morphologyEx(image, image, cv::MORPH_OPEN, getStructuringElement(cv::MORPH_RECT, cv::Size(3, 3), cv::Point(2, 2)));
 	cv::morphologyEx(image, image, cv::MORPH_CLOSE, getStructuringElement(cv::MORPH_RECT, cv::Size(3, 3), cv::Point(2, 2)));
-
-	// cv::imshow("LED", image);
 
 	// Find the edges of each different area
 	findContours(image, contours, hierarchy, cv::RETR_TREE, cv::CHAIN_APPROX_SIMPLE, cv::Point(0, 0));
@@ -288,20 +286,6 @@ std::vector<infraredLight> Camera::ledDetection(cv::Mat image, cv::Scalar lower,
 			}
 		}
 
-		/*proche_voisin = true;
-		while (proche_voisin) {
-			proche_voisin = false;
-			for (std::vector<LightArea>::size_type i = 0; i < ledVector.size(); i++) {
-				for (std::vector<LightArea>::size_type j = 0; j < areas[cpt].size(); j++) {
-					if (ledVector[i].areClose(areas[cpt][j].getCoord())) {
-						proche_voisin = true;
-						ledVector.erase(ledVector.begin() + i);
-						break;
-					}
-				}
-			}
-		}*/
-
 		int x = 0, y = 0, size = 0;
 		for (std::vector<cv::Point>::size_type i = 0; i < areas[0].size(); i++) {
 			x += areas[cpt][i].getCoord().x;
@@ -330,7 +314,6 @@ void Camera::circlesDetection(cv::Mat subImage)
 	cv::Range width((int)this->boundingBoxObs.x, (int)(this->boundingBoxObs.x + this->boundingBoxObs.width));
 	cv::Range height((int)this->boundingBoxObs.y, (int)(this->boundingBoxObs.y + this->boundingBoxObs.height));
 	subImage(height, width).copyTo(subImage);
-	//imshow("tests", subImage);
 
 	// Find the edges of each different area
 	findContours(subImage, contours, hierarchy, cv::RETR_TREE, cv::CHAIN_APPROX_SIMPLE, cv::Point(0, 0));
@@ -409,11 +392,6 @@ void Camera::displayCircles(cv::Mat image)
 		cv::Point center(X, Y);
 		int radius = cvRound(this->circles[0][2]);
 
-		// Draw the circle center on the Mat image
-		//circle(image, center, 3, cv::Scalar(0, 255, 0), -1, 8, 0);
-		// Draw the circle outline on the Mat image
-		//circle(image, center, radius, cv::Scalar(0, 0, 255), 3, 8, 0);
-
 		if (maxX < cvRound(X + radius)) {
 			maxX = cvRound(X + radius);
 		}
@@ -435,7 +413,7 @@ void Camera::displayCircles(cv::Mat image)
 		}
 		else {
 			// Widen the size of the searching bounding box area
-			//wideringBoundingBox(WIDE_BOUNDING_BOX_X);
+			// wideringBoundingBox(WIDE_BOUNDING_BOX_X);
 		}
 	}
 }
@@ -497,6 +475,7 @@ void Camera::setBoundingBoxObs(int minX, int maxX, int minY, int maxY)
 	if (minY < 0) {
 		minY = 0;
 	}
+
 	// Update the searching bounding box area
 	this->boundingBoxObs.height = abs(maxY - minY);
 	this->boundingBoxObs.width = abs(maxX - minX);

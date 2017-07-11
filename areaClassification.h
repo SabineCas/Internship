@@ -1,5 +1,11 @@
-#pragma once
+/**
+* Project : Detection and navigation of a spherical robot
+* Author : Cassat Sabine
+* Mail : sabinecassat@gmail.com
+* Module : Area classification
+*/
 
+#pragma once
 #include "infraredLight.h"
 
 class AreaClassification {

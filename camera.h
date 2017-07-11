@@ -2,11 +2,10 @@
 * Project : Detection and navigation of a spherical robot
 * Author : Cassat Sabine
 * Mail : sabinecassat@gmail.com
-* Module : Camera calibration
+* Module : Camera calibration and image processing
 */
 
 #pragma once
-
 #define _CRT_SECURE_NO_DEPRECATE
 #define DEBUG_CHESSBOARD
 
@@ -14,11 +13,8 @@
 #include <opencv2/video.hpp>
 #include "infraredLight.h"
 
-// Value used for the threshold
-const static int SENSITIVITY_VALUE = 30;
-// Value used for the widening of the bounding box
-const static int WIDE_BOUNDING_BOX_X = 20;
-
+//! The Camera class represents the camera instance that will manage to open the framegrabber, to do the image processing
+//! (background subtraction, shape recognition, markers and color detection) necessary for the further detection. 
 class Camera {
 public:
 	//! Constructor using the number identification device to open a video channel.
@@ -181,4 +177,9 @@ private:
 	std::vector<cv::Vec3f> circles;
 	cv::Rect2d boundingBoxObs;
 	bool detectedCircle;
+
+	// Value used for the threshold
+	const static int SENSITIVITY_VALUE = 30;
+	// Value used for the widening of the bounding box
+	const static int WIDE_BOUNDING_BOX_X = 20;
 };

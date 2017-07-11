@@ -8,6 +8,8 @@
 #pragma once
 #include <opencv2\opencv.hpp>
 
+//! Kalman class will manage the estimation of the robot position using the information from the detctiona algorithm and 
+//! the command send to the robot.
 class Kalman {
 public:
 	//! Constructor by default

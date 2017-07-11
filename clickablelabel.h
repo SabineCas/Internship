@@ -1,9 +1,16 @@
-#pragma once
+/**
+* Project : Detection and navigation of a spherical robot
+* Author : Cassat Sabine
+* Mail : sabinecassat@gmail.com
+* Module : ClickableLabel
+*/
 
+#pragma once
 #include <QLabel>
-#include <QWidget>
 #include <Qt3DInput>
 
+//! ClickableLabel inherit the QLabel class from the Qt library. This class is design to trigger the handle function
+//! when a left click on the label is done.
 class ClickableLabel : public QLabel {
 	Q_OBJECT
 

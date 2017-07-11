@@ -5,7 +5,6 @@
 * Module : Main function
 */
 
-#include "interface.h"
 #include "interface2.h"
 #include "algo.h"
 
@@ -13,11 +12,6 @@
 #include <iostream>
 
 int main(int argc, char** argv) {
-
-	// Interface with the Qt framework of OpenCV
-	/*WindowInterface windowInterface(1, 30);
-	return(windowInterface.show());*/
-
 	// Interface with Qt librairie only
 	MainInterface i(argc, argv);
 	Algo algo;

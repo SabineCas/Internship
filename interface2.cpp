@@ -1,6 +1,12 @@
+/**
+* Project : Detection and navigation of a spherical robot
+* Author : Cassat Sabine
+* Mail : sabinecassat@gmail.com
+* Module : Qt interface
+*/
+
 #include <windows.h>
 #include "interface2.h"
-
 #include "algo.h"
 
 MainInterface::MainInterface(int argc, char * argv[]) : app(argc, argv)
@@ -10,42 +16,47 @@ MainInterface::MainInterface(int argc, char * argv[]) : app(argc, argv)
 
 int MainInterface::run()
 {
+	// Display the window
 	this->window.show();
+	// Display the label contained in the window
 	this->label->show();
-
+	// Run the application
 	int res = this->app.exec();
 	this->algo->forceQuit();
-
 	return res;
 }
 
 void MainInterface::create()
 {
+	// Create the window
 	window.setWindowTitle("Spherical Robot for Child Care");
+	// Place the window
 	window.setGeometry(QStyle::alignedRect(Qt::LeftToRight, Qt::AlignCenter, window.size(),
 		QRect(QPoint(10, 50), QPoint(window.width() + 10, window.height() + 50))));
+	// Insert layouts in the window
 	mainLayout = new QVBoxLayout();
 	hboxLayout = new QHBoxLayout(&window);
 
-	
+	// Initialize the variables of the interface
 	textResolution = new QLabel("Resolution of the camera : ");
-	textDistanceArea = new QLabel("Minimal distance between two pixels belonging to the same area : ");
-	textNbRobot = new QLabel("Maximal amount of robots that can appear on the camera pictures : ");
+	textDistanceArea = new QLabel("Maximum distance between two pixels belonging to the same area : ");
+	textNbRobot = new QLabel("Maximum amount of robots that can appear on the camera pictures : ");
 	textDisplayOpt = new QLabel("Display options : ");
 	textHeight = new QLabel("Height distance between the camera and the ground (in centimeters) : ");
 	textfreqLED1 = new QLabel("Blinking frequency of the LED1 (in milliseconds) : ");
 	textfreqLED2 = new QLabel("Blinking frequency of the LED2 (in milliseconds) : ");
-	textMotorR = new QLabel("Gain of the right motor (between 1 and 31) which is used in debug mode : ");
-	textMotorL = new QLabel("Gain of the left motor (between 1 and 31) which is used in debug mode : ");
+	textMotorR = new QLabel("Gain of the right motor (between 1 and 31) which will be used in debug mode : ");
+	textMotorL = new QLabel("Gain of the left motor (between 1 and 31) which will be used in debug mode : ");
 	label = new ClickableLabel();
 	label->setAlignment(Qt::AlignTop);
 
 	checkPosition = new QCheckBox("Display the position of the robot : ");
 	checkOrientation = new QCheckBox("Display the orientation of the robot : ");
 	checkIdentification = new QCheckBox("Display the identification of each region that can be recognized as a LED of the robot : ");
-	checkKalman = new QCheckBox("Display the estimated position fo the robot (Kalman) : ");
-	buttonCommand = new QCheckBox("Send command to the robot");
+	checkKalman = new QCheckBox("Display the estimated position of the robot (Kalman) : ");
+	buttonCommand = new QCheckBox("Send commands to the robot");
 	debug = new QCheckBox("Setting the debug mode : ");
+	loadGainFile = new QCheckBox("Load the motor gains for each command from the file ../data/MotorGain/gain.txt : ");
 
 	spinBoxDist = new QSpinBox;
 	spinBoxDist->setValue(30);
@@ -91,9 +102,9 @@ void MainInterface::create()
 	sliderMotor2->setMinimum(1);
 	sliderMotor2->setValue(14);
 
-
 	comboBox = new QComboBox();
 
+	// Add the previously created widgets to the layouts 
 	hboxLayout->addWidget(label);
 	hboxLayout->addLayout(mainLayout);
 
@@ -139,8 +150,8 @@ void MainInterface::create()
 	mainLayout->addWidget(sliderHeight);
 
 	// Debug mode
-	// mainLayout->addWidget(textDebug);
 	mainLayout->addWidget(debug);
+	mainLayout->addWidget(loadGainFile);
 
 	// Gain of the motors
 	mainLayout->addWidget(textMotorR);
@@ -150,6 +161,8 @@ void MainInterface::create()
 	mainLayout->addWidget(spinBoxMotor2);
 	mainLayout->addWidget(sliderMotor2);
 
+	// Create an handle function for each button, checkbox, slider, ...
+	// Some of them have a direct link with a function belonging to the instance of the detection algorithm
 	QObject::connect(label, &ClickableLabel::clicked, std::bind(&Algo::setDesiredPoint, std::ref(this->algo), std::placeholders::_1, std::placeholders::_2));
 	QObject::connect(spinBoxDist, SIGNAL(valueChanged(int)), sliderDist, SLOT(setValue(int)));
 	QObject::connect(sliderDist, SIGNAL(valueChanged(int)), spinBoxDist, SLOT(setValue(int)));
@@ -184,6 +197,7 @@ void MainInterface::create()
 	QObject::connect(checkKalman, &QCheckBox::stateChanged, std::bind(&Algo::setDisplayKalman, std::ref(this->algo), std::placeholders::_1));
 	QObject::connect(buttonCommand, &QCheckBox::stateChanged, std::bind(&Algo::sendCommand, std::ref(this->algo), std::placeholders::_1));
 	QObject::connect(debug, &QCheckBox::stateChanged, std::bind(&Algo::setDebug, std::ref(this->algo), std::placeholders::_1));
+	QObject::connect(loadGainFile, &QCheckBox::stateChanged, std::bind(&Algo::loadGainFile, std::ref(this->algo), std::placeholders::_1));
 }
 
 void MainInterface::end()

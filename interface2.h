@@ -1,6 +1,11 @@
-#pragma once
+/**
+* Project : Detection and navigation of a spherical robot
+* Author : Cassat Sabine
+* Mail : sabinecassat@gmail.com
+* Module : Qt interface
+*/
 
-#include <memory>
+#pragma once
 #include <QApplication>
 #include <QVBoxLayout>
 #include <QLabel>
@@ -12,6 +17,7 @@
 
 class Algo;
 
+//! Class that is designed to manage and create the Qt interface of the detection application.
 class MainInterface {
 public:
 	//! Constructor that the input of the main function as parameters.
@@ -104,6 +110,7 @@ private:
 	QCheckBox * checkKalman;
 	QCheckBox * buttonCommand;
 	QCheckBox * debug;
+	QCheckBox * loadGainFile;
 
 	QSpinBox * spinBoxDist;
 	QSlider * sliderDist;
@@ -115,7 +122,6 @@ private:
 	QSlider * sliderFreqLED1;
 	QSpinBox * spinBoxFreqLED2;
 	QSlider * sliderFreqLED2;
-
 	QSpinBox * spinBoxMotor1;
 	QSlider * sliderMotor1;
 	QSpinBox * spinBoxMotor2;

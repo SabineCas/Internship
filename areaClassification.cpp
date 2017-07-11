@@ -1,3 +1,10 @@
+/**
+* Project : Detection and navigation of a spherical robot
+* Author : Cassat Sabine
+* Mail : sabinecassat@gmail.com
+* Module : Area classification
+*/
+
 #include "areaClassification.h"
 
 AreaClassification::AreaClassification()
@@ -19,7 +26,6 @@ void AreaClassification::updateCurrentFromPrevious()
 				// Update the information data before the push
 				previousInfraredVector[i].setCoord(infraredVector[j].getCoord());
 				this->infraredVector[j].setNumArea(this->previousInfraredVector[i].getNumArea());
-				//this->infraredVector[j].setSizeArea(this->previousInfraredVector[i].getSizeArea());
 				this->infraredVector[j].setLEDTimeON(this->previousInfraredVector[i].getLEDTimeON());
 				this->infraredVector[j].setLEDTimeOFF(this->previousInfraredVector[i].getLEDTimeOFF());
 				this->infraredVector[j].setVisible(true);

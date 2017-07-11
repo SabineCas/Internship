@@ -6,15 +6,20 @@
 */
 
 #include "robot.h"
+#include <stdio.h>
+#include <tchar.h>
+#include <bitset>
 
 Robot::Robot(double H, double alphaU, double alphaV, double u0, double v0)
 {
+	// Data linked to the camera
 	this->u0 = u0;
 	this->v0 = v0;
 	this->alphaU = alphaU;
 	this->alphaV = alphaV;
 	this->H = H;
 
+	// Information about the robot
 	this->imagePosition.x = 0;
 	this->imagePosition.y = 0;
 	this->desiredPosition.x = 0;
@@ -23,15 +28,22 @@ Robot::Robot(double H, double alphaU, double alphaV, double u0, double v0)
 	this->realPosition.y = -1;
 	this->realPosition.z = -1;
 	this->angleOrientation = 0;
+
+	// Connection Xbee
 	this->sendCommand = false;
 	this->result = false;
-	this->gainMotor1 = 14;
-	this->gainMotor2 = 14;
+
+	// Timers for commands
 	this->timeSTOP = 0;
 	this->timeBACK = 0;
 	this->timeRIGHT = 0;
 	this->timeLEFT = 0;
 
+	// Motor gain
+	this->gainMotor1 = 14;
+	this->gainMotor2 = 14;
+	this->loadGainFile();
+	
 	// Initiate the communication with the MC
 	this->g_hPort = CreateFile(_T("COM6"), GENERIC_READ | GENERIC_WRITE, 0, NULL, CREATE_NEW, 0, NULL);
 	GetCommState(this->g_hPort, &dcb);
@@ -54,6 +66,7 @@ Robot::Robot(double H, double alphaU, double alphaV, double u0, double v0)
 
 Robot::Robot()
 {
+	// Information about the robot
 	this->imagePosition.x = 0;
 	this->imagePosition.y = 0;
 	this->desiredPosition.x = 0;
@@ -61,8 +74,21 @@ Robot::Robot()
 	this->realPosition.x = -1;
 	this->realPosition.y = -1;
 	this->realPosition.z = -1;
+
+	// Connection Xbee
 	this->sendCommand = false;
 	this->result = false;
+
+	// Timers for commands
+	this->timeSTOP = 0;
+	this->timeBACK = 0;
+	this->timeRIGHT = 0;
+	this->timeLEFT = 0;
+
+	// Motor gain
+	this->gainMotor1 = 14;
+	this->gainMotor2 = 14;
+	this->loadGainFile();
 }
 
 void Robot::updatePosition(cv::Point p1, cv::Point p2)
@@ -70,16 +96,14 @@ void Robot::updatePosition(cv::Point p1, cv::Point p2)
 	// Update the image position
 	imagePosition.x = (p1.x + p2.x) / 2;
 	imagePosition.y = (p1.y + p2.y) / 2;
-	//std::cout << "Image position : (" << imagePosition.x << ", " << imagePosition.y << std::endl;
 
 	// Compute the real position in cm from the image position
 	realPosition.x = float(this->H * (imagePosition.x - this->u0) / this->alphaU) * 100;
 	realPosition.y = float(this->H * (imagePosition.y - this->v0) / this->alphaV) * 100;
 	realPosition.z = 0;
-	//std::cout << "Real position : (" << realPosition.x << ", " << realPosition.y << std::endl << std::endl;
 
+	// Compute the orientation of the robot in the camera coordinate system
 	this->angleOrientation = cvFastArctan(p1.y - p2.y, p1.x - p2.x);
-	//std::cout << "Orientation : " << this->angleOrientation << std::endl;
 }
 
 double Robot::calculateRotation()
@@ -109,11 +133,6 @@ double Robot::calculateDistance()
 
 void Robot::sendCommandToRobot()
 {
-	// Data to send
-	DWORD dwWriteBytes;
-	unsigned char c1 = '0', c2 = '0';
-	int gainMotorR = 0, gainMotorL = 0;
-
 	// Meaning of the data
 	unsigned char c = '0';
 
@@ -152,8 +171,7 @@ void Robot::sendCommandToRobot()
 
 void Robot::sendCommandToRobotDEBUG()
 {
-	unsigned char c = '0', c1, c2;
-	DWORD dwWriteBytes;
+	unsigned char c = '0';
 
 	if (result) {
 		int key = cv::waitKey(10);
@@ -315,10 +333,12 @@ void Robot::sendCommandToRobotArranged(clock_t dT)
 std::string Robot::convertFromDecTo6BitsBinary(int dec)
 {
 	std::string valueBin;
+	// Binary value
 	while (dec != 0) {
 		valueBin.append(std::to_string(dec % 2));
 		dec /= 2;
 	}
+	// Add 0 at the end while the binary value has less than 6 numbers
 	while (valueBin.size() < 6) {
 		valueBin.append("0");
 	}
@@ -330,17 +350,14 @@ void Robot::displayImagePosition(cv::Mat image)
 	// Display the position
 	cv::circle(image, this->imagePosition, 5, cv::Scalar(255, 0, 0), -1, 8, 0);
 
-	// Display the data
+	// Display the real position and orientation fo the robot
 	cv::Point temp = this->imagePosition;
-
 	temp.x = temp.x + 15;
 	cv::putText(image, std::to_string(this->realPosition.x), temp, cv::FONT_HERSHEY_PLAIN,
 		1, cv::Scalar(255, 0, 0), 1, 5, false);
-
 	temp.y = temp.y + 20;
 	cv::putText(image, std::to_string(this->realPosition.y), temp, cv::FONT_HERSHEY_PLAIN,
 		1, cv::Scalar(255, 0, 0), 1, 5, false);
-
 	temp.y = temp.y + 20;
 	cv::putText(image, std::to_string(this->angleOrientation), temp, cv::FONT_HERSHEY_PLAIN,
 		1, cv::Scalar(255, 0, 0), 1, 5, false);
@@ -348,12 +365,13 @@ void Robot::displayImagePosition(cv::Mat image)
 
 void Robot::displayDesiredPosition(cv::Mat image)
 {
-	// Display the position
+	// Display the wanted position that the robot has to reach
 	cv::circle(image, this->desiredPosition, 5, cv::Scalar(0, 0, 255), -1, 8, 0);
 }
 
 void Robot::displayImageOrientation(cv::Mat image, cv::Point top)
 {
+	// Display the orientation
 	cv::arrowedLine(image, this->imagePosition, top, cv::Scalar(0, 255, 0), 1, 8, 0, 0.1);
 }
 
@@ -432,6 +450,48 @@ void Robot::setGainMotor2(int g)
 	this->gainMotor2 = g;
 }
 
+void Robot::loadGainFile()
+{
+	std::ifstream myfile;
+	myfile.open("../data/MotorGain/gain.txt");
+	if (myfile.is_open())
+	{
+		std::string temp;
+		while (temp != "Backward") {
+			std::getline(myfile, temp);
+		}
+		std::getline(myfile, temp);
+		this->gainMotorRBackward = stoi(temp);
+		std::getline(myfile, temp);
+		this->gainMotorLBackward = stoi(temp);
+
+		while (temp != "Right") {
+			std::getline(myfile, temp);
+		}
+		std::getline(myfile, temp);
+		this->gainMotorRRight = stoi(temp);
+		std::getline(myfile, temp);
+		this->gainMotorLRight = stoi(temp);
+
+		while (temp != "Left") {
+			std::getline(myfile, temp);
+		}
+		std::getline(myfile, temp);
+		this->gainMotorRLeft = stoi(temp);
+		std::getline(myfile, temp);
+		this->gainMotorLLeft = stoi(temp);
+
+		while (temp != "Forward") {
+			std::getline(myfile, temp);
+		}
+		std::getline(myfile, temp);
+		this->gainMotorRForward = stoi(temp);
+		std::getline(myfile, temp);
+		this->gainMotorLForward = stoi(temp);
+	}
+	myfile.close();
+}
+
 void Robot::sendStop()
 {
 	// Stop the robot before shutting down the program
@@ -450,8 +510,8 @@ void Robot::sendBack(bool debug)
 	int gainMotorR, gainMotorL;
 
 	if (!debug) {
-		gainMotorR = 7;
-		gainMotorL = 7;
+		gainMotorR = this->gainMotorRBackward;
+		gainMotorL = this->gainMotorLBackward;
 	}
 	else {
 		gainMotorR = this->gainMotor1;
@@ -499,8 +559,8 @@ void Robot::sendRight(bool debug)
 	int gainMotorR, gainMotorL;
 
 	if (!debug) {
-		gainMotorR = 5;
-		gainMotorL = 6;
+		gainMotorR = this->gainMotorRRight;
+		gainMotorL = this->gainMotorLRight;
 	}
 	else {
 		gainMotorR = this->gainMotor1;
@@ -548,8 +608,8 @@ void Robot::sendLeft(bool debug)
 	int gainMotorR, gainMotorL;
 
 	if (!debug) {
-		gainMotorR = 8;
-		gainMotorL = 6;
+		gainMotorR = this->gainMotorRLeft;
+		gainMotorL = this->gainMotorLLeft;
 	}
 	else {
 		gainMotorR = this->gainMotor1;
@@ -597,8 +657,8 @@ void Robot::sendForward(bool debug)
 	int gainMotorR, gainMotorL;
 
 	if (!debug) {
-		gainMotorR = 10;
-		gainMotorL = 8;
+		gainMotorR = this->gainMotorRForward;
+		gainMotorL = this->gainMotorLForward;
 	}
 	else {
 		gainMotorR = this->gainMotor1;
