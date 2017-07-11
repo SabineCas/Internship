@@ -1,0 +1,23 @@
+Model : follow this format
+
+Command
+gain right motor
+gain left motor
+
+""""""""""""""""""""""""""""""""
+
+Backward
+8
+7
+
+Right
+5
+6
+
+Left
+8
+6
+
+Forward
+8
+7
