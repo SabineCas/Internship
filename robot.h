@@ -10,7 +10,7 @@
 #include "kalman.h"
 #include <windows.h>
 
-//! This class represents all the information relative to the robot (position, orienation, control law, ...).
+//! The Robot class stores all the information relative to the robot (position, orienation, control law, ...) and manage the control law.
 class Robot {
 public:
 	//! Constructor that take as parameters the height of the camera and the parameters of the camera.
@@ -28,7 +28,7 @@ public:
 	Robot();
 
 	//! Update the position of the robot on the picture (cv::Point2d imagePosition attribut) accordings to the two detected LEDs
-	//! passed as parameters. 
+	// passed as parameters. 
 	/*!
 	\param p1 First detected LED coordinate
 	\param p2 Second detected LED coordinate
@@ -37,8 +37,8 @@ public:
 	void updatePosition(cv::Point p1, cv::Point p2);
 
 	//! Compute the angle (in the trigonometric direction) between the position of the robot and the cv::Point
-	//! desiredPosition attribut that the robot wants to reach. If the returned value is < 0, then the robot has to
-	//! turn right, otherwise the robot has to turn left.
+	// desiredPosition attribut that the robot wants to reach. If the returned value is < 0, then the robot has to
+	// turn right, otherwise the robot has to turn left.
 	/*!
 	\param void
 	\return The difference angle between the orientation of the robot and the point p
@@ -46,7 +46,7 @@ public:
 	double calculateRotation();
 
 	//! Compute the distance between the position of the robot and the cv::Point desiredPosition attribut that the robot
-	//! wants to reach.
+	// wants to reach.
 	/*!
 	\param void
 	\return The distance angle between the orientation of the robot and the point p
@@ -54,7 +54,7 @@ public:
 	double calculateDistance();
 
 	//! Send the command to the robot depending of the distance and the difference of orientation between the robot position
-	//! and the cv::Point desiredPosition that the robot wants to reach. 
+	// and the cv::Point desiredPosition that the robot wants to reach. 
 	/*!
 	\param void
 	\return void
@@ -62,7 +62,7 @@ public:
 	void sendCommandToRobot();
 
 	//! Send the command to the robot using the arrows of the keyboard or the button "Z", "Q", "S" and "D". This function
-	//! is only working if the CheckBox Debug of the interface is set to True. 
+	// is only working if the CheckBox Debug of the interface is set to True. 
 	/*!
 	\param void
 	\return void
@@ -70,7 +70,7 @@ public:
 	void sendCommandToRobotDEBUG();
 
 	//! Send the command to the robot depending of the difference of orientation between the robot position and the
-	//! cv::Point desiredPosition that the robot wants to reach. 
+	// cv::Point desiredPosition that the robot wants to reach. 
 	/*!
 	\param dT Time between the previous frame and the current frame
 	\return void
@@ -134,7 +134,7 @@ public:
 	void displayDesiredPosition(cv::Mat image);
 
 	//! Display an arrow on the currect frame at the coordinate saved into the cv::Point2d imagePosition attribut that represents the
-	//! orientation of the robot.
+	// orientation of the robot.
 	/*!
 	\param image The current frame
 	\return The current frame with the arrow drawn
@@ -149,7 +149,7 @@ public:
 	void closeCom();
 
 	//! Calculate the gain of the motors for the command forward and backward according to the distance between the 
-	//! robot position and the wanted position. More the robot is far, more the gain is high. 
+	// robot position and the wanted position. More the robot is far, more the gain is high. 
 	/*!
 	\param dist Distance between the robot position and the wanted position
 	\return void
@@ -178,7 +178,7 @@ public:
 	void setDesiredPosition(cv::Point p);
 
 	//! Set the double H parameter (= distance between the ground and the fixed camera) that will be used to calculate
-	//! the real position of the robot.
+	// the real position of the robot.
 	/*!
 	\param h Height of the camera
 	\return void
@@ -186,7 +186,7 @@ public:
 	void setHeight(double h);
 
 	//! Change the value of the boolean sendCommand parameter that represents the parameters that will allow to send
-	//! the motion command to the robot or not.
+	// the motion command to the robot or not.
 	/*!
 	\param c Value of the CheckBox to send command to the robot
 	\return void
@@ -194,7 +194,7 @@ public:
 	void setSendCommand(bool c);
 
 	//! Change the value of the int gainMotor1 (right motor) that represents the velocity of the right motor when a command
-	//! is sent.
+	// is sent.
 	/*!
 	\param c Velocity of the motor to send command to the robot
 	\return void
@@ -202,7 +202,7 @@ public:
 	void setGainMotor1(int g);
 
 	//! Change the value of the int gainMotor2 (left motor) that represents the velocity of the left motor when a command
-	//! is sent.
+	// is sent.
 	/*!
 	\param c Velocity of the motor to send command to the robot
 	\return void

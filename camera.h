@@ -13,8 +13,7 @@
 #include <opencv2/video.hpp>
 #include "infraredLight.h"
 
-//! The Camera class represents the camera instance that will manage to open the framegrabber, to do the image processing
-//! (background subtraction, shape recognition, markers and color detection) necessary for the further detection. 
+//! The Camera class manages to open the framegrabber and do the image processing (background subtraction, shape recognition, markers and color detection) necessary for the further detection. 
 class Camera {
 public:
 	//! Constructor using the number identification device to open a video channel.
@@ -27,10 +26,10 @@ public:
 	~Camera();
 
 	//! Determines the intrinsic and distorsion parameters of the camera. If bool webcam parameter is true, the function
-	//! will use the camera to capture 10 pictures with a chessboard that the user have to present to the camera and have to validate
-	//! by pressing the space button of the keyboard. If bool webcam parameter is false, the function will use preset pictures to do
-	//! the calibration. In both case, the function will save the intrinsec into the cv::Mat intrinsicParam attributs and the distorsion
-	//! parameters into the cv::Mat distorsionParam.
+	// will use the camera to capture 10 pictures with a chessboard that the user have to present to the camera and have to validate
+	// by pressing the space button of the keyboard. If bool webcam parameter is false, the function will use preset pictures to do
+	// the calibration. In both case, the function will save the intrinsec into the cv::Mat intrinsicParam attributs and the distorsion
+	// parameters into the cv::Mat distorsionParam.
 	/*!
 	\param webcam Boolean that determines if the camera will be use for the calibration or if the pictures in ../data/Calibration/will be used
 	\return If something went wrong in the calibration, return -1, otherwise return 0
@@ -38,7 +37,7 @@ public:
 	int cameraCalib(bool webcam);
 
 	//! Determines the correction maps to fix the geometrical distorsions of the camera. The function will save the result into the cv::Mat
-	//! map1 and map2 attributs. 
+	// map1 and map2 attributs. 
 	/*!
 	\param H Height of the camera which is placed parallel to the ground (only in translation between the camera and the world coordinate system)
 	\return void
@@ -79,7 +78,7 @@ public:
 	std::vector<infraredLight> ledDetection(cv::Mat image, cv::Scalar lower, cv::Scalar upper);
 
 	//! Use the Hough transformation to find circles inside a binary picture which will be save into the std::vector<cv::Vec3f> circles
-	//! attribut. The circles find by the Hough transformation will be sort according to the vote in the accumulator in descending order.
+	// attribut. The circles find by the Hough transformation will be sort according to the vote in the accumulator in descending order.
 	/*!
 	\param subImage Binary picture
 	\return void
@@ -87,8 +86,8 @@ public:
 	void circlesDetection(cv::Mat subImage);
 
 	//! Evaluate the circle with the most vote in the accumulator accordings to the characteristics of the searched robot (size, ...)
-	//! and the position of the detected markers. Then, if the position of the markers are inside or very near to circle, it returns
-	//! the cv::Point that represents the center of the circle, otherwise it returns a cv::Point(-1, -1).
+	// and the position of the detected markers. Then, if the position of the markers are inside or very near to circle, it returns
+	// the cv::Point that represents the center of the circle, otherwise it returns a cv::Point(-1, -1).
 	/*!
 	\param blueVector Vector with the potential position of the LEDs
 	\return A cv::Point that represents the center of the circle recognized like coherent with all the parameters
@@ -96,14 +95,15 @@ public:
 	cv::Point coherenceCirclesMarkers(std::vector<cv::Point> blueVector);
 
 	//! Display the circle contained in the first position of the std::vector<cv::Vec3f> circles attribut on the image passed as
-	//! a parameter.
+	// a parameter.
 	/*!
 	\param image The current frame
 	\return The current frame with the circle drawn
 	*/
 	void displayCircles(cv::Mat image);
 
-	//! Widen the searching bounding box area (cv::Rect2d boundingBoxObs) attribut on each side with the value passed as a parameter.
+	//! Widen the searching bounding box area (cv::Rect2d boundingBoxObs) attribut on each side with the value passed as a
+	// parameter.
 	/*!
 	\param value Value to add on every side of the bounding box
 	\return void
@@ -146,7 +146,7 @@ public:
 	cv::Mat getMap2();
 
 	//! Return the boolean detectedCircle attribut that represents the variable that save if a circle matches with the
-	//! characteristics of the robot on the current frame.
+	// characteristics of the robot on the current frame.
 	/*!
 	\param void
 	\return The boolean detectedCircle attribut
@@ -164,7 +164,7 @@ public:
 	void setBoundingBoxObs(int minX, int maxX, int minY, int maxY);
 
 	//! Set the boolean detectedCircle attribut that represents the variable that save if a circle matches with the
-	//! characteristics of the robot on the current frame.
+	// characteristics of the robot on the current frame.
 	/*!
 	\param det The new value of the boolean detectedCircle attribut
 	\return void

@@ -8,8 +8,7 @@
 #pragma once
 #include <opencv2\opencv.hpp>
 
-//! Kalman class will manage the estimation of the robot position using the information from the detctiona algorithm and 
-//! the command send to the robot.
+//! The Kalman class manages the estimation of the robot position using the information from the detection algorithm and the command send to the robot.
 class Kalman {
 public:
 	//! Constructor by default
@@ -23,7 +22,8 @@ public:
 	*/
 	void updateMeas(int x, int y);
 
-	//! Function that have to be called when this is the first time that the robot is detected. This function initiate the Kalman filter.
+	//! Function that have to be called when this is the first time that the robot is detected.
+	// This function initiate the Kalman filter.
 	/*!
 	\param void
 	\return void

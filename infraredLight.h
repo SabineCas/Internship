@@ -45,7 +45,7 @@ public:
 	bool areClose(cv::Point p);
 
 	//! Update the LED off time, LED on time and the attribut "identification" of the current infraredLight using its state (visible or not),
-	//! the LED off time and the LED on time.
+	// the LED off time and the LED on time.
 	/*!
 	\param time Period since the last measurement.
 	\param previousVisible Previous state of the LED.
@@ -69,7 +69,7 @@ public:
 	bool isContainedIn(std::vector<infraredLight> vector);
 
 	//! Return a vector of every index where the current infraredLight shares the same coordinates that the infraredLight contained into
-	//! the vector passed as a parameter.
+	// the vector passed as a parameter.
 	/*!
 	\param vector Vector of infraredLight in which the search will be done.
 	\return Return a vector of every index where the current infraredLight shares the same coordinates.
