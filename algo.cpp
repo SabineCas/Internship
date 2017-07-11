@@ -47,10 +47,10 @@ void Algo::run()
 	started = true;
 
 	// Recorder of the camera's images
-	cv::Size size2 = cv::Size(int(cam.getCap().get(cv::CAP_PROP_FRAME_WIDTH)), int(cam.getCap().get(cv::CAP_PROP_FRAME_HEIGHT)));
+	/*cv::Size size2 = cv::Size(int(cam.getCap().get(cv::CAP_PROP_FRAME_WIDTH)), int(cam.getCap().get(cv::CAP_PROP_FRAME_HEIGHT)));
 	int codec = CV_FOURCC('M', 'J', 'P', 'G');
 	cv::VideoWriter writer3("../data/Result1.avi", codec, 10, size2, true);
-	writer3.open("../data/Result1.avi", codec, 20, size2, true);
+	writer3.open("../data/Result1.avi", codec, 20, size2, true);*/
 
 	// Windows for the keyboard event
 	cv::imshow("DEBUG", cv::Mat::zeros(cv::Size(5, 5), CV_32F));
@@ -138,7 +138,7 @@ void Algo::run()
 		}
 
 		// Record the video flux
-		writer3.write(image);
+		// writer3.write(image);
 
 		// Update the image of the interface with a resizement fo the image, so it will fit
 		cv::resize(image, image, cv::Size(640, 480));
