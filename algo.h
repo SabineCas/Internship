@@ -25,7 +25,7 @@
 
 class MainInterface;
 
-//! Algo class represents the class that will run the detection algorithm of the project.
+//! The Algo class represents the class that will run the detection algorithm of the project.
 class Algo {
 public:
 	//! Constructor by default
@@ -39,7 +39,7 @@ public:
 	void setInterface(MainInterface * mi);
 
 	//! Function that will start the thread of the algorithm which is different from the frame of the interface, but it will
-	//! not run the algorithm. It needs to call the private function "void run();" to do that.
+	// not run the algorithm. It needs to call the private function "void run();" to do that.
 	/*!
 	\param void
 	\return void
@@ -97,7 +97,7 @@ public:
 	void setDisplayOrientation(bool val);
 
 	//! Set the parameter that will determine if the identification of each detected area (other than "UNKNOWN") is
-	//! displayed or not on the captured frame
+	// displayed or not on the captured frame
 	/*!
 	\param val If the parameter val is True, the identification of each area is displayed on the frame, otherwise it is not displayed.
 	\return void
@@ -105,7 +105,7 @@ public:
 	void setDisplayIdentification(bool val);
 
 	//! Set the parameter that will determine if the estimate position of the robot from the Kalman filter is displayed
-	//! or not on the captured frame
+	// or not on the captured frame
 	/*!
 	\param val If the parameter val is True, the estimate position of the robot is displayed on the frame, otherwise it is not displayed.
 	\return void
@@ -128,7 +128,7 @@ public:
 	void setNbRobot(int r);
 
 	//! Set the distance between the ground and the fixed camera, that will be used to calculate the real position of
-	//! the robot.
+	// the robot.
 	/*!
 	\param h Height of the camera
 	\return void
@@ -164,7 +164,7 @@ public:
 	void setDebug(bool d);
 
 	//! Load the gain of each motor for each direction using the information contain t=in the text file
-	//! "../data/Motor.Gain/gain.txt".
+	// "../data/Motor.Gain/gain.txt".
 	/*!
 	\param d Value of the CheckBox loadGainFile in the interface
 	\return void
@@ -173,7 +173,7 @@ public:
 
 private:
 	//! Run the algorithm inside the std::thread runThr attribut that have been created. Warning : the public function
-	//! "void start();" have to be call before to initiate the thread of the algorithm.
+	// "void start();" have to be call before to initiate the thread of the algorithm.
 	/*!
 	\param void
 	\return void
