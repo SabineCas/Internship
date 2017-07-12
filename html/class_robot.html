@@ -66,7 +66,7 @@ $(function() {
 </div><!--header-->
 <div class="contents">
 
-<p>The <a class="el" href="class_robot.html" title="The Robot class stores all the information relative to the robot (position, orienation, control law, ...) and manage the control law. ">Robot</a> class stores all the information relative to the robot (position, orienation, control law, ...) and manage the control law.  
+<p>! The <a class="el" href="class_robot.html" title="! The Robot class stores all the information relative to the robot (position, orienation, control law, ...) and manage the control law. ">Robot</a> class stores all the information relative to the robot (position, orienation, control law, ...) and manage the control law.  
  <a href="class_robot.html#details">More...</a></p>
 
 <p><code>#include &lt;<a class="el" href="robot_8h_source.html">robot.h</a>&gt;</code></p>
@@ -74,91 +74,79 @@ $(function() {
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="pub-methods"></a>
 Public Member Functions</h2></td></tr>
 <tr class="memitem:aae2191ab0a542f5320d11963f0405281"><td class="memItemLeft" align="right" valign="top">&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_robot.html#aae2191ab0a542f5320d11963f0405281">Robot</a> (double H, double alphaU, double alphaV, double u0, double v0)</td></tr>
-<tr class="memdesc:aae2191ab0a542f5320d11963f0405281"><td class="mdescLeft">&#160;</td><td class="mdescRight">Constructor that take as parameters the height of the camera and the parameters of the camera.  <a href="#aae2191ab0a542f5320d11963f0405281">More...</a><br /></td></tr>
+<tr class="memdesc:aae2191ab0a542f5320d11963f0405281"><td class="mdescLeft">&#160;</td><td class="mdescRight">! Constructor that take as parameters the height of the camera and the parameters of the camera.  <a href="#aae2191ab0a542f5320d11963f0405281">More...</a><br /></td></tr>
 <tr class="separator:aae2191ab0a542f5320d11963f0405281"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a4fc7c70ae20623f05e06f2ecb388b6c4"><td class="memItemLeft" align="right" valign="top"><a id="a4fc7c70ae20623f05e06f2ecb388b6c4"></a>
 &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_robot.html#a4fc7c70ae20623f05e06f2ecb388b6c4">Robot</a> ()</td></tr>
-<tr class="memdesc:a4fc7c70ae20623f05e06f2ecb388b6c4"><td class="mdescLeft">&#160;</td><td class="mdescRight">Constructor by default. <br /></td></tr>
+<tr class="memdesc:a4fc7c70ae20623f05e06f2ecb388b6c4"><td class="mdescLeft">&#160;</td><td class="mdescRight">! Constructor by default. <br /></td></tr>
 <tr class="separator:a4fc7c70ae20623f05e06f2ecb388b6c4"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a9f646cb7ff2461ea6fe1780960ed187f"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_robot.html#a9f646cb7ff2461ea6fe1780960ed187f">updatePosition</a> (cv::Point p1, cv::Point p2)</td></tr>
-<tr class="memdesc:a9f646cb7ff2461ea6fe1780960ed187f"><td class="mdescLeft">&#160;</td><td class="mdescRight">Update the position of the robot on the picture (cv::Point2d imagePosition attribut) accordings to the two detected LEDs.  <a href="#a9f646cb7ff2461ea6fe1780960ed187f">More...</a><br /></td></tr>
 <tr class="separator:a9f646cb7ff2461ea6fe1780960ed187f"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:af6df962944665cff0a21a5643bec07b7"><td class="memItemLeft" align="right" valign="top">double&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_robot.html#af6df962944665cff0a21a5643bec07b7">calculateRotation</a> ()</td></tr>
-<tr class="memdesc:af6df962944665cff0a21a5643bec07b7"><td class="mdescLeft">&#160;</td><td class="mdescRight">Compute the angle (in the trigonometric direction) between the position of the robot and the cv::Point.  <a href="#af6df962944665cff0a21a5643bec07b7">More...</a><br /></td></tr>
 <tr class="separator:af6df962944665cff0a21a5643bec07b7"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a9befe6605f66b0fb8b8747a1292b2126"><td class="memItemLeft" align="right" valign="top">double&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_robot.html#a9befe6605f66b0fb8b8747a1292b2126">calculateDistance</a> ()</td></tr>
-<tr class="memdesc:a9befe6605f66b0fb8b8747a1292b2126"><td class="mdescLeft">&#160;</td><td class="mdescRight">Compute the distance between the position of the robot and the cv::Point desiredPosition attribut that the robot.  <a href="#a9befe6605f66b0fb8b8747a1292b2126">More...</a><br /></td></tr>
 <tr class="separator:a9befe6605f66b0fb8b8747a1292b2126"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a9dfea5b35273a0df93877c2a0b42b5f8"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_robot.html#a9dfea5b35273a0df93877c2a0b42b5f8">sendCommandToRobot</a> ()</td></tr>
-<tr class="memdesc:a9dfea5b35273a0df93877c2a0b42b5f8"><td class="mdescLeft">&#160;</td><td class="mdescRight">Send the command to the robot depending of the distance and the difference of orientation between the robot position.  <a href="#a9dfea5b35273a0df93877c2a0b42b5f8">More...</a><br /></td></tr>
 <tr class="separator:a9dfea5b35273a0df93877c2a0b42b5f8"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ae86387f94e9bf7cac0e5c10275d18f40"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_robot.html#ae86387f94e9bf7cac0e5c10275d18f40">sendCommandToRobotDEBUG</a> ()</td></tr>
-<tr class="memdesc:ae86387f94e9bf7cac0e5c10275d18f40"><td class="mdescLeft">&#160;</td><td class="mdescRight">Send the command to the robot using the arrows of the keyboard or the button "Z", "Q", "S" and "D". This function.  <a href="#ae86387f94e9bf7cac0e5c10275d18f40">More...</a><br /></td></tr>
 <tr class="separator:ae86387f94e9bf7cac0e5c10275d18f40"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a93a2ddc3f0953db7cbaf8a5c956a294e"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_robot.html#a93a2ddc3f0953db7cbaf8a5c956a294e">sendCommandToRobotArranged</a> (clock_t dT)</td></tr>
-<tr class="memdesc:a93a2ddc3f0953db7cbaf8a5c956a294e"><td class="mdescLeft">&#160;</td><td class="mdescRight">Send the command to the robot depending of the difference of orientation between the robot position and the.  <a href="#a93a2ddc3f0953db7cbaf8a5c956a294e">More...</a><br /></td></tr>
 <tr class="separator:a93a2ddc3f0953db7cbaf8a5c956a294e"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ab23f26dcde08a383f590815b55fe5635"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_robot.html#ab23f26dcde08a383f590815b55fe5635">sendStop</a> ()</td></tr>
-<tr class="memdesc:ab23f26dcde08a383f590815b55fe5635"><td class="mdescLeft">&#160;</td><td class="mdescRight">Send the command STOP to the robot.  <a href="#ab23f26dcde08a383f590815b55fe5635">More...</a><br /></td></tr>
+<tr class="memdesc:ab23f26dcde08a383f590815b55fe5635"><td class="mdescLeft">&#160;</td><td class="mdescRight">! Send the command STOP to the robot.  <a href="#ab23f26dcde08a383f590815b55fe5635">More...</a><br /></td></tr>
 <tr class="separator:ab23f26dcde08a383f590815b55fe5635"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a2e5b53a89068126b7acf5489dcdaf0fc"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_robot.html#a2e5b53a89068126b7acf5489dcdaf0fc">sendBack</a> (bool debug)</td></tr>
-<tr class="memdesc:a2e5b53a89068126b7acf5489dcdaf0fc"><td class="mdescLeft">&#160;</td><td class="mdescRight">Send the command BACKWARD to the robot.  <a href="#a2e5b53a89068126b7acf5489dcdaf0fc">More...</a><br /></td></tr>
+<tr class="memdesc:a2e5b53a89068126b7acf5489dcdaf0fc"><td class="mdescLeft">&#160;</td><td class="mdescRight">! Send the command BACKWARD to the robot.  <a href="#a2e5b53a89068126b7acf5489dcdaf0fc">More...</a><br /></td></tr>
 <tr class="separator:a2e5b53a89068126b7acf5489dcdaf0fc"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ae9e912ba51e54458301b82b55222f764"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_robot.html#ae9e912ba51e54458301b82b55222f764">sendRight</a> (bool debug)</td></tr>
-<tr class="memdesc:ae9e912ba51e54458301b82b55222f764"><td class="mdescLeft">&#160;</td><td class="mdescRight">Send the command RIGHT to the robot.  <a href="#ae9e912ba51e54458301b82b55222f764">More...</a><br /></td></tr>
+<tr class="memdesc:ae9e912ba51e54458301b82b55222f764"><td class="mdescLeft">&#160;</td><td class="mdescRight">! Send the command RIGHT to the robot.  <a href="#ae9e912ba51e54458301b82b55222f764">More...</a><br /></td></tr>
 <tr class="separator:ae9e912ba51e54458301b82b55222f764"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a88719f9700cde36d3ff7eaa3fe39af06"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_robot.html#a88719f9700cde36d3ff7eaa3fe39af06">sendLeft</a> (bool debug)</td></tr>
-<tr class="memdesc:a88719f9700cde36d3ff7eaa3fe39af06"><td class="mdescLeft">&#160;</td><td class="mdescRight">Send the command LEFT to the robot.  <a href="#a88719f9700cde36d3ff7eaa3fe39af06">More...</a><br /></td></tr>
+<tr class="memdesc:a88719f9700cde36d3ff7eaa3fe39af06"><td class="mdescLeft">&#160;</td><td class="mdescRight">! Send the command LEFT to the robot.  <a href="#a88719f9700cde36d3ff7eaa3fe39af06">More...</a><br /></td></tr>
 <tr class="separator:a88719f9700cde36d3ff7eaa3fe39af06"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ad73ef7d0c690b76d966c18c6b09f51ba"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_robot.html#ad73ef7d0c690b76d966c18c6b09f51ba">sendForward</a> (bool debug)</td></tr>
-<tr class="memdesc:ad73ef7d0c690b76d966c18c6b09f51ba"><td class="mdescLeft">&#160;</td><td class="mdescRight">Send the command FORWARD to the robot.  <a href="#ad73ef7d0c690b76d966c18c6b09f51ba">More...</a><br /></td></tr>
+<tr class="memdesc:ad73ef7d0c690b76d966c18c6b09f51ba"><td class="mdescLeft">&#160;</td><td class="mdescRight">! Send the command FORWARD to the robot.  <a href="#ad73ef7d0c690b76d966c18c6b09f51ba">More...</a><br /></td></tr>
 <tr class="separator:ad73ef7d0c690b76d966c18c6b09f51ba"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:abdef2a5896f654d7251491ceff7f2236"><td class="memItemLeft" align="right" valign="top">std::string&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_robot.html#abdef2a5896f654d7251491ceff7f2236">convertFromDecTo6BitsBinary</a> (int dec)</td></tr>
-<tr class="memdesc:abdef2a5896f654d7251491ceff7f2236"><td class="mdescLeft">&#160;</td><td class="mdescRight">Convert the parameter int dec into a string that is the same value but in hexadecimal.  <a href="#abdef2a5896f654d7251491ceff7f2236">More...</a><br /></td></tr>
+<tr class="memdesc:abdef2a5896f654d7251491ceff7f2236"><td class="mdescLeft">&#160;</td><td class="mdescRight">! Convert the parameter int dec into a string that is the same value but in hexadecimal.  <a href="#abdef2a5896f654d7251491ceff7f2236">More...</a><br /></td></tr>
 <tr class="separator:abdef2a5896f654d7251491ceff7f2236"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ac4228386dc0525848f2cfcaa065411bd"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_robot.html#ac4228386dc0525848f2cfcaa065411bd">displayImagePosition</a> (cv::Mat image)</td></tr>
-<tr class="memdesc:ac4228386dc0525848f2cfcaa065411bd"><td class="mdescLeft">&#160;</td><td class="mdescRight">Display a filled circle on the current frame at the coordinate saved into the cv::Point2d imagePosition attribut.  <a href="#ac4228386dc0525848f2cfcaa065411bd">More...</a><br /></td></tr>
+<tr class="memdesc:ac4228386dc0525848f2cfcaa065411bd"><td class="mdescLeft">&#160;</td><td class="mdescRight">! Display a filled circle on the current frame at the coordinate saved into the cv::Point2d imagePosition attribut.  <a href="#ac4228386dc0525848f2cfcaa065411bd">More...</a><br /></td></tr>
 <tr class="separator:ac4228386dc0525848f2cfcaa065411bd"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:aaa65a59fac6937a6d3a3e9dbe2cdb7ec"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_robot.html#aaa65a59fac6937a6d3a3e9dbe2cdb7ec">displayDesiredPosition</a> (cv::Mat image)</td></tr>
-<tr class="memdesc:aaa65a59fac6937a6d3a3e9dbe2cdb7ec"><td class="mdescLeft">&#160;</td><td class="mdescRight">Display a filled circle on the current frame at the coordinate saved into the cv::Point2d desiredPosition attribut.  <a href="#aaa65a59fac6937a6d3a3e9dbe2cdb7ec">More...</a><br /></td></tr>
+<tr class="memdesc:aaa65a59fac6937a6d3a3e9dbe2cdb7ec"><td class="mdescLeft">&#160;</td><td class="mdescRight">! Display a filled circle on the current frame at the coordinate saved into the cv::Point2d desiredPosition attribut.  <a href="#aaa65a59fac6937a6d3a3e9dbe2cdb7ec">More...</a><br /></td></tr>
 <tr class="separator:aaa65a59fac6937a6d3a3e9dbe2cdb7ec"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:afb0b0d851dc4554ed71f1b9369c600df"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_robot.html#afb0b0d851dc4554ed71f1b9369c600df">displayImageOrientation</a> (cv::Mat image, cv::Point top)</td></tr>
-<tr class="memdesc:afb0b0d851dc4554ed71f1b9369c600df"><td class="mdescLeft">&#160;</td><td class="mdescRight">Display an arrow on the currect frame at the coordinate saved into the cv::Point2d imagePosition attribut that represents the.  <a href="#afb0b0d851dc4554ed71f1b9369c600df">More...</a><br /></td></tr>
 <tr class="separator:afb0b0d851dc4554ed71f1b9369c600df"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a2f47a983e9d0df0c8414b3ec1312ca3d"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_robot.html#a2f47a983e9d0df0c8414b3ec1312ca3d">closeCom</a> ()</td></tr>
-<tr class="memdesc:a2f47a983e9d0df0c8414b3ec1312ca3d"><td class="mdescLeft">&#160;</td><td class="mdescRight">Close properly the serial port communication before shutting down the program.  <a href="#a2f47a983e9d0df0c8414b3ec1312ca3d">More...</a><br /></td></tr>
+<tr class="memdesc:a2f47a983e9d0df0c8414b3ec1312ca3d"><td class="mdescLeft">&#160;</td><td class="mdescRight">! Close properly the serial port communication before shutting down the program  <a href="#a2f47a983e9d0df0c8414b3ec1312ca3d">More...</a><br /></td></tr>
 <tr class="separator:a2f47a983e9d0df0c8414b3ec1312ca3d"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:af969c1a9ff7779d0d936410e3595644a"><td class="memItemLeft" align="right" valign="top">int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_robot.html#af969c1a9ff7779d0d936410e3595644a">calculateGain</a> (double dist)</td></tr>
-<tr class="memdesc:af969c1a9ff7779d0d936410e3595644a"><td class="mdescLeft">&#160;</td><td class="mdescRight">Calculate the gain of the motors for the command forward and backward according to the distance between the.  <a href="#af969c1a9ff7779d0d936410e3595644a">More...</a><br /></td></tr>
 <tr class="separator:af969c1a9ff7779d0d936410e3595644a"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a2f489333657680cabc32208a304ad2e5"><td class="memItemLeft" align="right" valign="top">cv::Point2d&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_robot.html#a2f489333657680cabc32208a304ad2e5">getImagePosition</a> ()</td></tr>
-<tr class="memdesc:a2f489333657680cabc32208a304ad2e5"><td class="mdescLeft">&#160;</td><td class="mdescRight">Return the image coordinate of the robot saved into the cv::Point2d imagePosition attribut.  <a href="#a2f489333657680cabc32208a304ad2e5">More...</a><br /></td></tr>
+<tr class="memdesc:a2f489333657680cabc32208a304ad2e5"><td class="mdescLeft">&#160;</td><td class="mdescRight">! Return the image coordinate of the robot saved into the cv::Point2d imagePosition attribut.  <a href="#a2f489333657680cabc32208a304ad2e5">More...</a><br /></td></tr>
 <tr class="separator:a2f489333657680cabc32208a304ad2e5"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a9f93482296ebcb94b792eabbf6ce9b39"><td class="memItemLeft" align="right" valign="top">cv::Point3f&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_robot.html#a9f93482296ebcb94b792eabbf6ce9b39">getRealPosition</a> ()</td></tr>
-<tr class="memdesc:a9f93482296ebcb94b792eabbf6ce9b39"><td class="mdescLeft">&#160;</td><td class="mdescRight">Return the coordinate of the robot into the world coordinate system saved into the cv::Point3f realPosition attribut.  <a href="#a9f93482296ebcb94b792eabbf6ce9b39">More...</a><br /></td></tr>
+<tr class="memdesc:a9f93482296ebcb94b792eabbf6ce9b39"><td class="mdescLeft">&#160;</td><td class="mdescRight">! Return the coordinate of the robot into the world coordinate system saved into the cv::Point3f realPosition attribut.  <a href="#a9f93482296ebcb94b792eabbf6ce9b39">More...</a><br /></td></tr>
 <tr class="separator:a9f93482296ebcb94b792eabbf6ce9b39"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a7fe759bd789486a6c4594ca371251916"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_robot.html#a7fe759bd789486a6c4594ca371251916">setDesiredPosition</a> (cv::Point p)</td></tr>
-<tr class="memdesc:a7fe759bd789486a6c4594ca371251916"><td class="mdescLeft">&#160;</td><td class="mdescRight">Set the cv::Point desiredPosition attribut that the robot will try to reach.  <a href="#a7fe759bd789486a6c4594ca371251916">More...</a><br /></td></tr>
+<tr class="memdesc:a7fe759bd789486a6c4594ca371251916"><td class="mdescLeft">&#160;</td><td class="mdescRight">! Set the cv::Point desiredPosition attribut that the robot will try to reach.  <a href="#a7fe759bd789486a6c4594ca371251916">More...</a><br /></td></tr>
 <tr class="separator:a7fe759bd789486a6c4594ca371251916"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:afb481739a7f73d3b3f3d3a47de15164a"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_robot.html#afb481739a7f73d3b3f3d3a47de15164a">setHeight</a> (double h)</td></tr>
-<tr class="memdesc:afb481739a7f73d3b3f3d3a47de15164a"><td class="mdescLeft">&#160;</td><td class="mdescRight">Set the double H parameter (= distance between the ground and the fixed camera) that will be used to calculate.  <a href="#afb481739a7f73d3b3f3d3a47de15164a">More...</a><br /></td></tr>
 <tr class="separator:afb481739a7f73d3b3f3d3a47de15164a"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a6e37e786c1da29cfd379616d68cfb143"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_robot.html#a6e37e786c1da29cfd379616d68cfb143">setSendCommand</a> (bool c)</td></tr>
-<tr class="memdesc:a6e37e786c1da29cfd379616d68cfb143"><td class="mdescLeft">&#160;</td><td class="mdescRight">Change the value of the boolean sendCommand parameter that represents the parameters that will allow to send.  <a href="#a6e37e786c1da29cfd379616d68cfb143">More...</a><br /></td></tr>
 <tr class="separator:a6e37e786c1da29cfd379616d68cfb143"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:aa806ec2dab9a9604d2f7444dba9f65fd"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_robot.html#aa806ec2dab9a9604d2f7444dba9f65fd">setGainMotor1</a> (int g)</td></tr>
-<tr class="memdesc:aa806ec2dab9a9604d2f7444dba9f65fd"><td class="mdescLeft">&#160;</td><td class="mdescRight">Change the value of the int gainMotor1 (right motor) that represents the velocity of the right motor when a command.  <a href="#aa806ec2dab9a9604d2f7444dba9f65fd">More...</a><br /></td></tr>
 <tr class="separator:aa806ec2dab9a9604d2f7444dba9f65fd"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ace09d94046dba1b39dc6cd46092a5ea6"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_robot.html#ace09d94046dba1b39dc6cd46092a5ea6">setGainMotor2</a> (int g)</td></tr>
-<tr class="memdesc:ace09d94046dba1b39dc6cd46092a5ea6"><td class="mdescLeft">&#160;</td><td class="mdescRight">Change the value of the int gainMotor2 (left motor) that represents the velocity of the left motor when a command.  <a href="#ace09d94046dba1b39dc6cd46092a5ea6">More...</a><br /></td></tr>
 <tr class="separator:ace09d94046dba1b39dc6cd46092a5ea6"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:aea0838b17b30076587cb2bc0d25e6e98"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_robot.html#aea0838b17b30076587cb2bc0d25e6e98">loadGainFile</a> ()</td></tr>
-<tr class="memdesc:aea0838b17b30076587cb2bc0d25e6e98"><td class="mdescLeft">&#160;</td><td class="mdescRight">Load the value of the motors gain for each command from the file "../data/MotorGain/gain.txt".  <a href="#aea0838b17b30076587cb2bc0d25e6e98">More...</a><br /></td></tr>
+<tr class="memdesc:aea0838b17b30076587cb2bc0d25e6e98"><td class="mdescLeft">&#160;</td><td class="mdescRight">! Load the value of the motors gain for each command from the file "../data/MotorGain/gain.txt".  <a href="#aea0838b17b30076587cb2bc0d25e6e98">More...</a><br /></td></tr>
 <tr class="separator:aea0838b17b30076587cb2bc0d25e6e98"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
-<div class="textblock"><p>The <a class="el" href="class_robot.html" title="The Robot class stores all the information relative to the robot (position, orienation, control law, ...) and manage the control law. ">Robot</a> class stores all the information relative to the robot (position, orienation, control law, ...) and manage the control law. </p>
-<p>Project : Detection and navigation of a spherical robot Author : Cassat Sabine Mail : <a href="#" onclick="location.href='mai'+'lto:'+'sab'+'in'+'eca'+'ss'+'at@'+'gm'+'ail'+'.c'+'om'; return false;">sabin<span style="display: none;">.nosp@m.</span>ecas<span style="display: none;">.nosp@m.</span>sat@g<span style="display: none;">.nosp@m.</span>mail<span style="display: none;">.nosp@m.</span>.com</a> Module : <a class="el" href="class_robot.html" title="The Robot class stores all the information relative to the robot (position, orienation, control law, ...) and manage the control law. ">Robot</a> </p>
+<div class="textblock"><p>! The <a class="el" href="class_robot.html" title="! The Robot class stores all the information relative to the robot (position, orienation, control law, ...) and manage the control law. ">Robot</a> class stores all the information relative to the robot (position, orienation, control law, ...) and manage the control law. </p>
+<p>Project : Detection and navigation of a spherical robot Author : Cassat Sabine Mail : <a href="#" onclick="location.href='mai'+'lto:'+'sab'+'in'+'eca'+'ss'+'at@'+'gm'+'ail'+'.c'+'om'; return false;">sabin<span style="display: none;">.nosp@m.</span>ecas<span style="display: none;">.nosp@m.</span>sat@g<span style="display: none;">.nosp@m.</span>mail<span style="display: none;">.nosp@m.</span>.com</a> Module : <a class="el" href="class_robot.html" title="! The Robot class stores all the information relative to the robot (position, orienation, control law, ...) and manage the control law. ">Robot</a> </p>
 </div><h2 class="groupheader">Constructor &amp; Destructor Documentation</h2>
 <a id="aae2191ab0a542f5320d11963f0405281"></a>
 <h2 class="memtitle"><span class="permalink"><a href="#aae2191ab0a542f5320d11963f0405281">&#9670;&nbsp;</a></span>Robot()</h2>
@@ -204,7 +192,7 @@ Public Member Functions</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p>Constructor that take as parameters the height of the camera and the parameters of the camera. </p>
+<p>! Constructor that take as parameters the height of the camera and the parameters of the camera. </p>
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
     <tr><td class="paramname">H</td><td>Height of the camera </td></tr>
@@ -216,7 +204,7 @@ Public Member Functions</h2></td></tr>
   </dd>
 </dl>
 <dl class="section return"><dt>Returns</dt><dd>void</dd></dl>
-<p>Project : Detection and navigation of a spherical robot Author : Cassat Sabine Mail : <a href="#" onclick="location.href='mai'+'lto:'+'sab'+'in'+'eca'+'ss'+'at@'+'gm'+'ail'+'.c'+'om'; return false;">sabin<span style="display: none;">.nosp@m.</span>ecas<span style="display: none;">.nosp@m.</span>sat@g<span style="display: none;">.nosp@m.</span>mail<span style="display: none;">.nosp@m.</span>.com</a> Module : <a class="el" href="class_robot.html" title="The Robot class stores all the information relative to the robot (position, orienation, control law, ...) and manage the control law. ">Robot</a> </p>
+<p>Project : Detection and navigation of a spherical robot Author : Cassat Sabine Mail : <a href="#" onclick="location.href='mai'+'lto:'+'sab'+'in'+'eca'+'ss'+'at@'+'gm'+'ail'+'.c'+'om'; return false;">sabin<span style="display: none;">.nosp@m.</span>ecas<span style="display: none;">.nosp@m.</span>sat@g<span style="display: none;">.nosp@m.</span>mail<span style="display: none;">.nosp@m.</span>.com</a> Module : <a class="el" href="class_robot.html" title="! The Robot class stores all the information relative to the robot (position, orienation, control law, ...) and manage the control law. ">Robot</a> </p>
 
 </div>
 </div>
@@ -235,8 +223,7 @@ Public Member Functions</h2></td></tr>
         </tr>
       </table>
 </div><div class="memdoc">
-
-<p>Compute the distance between the position of the robot and the cv::Point desiredPosition attribut that the robot. </p>
+<p>! Compute the distance between the position of the robot and the cv::Point desiredPosition attribut that the robot wants to reach.</p>
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
     <tr><td class="paramname">void</td><td></td></tr>
@@ -262,8 +249,7 @@ Public Member Functions</h2></td></tr>
         </tr>
       </table>
 </div><div class="memdoc">
-
-<p>Calculate the gain of the motors for the command forward and backward according to the distance between the. </p>
+<p>! Calculate the gain of the motors for the command forward and backward according to the distance between the robot position and the wanted position. More the robot is far, more the gain is high.</p>
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
     <tr><td class="paramname">dist</td><td>Distance between the robot position and the wanted position </td></tr>
@@ -288,8 +274,7 @@ Public Member Functions</h2></td></tr>
         </tr>
       </table>
 </div><div class="memdoc">
-
-<p>Compute the angle (in the trigonometric direction) between the position of the robot and the cv::Point. </p>
+<p>! Compute the angle (in the trigonometric direction) between the position of the robot and the cv::Point desiredPosition attribut that the robot wants to reach. If the returned value is &lt; 0, then the robot has to turn right, otherwise the robot has to turn left.</p>
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
     <tr><td class="paramname">void</td><td></td></tr>
@@ -315,7 +300,7 @@ Public Member Functions</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p>Close properly the serial port communication before shutting down the program. </p>
+<p>! Close properly the serial port communication before shutting down the program </p>
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
     <tr><td class="paramname">void</td><td></td></tr>
@@ -342,7 +327,7 @@ Public Member Functions</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p>Convert the parameter int dec into a string that is the same value but in hexadecimal. </p>
+<p>! Convert the parameter int dec into a string that is the same value but in hexadecimal. </p>
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
     <tr><td class="paramname">dec</td><td>Decimal value to convert in hexadecimal value </td></tr>
@@ -369,7 +354,7 @@ Public Member Functions</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p>Display a filled circle on the current frame at the coordinate saved into the cv::Point2d desiredPosition attribut. </p>
+<p>! Display a filled circle on the current frame at the coordinate saved into the cv::Point2d desiredPosition attribut. </p>
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
     <tr><td class="paramname">image</td><td>The current frame </td></tr>
@@ -405,11 +390,11 @@ Public Member Functions</h2></td></tr>
         </tr>
       </table>
 </div><div class="memdoc">
-
-<p>Display an arrow on the currect frame at the coordinate saved into the cv::Point2d imagePosition attribut that represents the. </p>
+<p>! Display an arrow on the currect frame at the coordinate saved into the cv::Point2d imagePosition attribut that represents the orientation of the robot.</p>
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
     <tr><td class="paramname">image</td><td>The current frame </td></tr>
+    <tr><td class="paramname">top</td><td>Coordinate of the LEDs in front of the robot </td></tr>
   </table>
   </dd>
 </dl>
@@ -433,7 +418,7 @@ Public Member Functions</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p>Display a filled circle on the current frame at the coordinate saved into the cv::Point2d imagePosition attribut. </p>
+<p>! Display a filled circle on the current frame at the coordinate saved into the cv::Point2d imagePosition attribut. </p>
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
     <tr><td class="paramname">image</td><td>The current frame </td></tr>
@@ -459,7 +444,7 @@ Public Member Functions</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p>Return the image coordinate of the robot saved into the cv::Point2d imagePosition attribut. </p>
+<p>! Return the image coordinate of the robot saved into the cv::Point2d imagePosition attribut. </p>
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
     <tr><td class="paramname">void</td><td></td></tr>
@@ -485,7 +470,7 @@ Public Member Functions</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p>Return the coordinate of the robot into the world coordinate system saved into the cv::Point3f realPosition attribut. </p>
+<p>! Return the coordinate of the robot into the world coordinate system saved into the cv::Point3f realPosition attribut. </p>
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
     <tr><td class="paramname">void</td><td></td></tr>
@@ -511,7 +496,7 @@ Public Member Functions</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p>Load the value of the motors gain for each command from the file "../data/MotorGain/gain.txt". </p>
+<p>! Load the value of the motors gain for each command from the file "../data/MotorGain/gain.txt". </p>
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
     <tr><td class="paramname">void</td><td></td></tr>
@@ -538,10 +523,10 @@ Public Member Functions</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p>Send the command BACKWARD to the robot. </p>
+<p>! Send the command BACKWARD to the robot. </p>
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
-    <tr><td class="paramname">void</td><td></td></tr>
+    <tr><td class="paramname">debug</td><td>True if the mode debug is ON, otherwise False </td></tr>
   </table>
   </dd>
 </dl>
@@ -563,8 +548,7 @@ Public Member Functions</h2></td></tr>
         </tr>
       </table>
 </div><div class="memdoc">
-
-<p>Send the command to the robot depending of the distance and the difference of orientation between the robot position. </p>
+<p>! Send the command to the robot depending of the distance and the difference of orientation between the robot position and the cv::Point desiredPosition that the robot wants to reach.</p>
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
     <tr><td class="paramname">void</td><td></td></tr>
@@ -590,8 +574,7 @@ Public Member Functions</h2></td></tr>
         </tr>
       </table>
 </div><div class="memdoc">
-
-<p>Send the command to the robot depending of the difference of orientation between the robot position and the. </p>
+<p>! Send the command to the robot depending of the difference of orientation between the robot position and the cv::Point desiredPosition that the robot wants to reach.</p>
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
     <tr><td class="paramname">dT</td><td>Time between the previous frame and the current frame </td></tr>
@@ -616,8 +599,7 @@ Public Member Functions</h2></td></tr>
         </tr>
       </table>
 </div><div class="memdoc">
-
-<p>Send the command to the robot using the arrows of the keyboard or the button "Z", "Q", "S" and "D". This function. </p>
+<p>! Send the command to the robot using the arrows of the keyboard or the button "Z", "Q", "S" and "D". This function is only working if the CheckBox Debug of the interface is set to True.</p>
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
     <tr><td class="paramname">void</td><td></td></tr>
@@ -644,10 +626,10 @@ Public Member Functions</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p>Send the command FORWARD to the robot. </p>
+<p>! Send the command FORWARD to the robot. </p>
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
-    <tr><td class="paramname">void</td><td></td></tr>
+    <tr><td class="paramname">debug</td><td>True if the mode debug is ON, otherwise False </td></tr>
   </table>
   </dd>
 </dl>
@@ -671,10 +653,10 @@ Public Member Functions</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p>Send the command LEFT to the robot. </p>
+<p>! Send the command LEFT to the robot. </p>
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
-    <tr><td class="paramname">void</td><td></td></tr>
+    <tr><td class="paramname">debug</td><td>True if the mode debug is ON, otherwise False </td></tr>
   </table>
   </dd>
 </dl>
@@ -698,10 +680,10 @@ Public Member Functions</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p>Send the command RIGHT to the robot. </p>
+<p>! Send the command RIGHT to the robot. </p>
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
-    <tr><td class="paramname">void</td><td></td></tr>
+    <tr><td class="paramname">debug</td><td>True if the mode debug is ON, otherwise False </td></tr>
   </table>
   </dd>
 </dl>
@@ -724,7 +706,7 @@ Public Member Functions</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p>Send the command STOP to the robot. </p>
+<p>! Send the command STOP to the robot. </p>
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
     <tr><td class="paramname">void</td><td></td></tr>
@@ -751,7 +733,7 @@ Public Member Functions</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p>Set the cv::Point desiredPosition attribut that the robot will try to reach. </p>
+<p>! Set the cv::Point desiredPosition attribut that the robot will try to reach. </p>
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
     <tr><td class="paramname">p</td><td>New point that the robot will try to reach </td></tr>
@@ -777,11 +759,10 @@ Public Member Functions</h2></td></tr>
         </tr>
       </table>
 </div><div class="memdoc">
-
-<p>Change the value of the int gainMotor1 (right motor) that represents the velocity of the right motor when a command. </p>
+<p>! Change the value of the int gainMotor1 (right motor) that represents the velocity of the right motor when a command is sent.</p>
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
-    <tr><td class="paramname">c</td><td>Velocity of the motor to send command to the robot </td></tr>
+    <tr><td class="paramname">g</td><td>Velocity of the motor to send command to the robot </td></tr>
   </table>
   </dd>
 </dl>
@@ -804,11 +785,10 @@ Public Member Functions</h2></td></tr>
         </tr>
       </table>
 </div><div class="memdoc">
-
-<p>Change the value of the int gainMotor2 (left motor) that represents the velocity of the left motor when a command. </p>
+<p>! Change the value of the int gainMotor2 (left motor) that represents the velocity of the left motor when a command is sent.</p>
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
-    <tr><td class="paramname">c</td><td>Velocity of the motor to send command to the robot </td></tr>
+    <tr><td class="paramname">g</td><td>Velocity of the motor to send command to the robot </td></tr>
   </table>
   </dd>
 </dl>
@@ -831,8 +811,7 @@ Public Member Functions</h2></td></tr>
         </tr>
       </table>
 </div><div class="memdoc">
-
-<p>Set the double H parameter (= distance between the ground and the fixed camera) that will be used to calculate. </p>
+<p>! Set the double H parameter (= distance between the ground and the fixed camera) that will be used to calculate the real position of the robot.</p>
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
     <tr><td class="paramname">h</td><td>Height of the camera </td></tr>
@@ -858,8 +837,7 @@ Public Member Functions</h2></td></tr>
         </tr>
       </table>
 </div><div class="memdoc">
-
-<p>Change the value of the boolean sendCommand parameter that represents the parameters that will allow to send. </p>
+<p>! Change the value of the boolean sendCommand parameter that represents the parameters that will allow to send the motion command to the robot or not.</p>
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
     <tr><td class="paramname">c</td><td>Value of the CheckBox to send command to the robot </td></tr>
@@ -895,8 +873,7 @@ Public Member Functions</h2></td></tr>
         </tr>
       </table>
 </div><div class="memdoc">
-
-<p>Update the position of the robot on the picture (cv::Point2d imagePosition attribut) accordings to the two detected LEDs. </p>
+<p>! Update the position of the robot on the picture (cv::Point2d imagePosition attribut) accordings to the two detected LEDs passed as parameters.</p>
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
     <tr><td class="paramname">p1</td><td>First detected LED coordinate </td></tr>

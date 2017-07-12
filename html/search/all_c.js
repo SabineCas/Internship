@@ -20,7 +20,7 @@ var searchData=
   ['setdisplaykalman',['setDisplayKalman',['../class_algo.html#a6080237392a1168b8694a5206f999f87',1,'Algo']]],
   ['setdisplayorientation',['setDisplayOrientation',['../class_algo.html#a0e1d43f5c9204bd26e9ed6d256cea5de',1,'Algo']]],
   ['setdisplayposition',['setDisplayPosition',['../class_algo.html#af38b5271f2d6c620c4f426f156f49857',1,'Algo']]],
-  ['setdistance',['setDistance',['../class_main_interface.html#a545de5dd9e8541adcadaee2d4e1b1897',1,'MainInterface']]],
+  ['setdistance',['setDistance',['../class_main_interface.html#ac813bf1322d46319992588d5ee64e480',1,'MainInterface']]],
   ['setdistancearealight',['setDistanceAreaLight',['../class_algo.html#ac94a490a1a54292bb8883dee9ff82f67',1,'Algo']]],
   ['setfreqled1',['setFreqLED1',['../class_algo.html#a7c80782243d3edbbf13db5b6bf0bde94',1,'Algo']]],
   ['setfreqled2',['setFreqLED2',['../class_algo.html#a3ccde1c37ef6492f66e5c55b129f2091',1,'Algo']]],

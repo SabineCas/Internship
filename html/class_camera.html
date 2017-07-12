@@ -66,7 +66,7 @@ $(function() {
 </div><!--header-->
 <div class="contents">
 
-<p>The <a class="el" href="class_camera.html" title="The Camera class manages to open the framegrabber and do the image processing (background subtraction...">Camera</a> class manages to open the framegrabber and do the image processing (background subtraction, shape recognition, markers and color detection) necessary for the further detection.  
+<p>! The <a class="el" href="class_camera.html" title="! The Camera class manages to open the framegrabber and do the image processing (background subtracti...">Camera</a> class manages to open the framegrabber and do the image processing (background subtraction, shape recognition, markers and color detection) necessary for the further detection.  
  <a href="class_camera.html#details">More...</a></p>
 
 <p><code>#include &lt;<a class="el" href="camera_8h_source.html">camera.h</a>&gt;</code></p>
@@ -74,69 +74,61 @@ $(function() {
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="pub-methods"></a>
 Public Member Functions</h2></td></tr>
 <tr class="memitem:a47a3a05d54d025d818e284af5800da60"><td class="memItemLeft" align="right" valign="top">&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_camera.html#a47a3a05d54d025d818e284af5800da60">Camera</a> (int numDevice)</td></tr>
-<tr class="memdesc:a47a3a05d54d025d818e284af5800da60"><td class="mdescLeft">&#160;</td><td class="mdescRight">Constructor using the number identification device to open a video channel.  <a href="#a47a3a05d54d025d818e284af5800da60">More...</a><br /></td></tr>
+<tr class="memdesc:a47a3a05d54d025d818e284af5800da60"><td class="mdescLeft">&#160;</td><td class="mdescRight">! Constructor using the number identification device to open a video channel.  <a href="#a47a3a05d54d025d818e284af5800da60">More...</a><br /></td></tr>
 <tr class="separator:a47a3a05d54d025d818e284af5800da60"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ad1897942d0ccf91052386388a497349f"><td class="memItemLeft" align="right" valign="top"><a id="ad1897942d0ccf91052386388a497349f"></a>
 &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_camera.html#ad1897942d0ccf91052386388a497349f">~Camera</a> ()</td></tr>
 <tr class="memdesc:ad1897942d0ccf91052386388a497349f"><td class="mdescLeft">&#160;</td><td class="mdescRight">Destructor by default. <br /></td></tr>
 <tr class="separator:ad1897942d0ccf91052386388a497349f"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a42254d9191ada7aeec08b0aa8fe8721c"><td class="memItemLeft" align="right" valign="top">int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_camera.html#a42254d9191ada7aeec08b0aa8fe8721c">cameraCalib</a> (bool webcam)</td></tr>
-<tr class="memdesc:a42254d9191ada7aeec08b0aa8fe8721c"><td class="mdescLeft">&#160;</td><td class="mdescRight">Determines the intrinsic and distorsion parameters of the camera. If bool webcam parameter is true, the function.  <a href="#a42254d9191ada7aeec08b0aa8fe8721c">More...</a><br /></td></tr>
 <tr class="separator:a42254d9191ada7aeec08b0aa8fe8721c"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:abfe2ecf077989438118e0df8a0630aed"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_camera.html#abfe2ecf077989438118e0df8a0630aed">cameraCorr</a> (double H)</td></tr>
-<tr class="memdesc:abfe2ecf077989438118e0df8a0630aed"><td class="mdescLeft">&#160;</td><td class="mdescRight">Determines the correction maps to fix the geometrical distorsions of the camera. The function will save the result into the cv::Mat.  <a href="#abfe2ecf077989438118e0df8a0630aed">More...</a><br /></td></tr>
 <tr class="separator:abfe2ecf077989438118e0df8a0630aed"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ad890e80b7696eb2c5fac2723bafa269e"><td class="memItemLeft" align="right" valign="top">cv::Mat&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_camera.html#ad890e80b7696eb2c5fac2723bafa269e">updateBackground</a> (cv::Mat image, cv::Ptr&lt; cv::BackgroundSubtractor &gt; pKNN)</td></tr>
-<tr class="memdesc:ad890e80b7696eb2c5fac2723bafa269e"><td class="mdescLeft">&#160;</td><td class="mdescRight">Update the background that will be used for the backgorund subtraction using a KNN algorithm.  <a href="#ad890e80b7696eb2c5fac2723bafa269e">More...</a><br /></td></tr>
+<tr class="memdesc:ad890e80b7696eb2c5fac2723bafa269e"><td class="mdescLeft">&#160;</td><td class="mdescRight">! Update the background that will be used for the backgorund subtraction using a KNN algorithm.  <a href="#ad890e80b7696eb2c5fac2723bafa269e">More...</a><br /></td></tr>
 <tr class="separator:ad890e80b7696eb2c5fac2723bafa269e"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a5760e287bfc93cd54bec1315f82df5c4"><td class="memItemLeft" align="right" valign="top">cv::Mat&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_camera.html#a5760e287bfc93cd54bec1315f82df5c4">improveBackSubtr</a> (cv::Mat image)</td></tr>
-<tr class="memdesc:a5760e287bfc93cd54bec1315f82df5c4"><td class="mdescLeft">&#160;</td><td class="mdescRight">Improve the image with morphological processing.  <a href="#a5760e287bfc93cd54bec1315f82df5c4">More...</a><br /></td></tr>
+<tr class="memdesc:a5760e287bfc93cd54bec1315f82df5c4"><td class="mdescLeft">&#160;</td><td class="mdescRight">! Improve the image with morphological processing.  <a href="#a5760e287bfc93cd54bec1315f82df5c4">More...</a><br /></td></tr>
 <tr class="separator:a5760e287bfc93cd54bec1315f82df5c4"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a9938e74a8a4fdc7b8910d4fb6d4d2d5b"><td class="memItemLeft" align="right" valign="top">cv::Mat&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_camera.html#a9938e74a8a4fdc7b8910d4fb6d4d2d5b">colorDetection</a> (cv::Mat image, cv::Scalar lower, cv::Scalar upper)</td></tr>
-<tr class="memdesc:a9938e74a8a4fdc7b8910d4fb6d4d2d5b"><td class="mdescLeft">&#160;</td><td class="mdescRight">Detect areas where the color is in range between the cv::Scalar lower and the cv::Scalar upper color (in HSV)  <a href="#a9938e74a8a4fdc7b8910d4fb6d4d2d5b">More...</a><br /></td></tr>
+<tr class="memdesc:a9938e74a8a4fdc7b8910d4fb6d4d2d5b"><td class="mdescLeft">&#160;</td><td class="mdescRight">! Detect areas where the color is in range between the cv::Scalar lower and the cv::Scalar upper color (in HSV)  <a href="#a9938e74a8a4fdc7b8910d4fb6d4d2d5b">More...</a><br /></td></tr>
 <tr class="separator:a9938e74a8a4fdc7b8910d4fb6d4d2d5b"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ab9f628e0732fee60fc8fbfeca1ee5ad8"><td class="memItemLeft" align="right" valign="top">std::vector&lt; <a class="el" href="classinfrared_light.html">infraredLight</a> &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_camera.html#ab9f628e0732fee60fc8fbfeca1ee5ad8">ledDetection</a> (cv::Mat image, cv::Scalar lower, cv::Scalar upper)</td></tr>
-<tr class="memdesc:ab9f628e0732fee60fc8fbfeca1ee5ad8"><td class="mdescLeft">&#160;</td><td class="mdescRight">Detect areas where the color is in range between the cv::Scalar lower and the cv::Scalar upper color (in HSV)  <a href="#ab9f628e0732fee60fc8fbfeca1ee5ad8">More...</a><br /></td></tr>
+<tr class="memdesc:ab9f628e0732fee60fc8fbfeca1ee5ad8"><td class="mdescLeft">&#160;</td><td class="mdescRight">! Detect areas where the color is in range between the cv::Scalar lower and the cv::Scalar upper color (in HSV)  <a href="#ab9f628e0732fee60fc8fbfeca1ee5ad8">More...</a><br /></td></tr>
 <tr class="separator:ab9f628e0732fee60fc8fbfeca1ee5ad8"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ab69273da4250d6f079b4c7c30124824a"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_camera.html#ab69273da4250d6f079b4c7c30124824a">circlesDetection</a> (cv::Mat subImage)</td></tr>
-<tr class="memdesc:ab69273da4250d6f079b4c7c30124824a"><td class="mdescLeft">&#160;</td><td class="mdescRight">Use the Hough transformation to find circles inside a binary picture which will be save into the std::vector&lt;cv::Vec3f&gt; circles.  <a href="#ab69273da4250d6f079b4c7c30124824a">More...</a><br /></td></tr>
 <tr class="separator:ab69273da4250d6f079b4c7c30124824a"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a96eedde04ba504b3bcd61445bb9f7ef3"><td class="memItemLeft" align="right" valign="top">cv::Point&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_camera.html#a96eedde04ba504b3bcd61445bb9f7ef3">coherenceCirclesMarkers</a> (std::vector&lt; cv::Point &gt; blueVector)</td></tr>
-<tr class="memdesc:a96eedde04ba504b3bcd61445bb9f7ef3"><td class="mdescLeft">&#160;</td><td class="mdescRight">Evaluate the circle with the most vote in the accumulator accordings to the characteristics of the searched robot (size, ...)  <a href="#a96eedde04ba504b3bcd61445bb9f7ef3">More...</a><br /></td></tr>
 <tr class="separator:a96eedde04ba504b3bcd61445bb9f7ef3"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a7492335e0c1bbf84278f8fa8c57a549c"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_camera.html#a7492335e0c1bbf84278f8fa8c57a549c">displayCircles</a> (cv::Mat image)</td></tr>
-<tr class="memdesc:a7492335e0c1bbf84278f8fa8c57a549c"><td class="mdescLeft">&#160;</td><td class="mdescRight">Display the circle contained in the first position of the std::vector&lt;cv::Vec3f&gt; circles attribut on the image passed as.  <a href="#a7492335e0c1bbf84278f8fa8c57a549c">More...</a><br /></td></tr>
 <tr class="separator:a7492335e0c1bbf84278f8fa8c57a549c"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a53740032c4050d01647bd2429d816a53"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_camera.html#a53740032c4050d01647bd2429d816a53">wideringBoundingBox</a> (int value)</td></tr>
-<tr class="memdesc:a53740032c4050d01647bd2429d816a53"><td class="mdescLeft">&#160;</td><td class="mdescRight">Widen the searching bounding box area (cv::Rect2d boundingBoxObs) attribut on each side with the value passed as a.  <a href="#a53740032c4050d01647bd2429d816a53">More...</a><br /></td></tr>
 <tr class="separator:a53740032c4050d01647bd2429d816a53"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a621548a4d3a371871145999b4c55628b"><td class="memItemLeft" align="right" valign="top">cv::VideoCapture&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_camera.html#a621548a4d3a371871145999b4c55628b">getCap</a> ()</td></tr>
-<tr class="memdesc:a621548a4d3a371871145999b4c55628b"><td class="mdescLeft">&#160;</td><td class="mdescRight">Return the cv::VideoCapture cap attribut that represents the capture instance of the camera.  <a href="#a621548a4d3a371871145999b4c55628b">More...</a><br /></td></tr>
+<tr class="memdesc:a621548a4d3a371871145999b4c55628b"><td class="mdescLeft">&#160;</td><td class="mdescRight">! Return the cv::VideoCapture cap attribut that represents the capture instance of the camera  <a href="#a621548a4d3a371871145999b4c55628b">More...</a><br /></td></tr>
 <tr class="separator:a621548a4d3a371871145999b4c55628b"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ad694f2fbcf9bbb8188efdbb0772a2304"><td class="memItemLeft" align="right" valign="top">cv::Mat&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_camera.html#ad694f2fbcf9bbb8188efdbb0772a2304">getIntrinsicParameters</a> ()</td></tr>
-<tr class="memdesc:ad694f2fbcf9bbb8188efdbb0772a2304"><td class="mdescLeft">&#160;</td><td class="mdescRight">Return the cv::Mat intrinsicParam attribut that represents the intrinsic parameters of the camera.  <a href="#ad694f2fbcf9bbb8188efdbb0772a2304">More...</a><br /></td></tr>
+<tr class="memdesc:ad694f2fbcf9bbb8188efdbb0772a2304"><td class="mdescLeft">&#160;</td><td class="mdescRight">! Return the cv::Mat intrinsicParam attribut that represents the intrinsic parameters of the camera  <a href="#ad694f2fbcf9bbb8188efdbb0772a2304">More...</a><br /></td></tr>
 <tr class="separator:ad694f2fbcf9bbb8188efdbb0772a2304"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a30c76cadb36b0b7a0ef523dcd7a75b61"><td class="memItemLeft" align="right" valign="top">cv::Rect2d&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_camera.html#a30c76cadb36b0b7a0ef523dcd7a75b61">getBoundingBoxObs</a> ()</td></tr>
-<tr class="memdesc:a30c76cadb36b0b7a0ef523dcd7a75b61"><td class="mdescLeft">&#160;</td><td class="mdescRight">Return the cv::Rect2d boundingBoxObs attribut that represents the searching bounding box area.  <a href="#a30c76cadb36b0b7a0ef523dcd7a75b61">More...</a><br /></td></tr>
+<tr class="memdesc:a30c76cadb36b0b7a0ef523dcd7a75b61"><td class="mdescLeft">&#160;</td><td class="mdescRight">! Return the cv::Rect2d boundingBoxObs attribut that represents the searching bounding box area  <a href="#a30c76cadb36b0b7a0ef523dcd7a75b61">More...</a><br /></td></tr>
 <tr class="separator:a30c76cadb36b0b7a0ef523dcd7a75b61"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a67257565bc9bc8eea028ab2a1fba8312"><td class="memItemLeft" align="right" valign="top">cv::Mat&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_camera.html#a67257565bc9bc8eea028ab2a1fba8312">getMap1</a> ()</td></tr>
-<tr class="memdesc:a67257565bc9bc8eea028ab2a1fba8312"><td class="mdescLeft">&#160;</td><td class="mdescRight">Return the cv::Mat map1 attribut that represents the first map for the geometrical distorsion correction.  <a href="#a67257565bc9bc8eea028ab2a1fba8312">More...</a><br /></td></tr>
+<tr class="memdesc:a67257565bc9bc8eea028ab2a1fba8312"><td class="mdescLeft">&#160;</td><td class="mdescRight">! Return the cv::Mat map1 attribut that represents the first map for the geometrical distorsion correction  <a href="#a67257565bc9bc8eea028ab2a1fba8312">More...</a><br /></td></tr>
 <tr class="separator:a67257565bc9bc8eea028ab2a1fba8312"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a4dba6aed0977ae9e01fcc9eb095109e5"><td class="memItemLeft" align="right" valign="top">cv::Mat&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_camera.html#a4dba6aed0977ae9e01fcc9eb095109e5">getMap2</a> ()</td></tr>
-<tr class="memdesc:a4dba6aed0977ae9e01fcc9eb095109e5"><td class="mdescLeft">&#160;</td><td class="mdescRight">Return the cv::Mat map2 attribut that represents the first map for the geometrical distorsion correction.  <a href="#a4dba6aed0977ae9e01fcc9eb095109e5">More...</a><br /></td></tr>
+<tr class="memdesc:a4dba6aed0977ae9e01fcc9eb095109e5"><td class="mdescLeft">&#160;</td><td class="mdescRight">! Return the cv::Mat map2 attribut that represents the first map for the geometrical distorsion correction  <a href="#a4dba6aed0977ae9e01fcc9eb095109e5">More...</a><br /></td></tr>
 <tr class="separator:a4dba6aed0977ae9e01fcc9eb095109e5"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:aa6e1dd542bdc803104904ff050c592c9"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_camera.html#aa6e1dd542bdc803104904ff050c592c9">getDetectedCircle</a> ()</td></tr>
-<tr class="memdesc:aa6e1dd542bdc803104904ff050c592c9"><td class="mdescLeft">&#160;</td><td class="mdescRight">Return the boolean detectedCircle attribut that represents the variable that save if a circle matches with the.  <a href="#aa6e1dd542bdc803104904ff050c592c9">More...</a><br /></td></tr>
 <tr class="separator:aa6e1dd542bdc803104904ff050c592c9"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a365e9dba60172b11d5c1427861c81bc3"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_camera.html#a365e9dba60172b11d5c1427861c81bc3">setBoundingBoxObs</a> (int minX, int maxX, int minY, int maxY)</td></tr>
-<tr class="memdesc:a365e9dba60172b11d5c1427861c81bc3"><td class="mdescLeft">&#160;</td><td class="mdescRight">Set the cv::Rect2d boundingBoxObs attribut that represents the searching bounding box area.  <a href="#a365e9dba60172b11d5c1427861c81bc3">More...</a><br /></td></tr>
+<tr class="memdesc:a365e9dba60172b11d5c1427861c81bc3"><td class="mdescLeft">&#160;</td><td class="mdescRight">! Set the cv::Rect2d boundingBoxObs attribut that represents the searching bounding box area.  <a href="#a365e9dba60172b11d5c1427861c81bc3">More...</a><br /></td></tr>
 <tr class="separator:a365e9dba60172b11d5c1427861c81bc3"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ab1d7821af91ce252166229ac7b3719df"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_camera.html#ab1d7821af91ce252166229ac7b3719df">setDetectedCircle</a> (bool det)</td></tr>
-<tr class="memdesc:ab1d7821af91ce252166229ac7b3719df"><td class="mdescLeft">&#160;</td><td class="mdescRight">Set the boolean detectedCircle attribut that represents the variable that save if a circle matches with the.  <a href="#ab1d7821af91ce252166229ac7b3719df">More...</a><br /></td></tr>
 <tr class="separator:ab1d7821af91ce252166229ac7b3719df"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
-<div class="textblock"><p>The <a class="el" href="class_camera.html" title="The Camera class manages to open the framegrabber and do the image processing (background subtraction...">Camera</a> class manages to open the framegrabber and do the image processing (background subtraction, shape recognition, markers and color detection) necessary for the further detection. </p>
+<div class="textblock"><p>! The <a class="el" href="class_camera.html" title="! The Camera class manages to open the framegrabber and do the image processing (background subtracti...">Camera</a> class manages to open the framegrabber and do the image processing (background subtraction, shape recognition, markers and color detection) necessary for the further detection. </p>
 </div><h2 class="groupheader">Constructor &amp; Destructor Documentation</h2>
 <a id="a47a3a05d54d025d818e284af5800da60"></a>
 <h2 class="memtitle"><span class="permalink"><a href="#a47a3a05d54d025d818e284af5800da60">&#9670;&nbsp;</a></span>Camera()</h2>
@@ -154,14 +146,14 @@ Public Member Functions</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p>Constructor using the number identification device to open a video channel. </p>
+<p>! Constructor using the number identification device to open a video channel. </p>
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
     <tr><td class="paramname">numDevice</td><td>Number of the target device (0 is the device by default)</td></tr>
   </table>
   </dd>
 </dl>
-<p>Project : Detection and navigation of a spherical robot Author : Cassat Sabine Mail : <a href="#" onclick="location.href='mai'+'lto:'+'sab'+'in'+'eca'+'ss'+'at@'+'gm'+'ail'+'.c'+'om'; return false;">sabin<span style="display: none;">.nosp@m.</span>ecas<span style="display: none;">.nosp@m.</span>sat@g<span style="display: none;">.nosp@m.</span>mail<span style="display: none;">.nosp@m.</span>.com</a> Module : <a class="el" href="class_camera.html" title="The Camera class manages to open the framegrabber and do the image processing (background subtraction...">Camera</a> calibration and image processing </p>
+<p>Project : Detection and navigation of a spherical robot Author : Cassat Sabine Mail : <a href="#" onclick="location.href='mai'+'lto:'+'sab'+'in'+'eca'+'ss'+'at@'+'gm'+'ail'+'.c'+'om'; return false;">sabin<span style="display: none;">.nosp@m.</span>ecas<span style="display: none;">.nosp@m.</span>sat@g<span style="display: none;">.nosp@m.</span>mail<span style="display: none;">.nosp@m.</span>.com</a> Module : <a class="el" href="class_camera.html" title="! The Camera class manages to open the framegrabber and do the image processing (background subtracti...">Camera</a> calibration and image processing </p>
 
 </div>
 </div>
@@ -181,8 +173,7 @@ Public Member Functions</h2></td></tr>
         </tr>
       </table>
 </div><div class="memdoc">
-
-<p>Determines the intrinsic and distorsion parameters of the camera. If bool webcam parameter is true, the function. </p>
+<p>! Determines the intrinsic and distorsion parameters of the camera. If bool webcam parameter is true, the function will use the camera to capture 10 pictures with a chessboard that the user have to present to the camera and have to validate by pressing the space button of the keyboard. If bool webcam parameter is false, the function will use preset pictures to do the calibration. In both case, the function will save the intrinsec into the cv::Mat intrinsicParam attributs and the distorsion parameters into the cv::Mat distorsionParam.</p>
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
     <tr><td class="paramname">webcam</td><td>Boolean that determines if the camera will be use for the calibration or if the pictures in ../data/Calibration/will be used </td></tr>
@@ -208,8 +199,7 @@ Public Member Functions</h2></td></tr>
         </tr>
       </table>
 </div><div class="memdoc">
-
-<p>Determines the correction maps to fix the geometrical distorsions of the camera. The function will save the result into the cv::Mat. </p>
+<p>! Determines the correction maps to fix the geometrical distorsions of the camera. The function will save the result into the cv::Mat map1 and map2 attributs.</p>
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
     <tr><td class="paramname">H</td><td>Height of the camera which is placed parallel to the ground (only in translation between the camera and the world coordinate system) </td></tr>
@@ -235,8 +225,7 @@ Public Member Functions</h2></td></tr>
         </tr>
       </table>
 </div><div class="memdoc">
-
-<p>Use the Hough transformation to find circles inside a binary picture which will be save into the std::vector&lt;cv::Vec3f&gt; circles. </p>
+<p>! Use the Hough transformation to find circles inside a binary picture which will be save into the std::vector&lt;cv::Vec3f&gt; circles attribut. The circles find by the Hough transformation will be sort according to the vote in the accumulator in descending order.</p>
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
     <tr><td class="paramname">subImage</td><td>Binary picture </td></tr>
@@ -262,8 +251,7 @@ Public Member Functions</h2></td></tr>
         </tr>
       </table>
 </div><div class="memdoc">
-
-<p>Evaluate the circle with the most vote in the accumulator accordings to the characteristics of the searched robot (size, ...) </p>
+<p>! Evaluate the circle with the most vote in the accumulator accordings to the characteristics of the searched robot (size, ...) and the position of the detected markers. Then, if the position of the markers are inside or very near to circle, it returns the cv::Point that represents the center of the circle, otherwise it returns a cv::Point(-1, -1).</p>
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
     <tr><td class="paramname">blueVector</td><td>Vector with the potential position of the LEDs </td></tr>
@@ -306,7 +294,7 @@ Public Member Functions</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p>Detect areas where the color is in range between the cv::Scalar lower and the cv::Scalar upper color (in HSV) </p>
+<p>! Detect areas where the color is in range between the cv::Scalar lower and the cv::Scalar upper color (in HSV) </p>
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
     <tr><td class="paramname">image</td><td>The current frame </td></tr>
@@ -334,8 +322,7 @@ Public Member Functions</h2></td></tr>
         </tr>
       </table>
 </div><div class="memdoc">
-
-<p>Display the circle contained in the first position of the std::vector&lt;cv::Vec3f&gt; circles attribut on the image passed as. </p>
+<p>! Display the circle contained in the first position of the std::vector&lt;cv::Vec3f&gt; circles attribut on the image passed as a parameter.</p>
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
     <tr><td class="paramname">image</td><td>The current frame </td></tr>
@@ -361,7 +348,7 @@ Public Member Functions</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p>Return the cv::Rect2d boundingBoxObs attribut that represents the searching bounding box area. </p>
+<p>! Return the cv::Rect2d boundingBoxObs attribut that represents the searching bounding box area </p>
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
     <tr><td class="paramname">void</td><td></td></tr>
@@ -387,7 +374,7 @@ Public Member Functions</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p>Return the cv::VideoCapture cap attribut that represents the capture instance of the camera. </p>
+<p>! Return the cv::VideoCapture cap attribut that represents the capture instance of the camera </p>
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
     <tr><td class="paramname">void</td><td></td></tr>
@@ -412,8 +399,7 @@ Public Member Functions</h2></td></tr>
         </tr>
       </table>
 </div><div class="memdoc">
-
-<p>Return the boolean detectedCircle attribut that represents the variable that save if a circle matches with the. </p>
+<p>! Return the boolean detectedCircle attribut that represents the variable that save if a circle matches with the characteristics of the robot on the current frame.</p>
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
     <tr><td class="paramname">void</td><td></td></tr>
@@ -439,7 +425,7 @@ Public Member Functions</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p>Return the cv::Mat intrinsicParam attribut that represents the intrinsic parameters of the camera. </p>
+<p>! Return the cv::Mat intrinsicParam attribut that represents the intrinsic parameters of the camera </p>
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
     <tr><td class="paramname">void</td><td></td></tr>
@@ -465,7 +451,7 @@ Public Member Functions</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p>Return the cv::Mat map1 attribut that represents the first map for the geometrical distorsion correction. </p>
+<p>! Return the cv::Mat map1 attribut that represents the first map for the geometrical distorsion correction </p>
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
     <tr><td class="paramname">void</td><td></td></tr>
@@ -491,7 +477,7 @@ Public Member Functions</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p>Return the cv::Mat map2 attribut that represents the first map for the geometrical distorsion correction. </p>
+<p>! Return the cv::Mat map2 attribut that represents the first map for the geometrical distorsion correction </p>
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
     <tr><td class="paramname">void</td><td></td></tr>
@@ -518,7 +504,7 @@ Public Member Functions</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p>Improve the image with morphological processing. </p>
+<p>! Improve the image with morphological processing. </p>
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
     <tr><td class="paramname">image</td><td>The current frame </td></tr>
@@ -561,7 +547,7 @@ Public Member Functions</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p>Detect areas where the color is in range between the cv::Scalar lower and the cv::Scalar upper color (in HSV) </p>
+<p>! Detect areas where the color is in range between the cv::Scalar lower and the cv::Scalar upper color (in HSV) </p>
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
     <tr><td class="paramname">image</td><td>The current frame </td></tr>
@@ -570,7 +556,7 @@ Public Member Functions</h2></td></tr>
   </table>
   </dd>
 </dl>
-<dl class="section return"><dt>Returns</dt><dd>The std::vector&lt;infraredLight&gt; which saves every detected <a class="el" href="classinfrared_light.html" title="The infraredLight class identifies and stores every area in the picture that belongs to the same rang...">infraredLight</a> with their characteristics (see the <a class="el" href="classinfrared_light.html" title="The infraredLight class identifies and stores every area in the picture that belongs to the same rang...">infraredLight</a> class) </dd></dl>
+<dl class="section return"><dt>Returns</dt><dd>The std::vector&lt;infraredLight&gt; which saves every detected <a class="el" href="classinfrared_light.html" title="! The infraredLight class identifies and stores every area in the picture that belongs to the same ra...">infraredLight</a> with their characteristics (see the <a class="el" href="classinfrared_light.html" title="! The infraredLight class identifies and stores every area in the picture that belongs to the same ra...">infraredLight</a> class) </dd></dl>
 
 </div>
 </div>
@@ -612,7 +598,7 @@ Public Member Functions</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p>Set the cv::Rect2d boundingBoxObs attribut that represents the searching bounding box area. </p>
+<p>! Set the cv::Rect2d boundingBoxObs attribut that represents the searching bounding box area. </p>
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
     <tr><td class="paramname">minX</td><td>The left-most pixel of the new bounding box </td></tr>
@@ -641,8 +627,7 @@ Public Member Functions</h2></td></tr>
         </tr>
       </table>
 </div><div class="memdoc">
-
-<p>Set the boolean detectedCircle attribut that represents the variable that save if a circle matches with the. </p>
+<p>! Set the boolean detectedCircle attribut that represents the variable that save if a circle matches with the characteristics of the robot on the current frame.</p>
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
     <tr><td class="paramname">det</td><td>The new value of the boolean detectedCircle attribut </td></tr>
@@ -679,7 +664,7 @@ Public Member Functions</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p>Update the background that will be used for the backgorund subtraction using a KNN algorithm. </p>
+<p>! Update the background that will be used for the backgorund subtraction using a KNN algorithm. </p>
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
     <tr><td class="paramname">image</td><td>The current frame </td></tr>
@@ -706,8 +691,7 @@ Public Member Functions</h2></td></tr>
         </tr>
       </table>
 </div><div class="memdoc">
-
-<p>Widen the searching bounding box area (cv::Rect2d boundingBoxObs) attribut on each side with the value passed as a. </p>
+<p>! Widen the searching bounding box area (cv::Rect2d boundingBoxObs) attribut on each side with the value passed as a parameter.</p>
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
     <tr><td class="paramname">value</td><td>Value to add on every side of the bounding box </td></tr>

@@ -66,7 +66,7 @@ $(function() {
 </div><!--header-->
 <div class="contents">
 
-<p>The <a class="el" href="class_kalman.html" title="The Kalman class manages the estimation of the robot position using the information from the detectio...">Kalman</a> class manages the estimation of the robot position using the information from the detection algorithm and the command send to the robot.  
+<p>! The <a class="el" href="class_kalman.html" title="! The Kalman class manages the estimation of the robot position using the information from the detect...">Kalman</a> class manages the estimation of the robot position using the information from the detection algorithm and the command send to the robot.  
  <a href="class_kalman.html#details">More...</a></p>
 
 <p><code>#include &lt;<a class="el" href="kalman_8h_source.html">kalman.h</a>&gt;</code></p>
@@ -74,24 +74,23 @@ $(function() {
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="pub-methods"></a>
 Public Member Functions</h2></td></tr>
 <tr class="memitem:a0b487a843716cd64125c1206370cf03c"><td class="memItemLeft" align="right" valign="top">&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_kalman.html#a0b487a843716cd64125c1206370cf03c">Kalman</a> ()</td></tr>
-<tr class="memdesc:a0b487a843716cd64125c1206370cf03c"><td class="mdescLeft">&#160;</td><td class="mdescRight">Constructor by default.  <a href="#a0b487a843716cd64125c1206370cf03c">More...</a><br /></td></tr>
+<tr class="memdesc:a0b487a843716cd64125c1206370cf03c"><td class="mdescLeft">&#160;</td><td class="mdescRight">! Constructor by default  <a href="#a0b487a843716cd64125c1206370cf03c">More...</a><br /></td></tr>
 <tr class="separator:a0b487a843716cd64125c1206370cf03c"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:adbc2aefb0296b5d613093302816f66bf"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_kalman.html#adbc2aefb0296b5d613093302816f66bf">updateMeas</a> (int x, int y)</td></tr>
-<tr class="memdesc:adbc2aefb0296b5d613093302816f66bf"><td class="mdescLeft">&#160;</td><td class="mdescRight">Update the measurements vector of the <a class="el" href="class_kalman.html" title="The Kalman class manages the estimation of the robot position using the information from the detectio...">Kalman</a> filter.  <a href="#adbc2aefb0296b5d613093302816f66bf">More...</a><br /></td></tr>
+<tr class="memdesc:adbc2aefb0296b5d613093302816f66bf"><td class="mdescLeft">&#160;</td><td class="mdescRight">! Update the measurements vector of the <a class="el" href="class_kalman.html" title="! The Kalman class manages the estimation of the robot position using the information from the detect...">Kalman</a> filter  <a href="#adbc2aefb0296b5d613093302816f66bf">More...</a><br /></td></tr>
 <tr class="separator:adbc2aefb0296b5d613093302816f66bf"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a2da67c3a00f4c351d558d63a27eecf0d"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_kalman.html#a2da67c3a00f4c351d558d63a27eecf0d">initiateKalmanFilter</a> ()</td></tr>
-<tr class="memdesc:a2da67c3a00f4c351d558d63a27eecf0d"><td class="mdescLeft">&#160;</td><td class="mdescRight">Function that have to be called when this is the first time that the robot is detected.  <a href="#a2da67c3a00f4c351d558d63a27eecf0d">More...</a><br /></td></tr>
 <tr class="separator:a2da67c3a00f4c351d558d63a27eecf0d"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a003c212cb057b819016dca89fabf9511"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_kalman.html#a003c212cb057b819016dca89fabf9511">predictKalmanFilter</a> (clock_t dT)</td></tr>
-<tr class="memdesc:a003c212cb057b819016dca89fabf9511"><td class="mdescLeft">&#160;</td><td class="mdescRight">Predict the position according to the control vecteur and previous data.  <a href="#a003c212cb057b819016dca89fabf9511">More...</a><br /></td></tr>
+<tr class="memdesc:a003c212cb057b819016dca89fabf9511"><td class="mdescLeft">&#160;</td><td class="mdescRight">! Predict the position according to the control vecteur and previous data  <a href="#a003c212cb057b819016dca89fabf9511">More...</a><br /></td></tr>
 <tr class="separator:a003c212cb057b819016dca89fabf9511"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:afeb52b6ce7ac0c290e7f1f58e165bee6"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_kalman.html#afeb52b6ce7ac0c290e7f1f58e165bee6">displayEstimatePosition</a> (cv::Mat image)</td></tr>
-<tr class="memdesc:afeb52b6ce7ac0c290e7f1f58e165bee6"><td class="mdescLeft">&#160;</td><td class="mdescRight">Display the estimator on the picture passed as a parameter.  <a href="#afeb52b6ce7ac0c290e7f1f58e165bee6">More...</a><br /></td></tr>
+<tr class="memdesc:afeb52b6ce7ac0c290e7f1f58e165bee6"><td class="mdescLeft">&#160;</td><td class="mdescRight">! Display the estimator on the picture passed as a parameter  <a href="#afeb52b6ce7ac0c290e7f1f58e165bee6">More...</a><br /></td></tr>
 <tr class="separator:afeb52b6ce7ac0c290e7f1f58e165bee6"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
-<div class="textblock"><p>The <a class="el" href="class_kalman.html" title="The Kalman class manages the estimation of the robot position using the information from the detectio...">Kalman</a> class manages the estimation of the robot position using the information from the detection algorithm and the command send to the robot. </p>
-<p>Project : Detection and navigation of a spherical robot Author : Cassat Sabine Mail : <a href="#" onclick="location.href='mai'+'lto:'+'sab'+'in'+'eca'+'ss'+'at@'+'gm'+'ail'+'.c'+'om'; return false;">sabin<span style="display: none;">.nosp@m.</span>ecas<span style="display: none;">.nosp@m.</span>sat@g<span style="display: none;">.nosp@m.</span>mail<span style="display: none;">.nosp@m.</span>.com</a> Module : <a class="el" href="class_kalman.html" title="The Kalman class manages the estimation of the robot position using the information from the detectio...">Kalman</a> filter and estimators </p>
+<div class="textblock"><p>! The <a class="el" href="class_kalman.html" title="! The Kalman class manages the estimation of the robot position using the information from the detect...">Kalman</a> class manages the estimation of the robot position using the information from the detection algorithm and the command send to the robot. </p>
+<p>Project : Detection and navigation of a spherical robot Author : Cassat Sabine Mail : <a href="#" onclick="location.href='mai'+'lto:'+'sab'+'in'+'eca'+'ss'+'at@'+'gm'+'ail'+'.c'+'om'; return false;">sabin<span style="display: none;">.nosp@m.</span>ecas<span style="display: none;">.nosp@m.</span>sat@g<span style="display: none;">.nosp@m.</span>mail<span style="display: none;">.nosp@m.</span>.com</a> Module : <a class="el" href="class_kalman.html" title="! The Kalman class manages the estimation of the robot position using the information from the detect...">Kalman</a> filter and estimators </p>
 </div><h2 class="groupheader">Constructor &amp; Destructor Documentation</h2>
 <a id="a0b487a843716cd64125c1206370cf03c"></a>
 <h2 class="memtitle"><span class="permalink"><a href="#a0b487a843716cd64125c1206370cf03c">&#9670;&nbsp;</a></span>Kalman()</h2>
@@ -108,8 +107,8 @@ Public Member Functions</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p>Constructor by default. </p>
-<p>Project : Detection and navigation of a spherical robot Author : Cassat Sabine Mail : <a href="#" onclick="location.href='mai'+'lto:'+'sab'+'in'+'eca'+'ss'+'at@'+'gm'+'ail'+'.c'+'om'; return false;">sabin<span style="display: none;">.nosp@m.</span>ecas<span style="display: none;">.nosp@m.</span>sat@g<span style="display: none;">.nosp@m.</span>mail<span style="display: none;">.nosp@m.</span>.com</a> Module : <a class="el" href="class_kalman.html" title="The Kalman class manages the estimation of the robot position using the information from the detectio...">Kalman</a> filter and estimators </p>
+<p>! Constructor by default </p>
+<p>Project : Detection and navigation of a spherical robot Author : Cassat Sabine Mail : <a href="#" onclick="location.href='mai'+'lto:'+'sab'+'in'+'eca'+'ss'+'at@'+'gm'+'ail'+'.c'+'om'; return false;">sabin<span style="display: none;">.nosp@m.</span>ecas<span style="display: none;">.nosp@m.</span>sat@g<span style="display: none;">.nosp@m.</span>mail<span style="display: none;">.nosp@m.</span>.com</a> Module : <a class="el" href="class_kalman.html" title="! The Kalman class manages the estimation of the robot position using the information from the detect...">Kalman</a> filter and estimators </p>
 
 </div>
 </div>
@@ -130,7 +129,7 @@ Public Member Functions</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p>Display the estimator on the picture passed as a parameter. </p>
+<p>! Display the estimator on the picture passed as a parameter </p>
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
     <tr><td class="paramname">image</td><td>The current frame where the estimator will be displayed </td></tr>
@@ -155,8 +154,7 @@ Public Member Functions</h2></td></tr>
         </tr>
       </table>
 </div><div class="memdoc">
-
-<p>Function that have to be called when this is the first time that the robot is detected. </p>
+<p>! Function that have to be called when this is the first time that the robot is detected. This function initiate the <a class="el" href="class_kalman.html" title="! The Kalman class manages the estimation of the robot position using the information from the detect...">Kalman</a> filter.</p>
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
     <tr><td class="paramname">void</td><td></td></tr>
@@ -183,7 +181,7 @@ Public Member Functions</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p>Predict the position according to the control vecteur and previous data. </p>
+<p>! Predict the position according to the control vecteur and previous data </p>
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
     <tr><td class="paramname">dT</td><td>Time past since the last frame </td></tr>
@@ -220,7 +218,7 @@ Public Member Functions</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p>Update the measurements vector of the <a class="el" href="class_kalman.html" title="The Kalman class manages the estimation of the robot position using the information from the detectio...">Kalman</a> filter. </p>
+<p>! Update the measurements vector of the <a class="el" href="class_kalman.html" title="! The Kalman class manages the estimation of the robot position using the information from the detect...">Kalman</a> filter </p>
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
     <tr><td class="paramname">x</td><td>Position in the x axis of the picture </td></tr>
