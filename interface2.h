@@ -17,10 +17,10 @@
 
 class Algo;
 
-//! The MainInterface class manages and creates the Qt interface of the detection application.
+///! The MainInterface class manages and creates the Qt interface of the detection application.
 class MainInterface {
 public:
-	//! Constructor that the input of the main function as parameters.
+	///! Constructor that the input of the main function as parameters.
 	/*!
 	\param argc Argc parameter of the main function
 	\param argv Argv parameter of the main function
@@ -28,47 +28,47 @@ public:
 	*/
 	MainInterface(int argc, char * argv[]);
 
-	//! Initialize the pointer to the algorithm that will update the graphical interface or be updated by the graphical
-	// interface.
+	///! Initialize the pointer to the algorithm that will update the graphical interface or be updated by the graphical
+	/// interface.
 	/*!
 	\param a The pointer algorithm instance that will update the graphical interface or be updated by the graphical interface
 	\return void
 	*/
 	void setAlgo(Algo * a);
 
-	//! Function that will start the interface, but be careful this is a blocking function. You cannot taking back control 
-	// of the algorithm.
+	///! Function that will start the interface, but be careful this is a blocking function. You cannot taking back control 
+	/// of the algorithm.
 	/*!
 	\param void
 	\return int Return 0 if everything went well, otherwise there was an issue to the execution of the interface
 	*/
 	int run();
 
-	//! Function that will stop the interface and close the multithread properly.
+	///! Function that will stop the interface and close the multithread properly.
 	/*!
 	\param void
 	\return void
 	*/
 	void end();
 
-	//! Set the value of the QSpinBox spinbox attribut that will be used to set the maximal distance between two pixels
-	// that will belong to the same area. This function will be called to update the interface from the instance of Algo.
+	///! Set the value of the QSpinBox spinbox attribut that will be used to set the maximal distance between two pixels
+	/// that will belong to the same area. This function will be called to update the interface from the instance of Algo.
 	/*!
-	\param int The maximal distance value
+	\param d The maximal distance value
 	\return void
 	*/
-	void setDistance(int);
+	void setDistance(int d);
 
-	//! Set the data of the QImage contained inside the QLabel label attribut that will be used to display the 
-	// image of the camera at each loop of the algorithm. 
+	///! Set the data of the QImage contained inside the QLabel label attribut that will be used to display the 
+	/// image of the camera at each loop of the algorithm. 
 	/*!
-	\param i The QImage that will be load inside the QLabel label attribut 
+	\param i The QImage that will be load inside the QLabel label attribut
 	\return void
 	*/
 	void SetImage(const QImage& i);
 
-	//! Translate the signification of the chosen index of the QComboBox combox attribut that will be used to set
-	// the resolution of the camera.
+	///! Translate the signification of the chosen index of the QComboBox combox attribut that will be used to set
+	/// the resolution of the camera.
 	/*!
 	\param v The index of the selected item of the QCombobox combobox attribut
 	\return void
@@ -76,8 +76,8 @@ public:
 	void translateComboBox(int v);
 
 private:
-	//! Create the QObjects and connect them to the interface by positionning them and create a signal that will act
-	// like a callback function.
+	///! Create the QObjects and connect them to the interface by positionning them and create a signal that will act
+	/// like a callback function.
 	/*!
 	\param void
 	\return void
