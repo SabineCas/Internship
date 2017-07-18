@@ -123,12 +123,12 @@ void AreaClassification::displayIdentification(cv::Mat image)
 	cv::putText(image, this->lastKnownTOP.getIdentification(), this->lastKnownTOP.getCoord(),
 		cv::FONT_HERSHEY_PLAIN, 1, cv::Scalar(0, 0, 255), 2, 8, false);
 
-	for (std::vector<infraredLight>::size_type i = 0; i < this->finalInfraredVector.size(); i++) {
+	/*for (std::vector<infraredLight>::size_type i = 0; i < this->finalInfraredVector.size(); i++) {
 		if (this->finalInfraredVector[i].getIdentification() == "UNKNOWN") {
 			cv::putText(image, this->finalInfraredVector[i].getIdentification(), this->finalInfraredVector[i].getCoord(),
 				cv::FONT_HERSHEY_PLAIN, 1, cv::Scalar(0, 0, 255), 2, 8, false);
 		}
-	}
+	}*/
 }
 
 void AreaClassification::setInfraredVector(std::vector<infraredLight> v)

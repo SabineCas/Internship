@@ -103,14 +103,14 @@ void Robot::updatePosition(cv::Point p1, cv::Point p2)
 	realPosition.z = 0;
 
 	// Compute the orientation of the robot in the camera coordinate system
-	this->angleOrientation = cvFastArctan(p1.y - p2.y, p1.x - p2.x);
+	this->angleOrientation = cvFastArctan(float(p1.y - p2.y), float(p1.x - p2.x));
 }
 
 double Robot::calculateRotation()
 {
 	// Calculate the angle difference between the robot and the point p passed as parameter
-	double angle = this->angleOrientation - cvFastArctan(this->desiredPosition.y - this->imagePosition.y,
-		this->desiredPosition.x - this->imagePosition.x);
+	double angle = this->angleOrientation - double(cvFastArctan(this->desiredPosition.y - this->imagePosition.y,
+		this->desiredPosition.x - this->imagePosition.x));
 
 	// Chose the shorter rotation
 	if (angle <= -180 && angle >= -360) {
@@ -175,22 +175,22 @@ void Robot::sendCommandToRobotDEBUG()
 
 	if (result) {
 		int key = cv::waitKey(10);
-		if (key == 38 || key == 122) {
+		if (key == 38 || key == 119) {
 			//Forward
 			c = 'f';
 			this->sendForward(true);
 		}
-		else if (key == 37 || key == 113) {
+		else if (key == 37 || key == 97) {
 			// Left
 			c = 'l';
 			this->sendLeft(true);
 		}
-		else if (key == 39 || key == 100) {
+		else if (key == 39 || key == 115) {
 			// Right
 			c = 'r';
 			this->sendRight(true);
 		}
-		else if (key == 40 || key == 115) {
+		else if (key == 40 || key == 122) {
 			// Backward
 			c = 'b';
 			this->sendBack(true);

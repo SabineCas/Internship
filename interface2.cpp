@@ -38,6 +38,7 @@ void MainInterface::create()
 	hboxLayout = new QHBoxLayout(&window);
 
 	// Initialize the variables of the interface
+	// Labels
 	textResolution = new QLabel("Resolution of the camera : ");
 	textDistanceArea = new QLabel("Maximum distance between two pixels belonging to the same area : ");
 	textNbRobot = new QLabel("Maximum amount of robots that can appear on the camera pictures : ");
@@ -49,7 +50,7 @@ void MainInterface::create()
 	textMotorL = new QLabel("Gain of the left motor (between 1 and 31) which will be used in debug mode : ");
 	label = new ClickableLabel();
 	label->setAlignment(Qt::AlignTop);
-
+	// CheckBox
 	checkPosition = new QCheckBox("Display the position of the robot : ");
 	checkOrientation = new QCheckBox("Display the orientation of the robot : ");
 	checkIdentification = new QCheckBox("Display the identification of each region that can be recognized as a LED of the robot : ");
@@ -57,7 +58,7 @@ void MainInterface::create()
 	buttonCommand = new QCheckBox("Send commands to the robot");
 	debug = new QCheckBox("Setting the debug mode : ");
 	loadGainFile = new QCheckBox("Load the motor gains for each command from the file ../data/MotorGain/gain.txt : ");
-
+	// Spinbox and sliders
 	spinBoxDist = new QSpinBox;
 	spinBoxDist->setValue(30);
 	sliderDist = new QSlider(Qt::Horizontal);
@@ -84,24 +85,23 @@ void MainInterface::create()
 	sliderFreqLED2 = new QSlider(Qt::Horizontal);
 	sliderFreqLED2->setMaximum(500);
 	sliderFreqLED2->setValue(250);
-
 	spinBoxMotor1 = new QSpinBox;
-	spinBoxMotor1->setMaximum(32);
+	spinBoxMotor1->setMaximum(31);
 	spinBoxMotor1->setMinimum(1);
 	spinBoxMotor1->setValue(14);
 	sliderMotor1 = new QSlider(Qt::Horizontal);
-	sliderMotor1->setMaximum(32);
+	sliderMotor1->setMaximum(31);
 	sliderMotor1->setMinimum(1);
 	sliderMotor1->setValue(14);
 	spinBoxMotor2 = new QSpinBox;
-	spinBoxMotor2->setMaximum(32);
+	spinBoxMotor2->setMaximum(31);
 	spinBoxMotor2->setMinimum(1);
 	spinBoxMotor2->setValue(14);
 	sliderMotor2 = new QSlider(Qt::Horizontal);
-	sliderMotor2->setMaximum(32);
+	sliderMotor2->setMaximum(31);
 	sliderMotor2->setMinimum(1);
 	sliderMotor2->setValue(14);
-
+	// ComboBox
 	comboBox = new QComboBox();
 
 	// Add the previously created widgets to the layouts 

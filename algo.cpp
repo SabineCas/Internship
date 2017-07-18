@@ -53,7 +53,7 @@ void Algo::run()
 	writer3.open("../data/Result1.avi", codec, 20, size2, true);*/
 
 	// Windows for the keyboard event
-	cv::imshow("DEBUG", cv::Mat::zeros(cv::Size(5, 5), CV_32F));
+	cv::imshow("Manual control", cv::Mat::zeros(cv::Size(5, 5), CV_32F));
 
 	while (!close) {
 		// Update of the timer

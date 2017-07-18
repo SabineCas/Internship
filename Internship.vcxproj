@@ -88,12 +88,12 @@
       <WarningLevel>Level3</WarningLevel>
       <Optimization>Disabled</Optimization>
       <SDLCheck>true</SDLCheck>
-      <AdditionalIncludeDirectories>C:\OpenCV-3.2.0\opencv\build\include;C:\Qt\5.9\msvc2017_64\include\QtWidgets;C:\Qt\5.9\msvc2017_64\include;C:\Qt\5.9\msvc2017_64\include\QtGui;C:\Qt\5.9\msvc2017_64\include\QtPrintSupport;C:\Qt\5.9\msvc2017_64\include\QtCore;C:\Qt\5.9\msvc2017_64\include\QtDesigner</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>C:\OpenCV-3.2.0\opencv\build\include;C:\Qt\5.9\msvc2017_64\include;C:\Qt\5.9\msvc2017_64\include\QtWidgets;C:\Qt\5.9\msvc2017_64\include\QtCore;C:\Qt\5.9\msvc2017_64\include\QtGui;C:\Qt\5.9\msvc2017_64\include\QtSerialPort;C:\Qt\5.9\msvc2017_64\include\Qt3DInput</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>_MBCS;%(PreprocessorDefinitions);_CRT_SECURE_NO_WARNINGS</PreprocessorDefinitions>
     </ClCompile>
     <Link>
       <AdditionalLibraryDirectories>C:\Qt\5.9\msvc2017_64\lib;C:\OpenCV-3.2.0\opencv\build\x64\vc14\lib</AdditionalLibraryDirectories>
-      <AdditionalDependencies>opencv_world320d.lib;kernel32.lib;user32.lib;gdi32.lib;winspool.lib;comdlg32.lib;advapi32.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;odbc32.lib;odbccp32.lib;C:\Qt\5.9\msvc2017_64\lib\*d.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>opencv_world320d.lib;C:\Qt\5.9\msvc2017_64\lib\*d.lib;kernel32.lib;user32.lib;gdi32.lib;winspool.lib;comdlg32.lib;advapi32.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;odbc32.lib;odbccp32.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <GenerateDebugInformation>DebugFastLink</GenerateDebugInformation>
       <FullProgramDatabaseFile>true</FullProgramDatabaseFile>
       <SubSystem>
@@ -101,8 +101,23 @@
       <AdditionalOptions>%(AdditionalOptions)</AdditionalOptions>
     </Link>
     <PreBuildEvent>
-      <Command>C:\Qt\5.9\msvc2017_64\bin\moc.exe interface3.h &gt;interface3.moc </Command>
+      <Command>C:\Qt\5.9\msvc2017_64\bin\moc.exe clickablelabel.h &gt; clickablelabel.moc</Command>
     </PreBuildEvent>
+    <PreLinkEvent>
+      <Command>
+      </Command>
+    </PreLinkEvent>
+    <CustomBuildStep>
+      <Command>C:\Qt\5.9\msvc2017_64\bin\moc.exe clickablelabel.h &gt; clickablelabel.moc</Command>
+    </CustomBuildStep>
+    <CustomBuildStep>
+      <Outputs>
+      </Outputs>
+    </CustomBuildStep>
+    <CustomBuildStep>
+      <Inputs>
+      </Inputs>
+    </CustomBuildStep>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <ClCompile>
@@ -124,24 +139,41 @@
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <SDLCheck>true</SDLCheck>
-      <AdditionalIncludeDirectories>C:\OpenCV-3.2.0\opencv\build\include;C:\Qt\5.9\msvc2017_64\include\QtWidgets;C:\Qt\5.9\msvc2017_64\include;C:\Qt\5.9\msvc2017_64\include\QtGui;C:\Qt\5.9\msvc2017_64\include\QtPrintSupport;C:\Qt\5.9\msvc2017_64\include\QtCore;C:\Qt\5.9\msvc2017_64\include\QtDesigner</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>C:\OpenCV-3.2.0\opencv\build\include;C:\Qt\5.9\msvc2017_64\include;C:\Qt\5.9\msvc2017_64\include\QtWidgets;C:\Qt\5.9\msvc2017_64\include\QtCore;C:\Qt\5.9\msvc2017_64\include\QtGui;C:\Qt\5.9\msvc2017_64\include\QtSerialPort;C:\Qt\5.9\msvc2017_64\include\Qt3DInput</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>_MBCS;%(PreprocessorDefinitions);_CRT_SECURE_NO_WARNINGS;</PreprocessorDefinitions>
     </ClCompile>
     <Link>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
-      <AdditionalDependencies>kernel32.lib;user32.lib;gdi32.lib;winspool.lib;comdlg32.lib;advapi32.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;odbc32.lib;odbccp32.lib;C:\OpenCV-3.2.0\opencv\build\bin\install\x64\vc15\lib\opencv_calib3d320.lib;C:\OpenCV-3.2.0\opencv\build\bin\install\x64\vc15\lib\opencv_calib3d320d.lib;C:\OpenCV-3.2.0\opencv\build\bin\install\x64\vc15\lib\opencv_core320.lib;C:\OpenCV-3.2.0\opencv\build\bin\install\x64\vc15\lib\opencv_core320d.lib;C:\OpenCV-3.2.0\opencv\build\bin\install\x64\vc15\lib\opencv_features2d320.lib;C:\OpenCV-3.2.0\opencv\build\bin\install\x64\vc15\lib\opencv_features2d320d.lib;C:\OpenCV-3.2.0\opencv\build\bin\install\x64\vc15\lib\opencv_flann320.lib;C:\OpenCV-3.2.0\opencv\build\bin\install\x64\vc15\lib\opencv_flann320d.lib;C:\OpenCV-3.2.0\opencv\build\bin\install\x64\vc15\lib\opencv_highgui320.lib;C:\OpenCV-3.2.0\opencv\build\bin\install\x64\vc15\lib\opencv_highgui320d.lib;C:\OpenCV-3.2.0\opencv\build\bin\install\x64\vc15\lib\opencv_imgcodecs320.lib;C:\OpenCV-3.2.0\opencv\build\bin\install\x64\vc15\lib\opencv_imgcodecs320d.lib;C:\OpenCV-3.2.0\opencv\build\bin\install\x64\vc15\lib\opencv_imgproc320.lib;C:\OpenCV-3.2.0\opencv\build\bin\install\x64\vc15\lib\opencv_imgproc320d.lib;C:\OpenCV-3.2.0\opencv\build\bin\install\x64\vc15\lib\opencv_ml320.lib;C:\OpenCV-3.2.0\opencv\build\bin\install\x64\vc15\lib\opencv_ml320d.lib;C:\OpenCV-3.2.0\opencv\build\bin\install\x64\vc15\lib\opencv_objdetect320.lib;C:\OpenCV-3.2.0\opencv\build\bin\install\x64\vc15\lib\opencv_objdetect320d.lib;C:\OpenCV-3.2.0\opencv\build\bin\install\x64\vc15\lib\opencv_photo320.lib;C:\OpenCV-3.2.0\opencv\build\bin\install\x64\vc15\lib\opencv_photo320d.lib;C:\OpenCV-3.2.0\opencv\build\bin\install\x64\vc15\lib\opencv_shape320.lib;C:\OpenCV-3.2.0\opencv\build\bin\install\x64\vc15\lib\opencv_shape320d.lib;C:\OpenCV-3.2.0\opencv\build\bin\install\x64\vc15\lib\opencv_stitching320.lib;C:\OpenCV-3.2.0\opencv\build\bin\install\x64\vc15\lib\opencv_stitching320d.lib;C:\OpenCV-3.2.0\opencv\build\bin\install\x64\vc15\lib\opencv_superres320.lib;C:\OpenCV-3.2.0\opencv\build\bin\install\x64\vc15\lib\opencv_superres320d.lib;C:\OpenCV-3.2.0\opencv\build\bin\install\x64\vc15\lib\opencv_video320.lib;C:\OpenCV-3.2.0\opencv\build\bin\install\x64\vc15\lib\opencv_video320d.lib;C:\OpenCV-3.2.0\opencv\build\bin\install\x64\vc15\lib\opencv_videoio320.lib;C:\OpenCV-3.2.0\opencv\build\bin\install\x64\vc15\lib\opencv_videoio320d.lib;C:\OpenCV-3.2.0\opencv\build\bin\install\x64\vc15\lib\opencv_videostab320.lib;C:\OpenCV-3.2.0\opencv\build\bin\install\x64\vc15\lib\opencv_videostab320d.lib;C:\OpenCV-3.2.0\opencv\build\bin\install\x64\vc15\lib\opencv_world320.lib;C:\OpenCV-3.2.0\opencv\build\bin\install\x64\vc15\lib\opencv_world320d.lib;Qt5Widgets.lib;Qt5Core.lib;Qt5Concurrent.lib;Qt5Gui.lib;Qt5Test.lib;qtfreetype.lib;%(AdditionalDependencies)</AdditionalDependencies>
-      <AdditionalLibraryDirectories>C:\OpenCV-3.2.0\opencv\build\x64\vc14\lib;C:\Qt\5.9\msvc2017_64\lib</AdditionalLibraryDirectories>
+      <AdditionalDependencies>opencv_world320.lib;C:\Qt\5.9\msvc2017_64\lib\*.lib;kernel32.lib;user32.lib;gdi32.lib;winspool.lib;comdlg32.lib;advapi32.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;odbc32.lib;odbccp32.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalLibraryDirectories>C:\Qt\5.9\msvc2017_64\lib;C:\OpenCV-3.2.0\opencv\build\x64\vc14\lib</AdditionalLibraryDirectories>
       <AdditionalOptions>%(AdditionalOptions)</AdditionalOptions>
     </Link>
+    <PreBuildEvent>
+      <Command>C:\Qt\5.9\msvc2017_64\bin\moc.exe clickablelabel.h &gt; clickablelabel.moc</Command>
+    </PreBuildEvent>
+    <PreLinkEvent>
+      <Command>
+      </Command>
+    </PreLinkEvent>
+    <CustomBuildStep>
+      <Command>C:\Qt\5.9\msvc2017_64\bin\moc.exe clickablelabel.h &gt; clickablelabel.moc</Command>
+    </CustomBuildStep>
+    <CustomBuildStep>
+      <Outputs>
+      </Outputs>
+    </CustomBuildStep>
+    <CustomBuildStep>
+      <Inputs>
+      </Inputs>
+    </CustomBuildStep>
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClInclude Include="algo.h" />
     <ClInclude Include="areaClassification.h" />
     <ClInclude Include="camera.h" />
-    <ClInclude Include="interface.h" />
+    <ClInclude Include="clickablelabel.h" />
     <ClInclude Include="interface2.h" />
-    <ClInclude Include="interface3.h" />
     <ClInclude Include="kalman.h" />
     <ClInclude Include="infraredLight.h" />
     <ClInclude Include="robot.h" />
@@ -150,13 +182,12 @@
     <ClCompile Include="algo.cpp" />
     <ClCompile Include="areaClassification.cpp" />
     <ClCompile Include="camera.cpp" />
+    <ClCompile Include="clickablelabel.cpp" />
     <ClCompile Include="infraredLight.cpp" />
     <ClCompile Include="interface2.cpp" />
-    <ClCompile Include="interface3.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="robot.cpp" />
     <ClCompile Include="kalman.cpp" />
-    <ClCompile Include="interface.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
